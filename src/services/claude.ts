@@ -1,15 +1,18 @@
-// AI service — currently using Google Gemini (free tier: 1500 req/day)
-// To switch to Claude: replace with Anthropic SDK and EXPO_PUBLIC_ANTHROPIC_API_KEY
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// AI service — using Gemini REST API directly (works in React Native)
+// Free tier: 1,500 requests/day — https://aistudio.google.com
+// To switch to Claude later: replace fetch call with Anthropic SDK
 import { ZodiacSign } from '../constants/zodiac';
 import { DailyContent } from '../types';
 
-const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '');
+const GEMINI_API_URL =
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 export const generateDailyContent = async (
   name: string,
   zodiacSign: ZodiacSign
 ): Promise<DailyContent> => {
+  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
+
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     year: 'numeric',
@@ -31,11 +34,24 @@ Return ONLY a valid JSON object with exactly these fields:
 
 Keep the tone warm, calm, and encouraging. No markdown, no extra text — just the JSON.`;
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text().trim();
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 600, temperature: 0.8 },
+    }),
+  });
 
-  // Strip markdown code fences if Gemini wraps the JSON
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Gemini API error ${response.status}: ${err}`);
+  }
+
+  const data = await response.json();
+  const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+
+  // Strip markdown code fences if present
   const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
   const parsed = JSON.parse(clean);
 
