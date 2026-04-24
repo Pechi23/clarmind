@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
@@ -12,7 +14,7 @@ import {
 import { getUserProfile } from './src/services/storage';
 import { UserProfile } from './src/types';
 import OnboardingScreen from './src/screens/OnboardingScreen';
-import HomeScreen from './src/screens/HomeScreen';
+import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/constants/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -28,15 +30,16 @@ export default function App() {
     Inter_700Bold,
   });
 
+  const refreshProfile = async () => {
+    const saved = await getUserProfile();
+    setProfile(saved?.onboardingComplete ? saved : null);
+  };
+
   useEffect(() => {
-    const init = async () => {
-      const saved = await getUserProfile();
-      if (saved?.onboardingComplete) {
-        setProfile(saved);
-      }
+    (async () => {
+      await refreshProfile();
       setAppReady(true);
-    };
-    init();
+    })();
   }, []);
 
   useEffect(() => {
@@ -53,23 +56,17 @@ export default function App() {
     );
   }
 
-  if (!profile) {
-    return (
-      <>
-        <StatusBar style="light" />
-        <OnboardingScreen onComplete={async () => {
-          const saved = await getUserProfile();
-          setProfile(saved);
-        }} />
-      </>
-    );
-  }
-
   return (
-    <>
-      <StatusBar style="light" />
-      <HomeScreen profile={profile} />
-    </>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        {!profile ? (
+          <OnboardingScreen onComplete={refreshProfile} />
+        ) : (
+          <AppNavigator profile={profile} onReset={refreshProfile} />
+        )}
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

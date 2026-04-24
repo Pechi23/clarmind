@@ -44,8 +44,8 @@ export default function HomeScreen({ profile }: Props) {
         await saveDailyContent(fresh);
         setContent(fresh);
       }
-    } catch (e) {
-      setError('Could not load your daily content. Check your connection and API key.');
+    } catch (e: any) {
+      setError(e?.message ?? 'Unknown error');
     }
   }, [profile, today]);
 

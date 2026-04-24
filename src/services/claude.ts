@@ -5,7 +5,7 @@ import { ZodiacSign } from '../constants/zodiac';
 import { DailyContent } from '../types';
 
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 export const generateDailyContent = async (
   name: string,
@@ -44,6 +44,9 @@ Keep the tone warm, calm, and encouraging. No markdown, no extra text — just t
   });
 
   if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error('Rate limit reached (429). Wait 1 minute and try again.');
+    }
     const err = await response.text();
     throw new Error(`Gemini API error ${response.status}: ${err}`);
   }

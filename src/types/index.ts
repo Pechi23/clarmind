@@ -13,5 +13,20 @@ export interface DailyContent {
   stressTip: string;
   mindfulnessTask: string;
   affirmation: string;
-  generatedAt: string; // ISO date string YYYY-MM-DD
+  generatedAt: string;
+}
+
+export type BreathingPatternId = 'box' | '478' | 'deepCalm';
+
+export interface MeditationSession {
+  date: string;            // ISO date YYYY-MM-DD
+  durationMinutes: number;
+  pattern: BreathingPatternId;
+  completedAt: string;     // ISO timestamp
+}
+
+export interface MoodEntry {
+  date: string;            // ISO timestamp
+  mood: number;            // 1 (anxious) to 5 (calm)
+  context: 'pre-session' | 'post-session' | 'general';
 }
