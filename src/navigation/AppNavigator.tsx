@@ -39,7 +39,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           const icon = TAB_ICONS[route.name] ?? '•';
 
           const onPress = () => {
-            Haptics.selectionAsync().catch(() => {});
+            if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,

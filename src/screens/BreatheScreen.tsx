@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -10,6 +10,7 @@ import BreathingCircle from '../components/BreathingCircle';
 import { saveMeditationSession, getTotalMeditationMinutes } from '../services/storage';
 import { MoodEntry } from '../types';
 import { saveMoodEntry } from '../services/storage';
+import { SOUNDSCAPES, Soundscape, playSoundscape, stopSoundscape } from '../services/soundscape';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
 
@@ -26,6 +27,7 @@ export default function BreatheScreen() {
   const [phaseSecondsLeft, setPhaseSecondsLeft] = useState(0);
   const [moodModalOpen, setMoodModalOpen] = useState(false);
   const [totalMinutes, setTotalMinutes] = useState(0);
+  const [soundscape, setSoundscape] = useState<Soundscape>(SOUNDSCAPES[0]);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -37,7 +39,7 @@ export default function BreatheScreen() {
     phaseTimer.current = null;
   };
 
-  useEffect(() => () => cleanup(), []);
+  useEffect(() => () => { cleanup(); stopSoundscape(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
 
   const startSession = () => {
@@ -45,7 +47,8 @@ export default function BreatheScreen() {
     setPhaseIndex(0);
     setSecondsLeft(durationMin * 60);
     setPhaseSecondsLeft(pattern.phases[0].duration);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
+    playSoundscape(soundscape).catch(() => {});
 
     sessionTimer.current = setInterval(() => {
       setSecondsLeft((s) => {
@@ -63,7 +66,7 @@ export default function BreatheScreen() {
           // advance phase
           setPhaseIndex((i) => {
             const next = (i + 1) % pattern.phases.length;
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
             return next;
           });
           return 0;
@@ -82,6 +85,7 @@ export default function BreatheScreen() {
 
   const finishSession = async () => {
     cleanup();
+    await stopSoundscape();
     const today = new Date().toISOString().split('T')[0];
     await saveMeditationSession({
       date: today,
@@ -89,13 +93,14 @@ export default function BreatheScreen() {
       pattern: pattern.id,
       completedAt: new Date().toISOString(),
     });
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     setMode('complete');
     setMoodModalOpen(true);
   };
 
   const cancelSession = () => {
     cleanup();
+    stopSoundscape();
     setMode('select');
   };
 
@@ -168,6 +173,33 @@ export default function BreatheScreen() {
               );
             })}
           </View>
+
+          <Text style={styles.label}>Ambient sound</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.soundRow}
+          >
+            {SOUNDSCAPES.map((s) => {
+              const selected = soundscape.id === s.id;
+              return (
+                <TouchableOpacity
+                  key={s.id}
+                  onPress={() => setSoundscape(s)}
+                  activeOpacity={0.85}
+                  style={[
+                    styles.soundChip,
+                    selected && { borderColor: pattern.color, backgroundColor: pattern.color + '22' },
+                  ]}
+                >
+                  <Text style={styles.soundEmoji}>{s.emoji}</Text>
+                  <Text style={[styles.soundName, selected && { color: pattern.color }]}>
+                    {s.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
           <Text style={styles.totalText}>You've meditated {totalMinutes} minutes total ✨</Text>
 
@@ -311,6 +343,16 @@ const styles = StyleSheet.create({
   },
   durationText: { fontFamily: FONTS.bold, fontSize: 22, color: COLORS.text },
   durationUnit: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim },
+  soundRow: { gap: SPACING.sm, paddingRight: SPACING.lg },
+  soundChip: {
+    paddingHorizontal: 14, paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.full, borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+  },
+  soundEmoji: { fontSize: 16 },
+  soundName: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.text },
   totalText: {
     fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textMuted,
     textAlign: 'center', marginTop: SPACING.xl, marginBottom: SPACING.md,

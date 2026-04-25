@@ -3,16 +3,20 @@ import { StyleSheet, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, RADIUS } from '../constants/theme';
 
+type GradientColors = readonly [string, string, ...string[]];
+
 interface Props {
   children: React.ReactNode;
-  colors?: string[];
+  colors?: GradientColors;
   style?: ViewStyle;
 }
+
+const DEFAULT_COLORS: GradientColors = [COLORS.card, 'rgba(255,255,255,0.03)'];
 
 export default function GradientCard({ children, colors, style }: Props) {
   return (
     <LinearGradient
-      colors={colors ?? [COLORS.card, 'rgba(255,255,255,0.03)']}
+      colors={colors ?? DEFAULT_COLORS}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.card, style]}

@@ -11,6 +11,11 @@ import {
   clearUserProfile, setNotificationsEnabled, getNotificationsEnabled,
 } from '../services/storage';
 import GradientCard from '../components/GradientCard';
+import {
+  requestNotificationPermissions, scheduleDailyReminder, cancelAllReminders,
+} from '../services/notifications';
+import ActivityHeatmap from '../components/ActivityHeatmap';
+import { MeditationSession } from '../types';
 
 interface Props {
   profile: UserProfile;
@@ -22,6 +27,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [totalMin, setTotalMin] = useState(0);
   const [sessions, setSessions] = useState(0);
   const [notifs, setNotifs] = useState(false);
+  const [allSessions, setAllSessions] = useState<MeditationSession[]>([]);
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
 
@@ -35,6 +41,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     setStreak(s);
     setTotalMin(m);
     setSessions(sess.length);
+    setAllSessions(sess);
     setNotifs(n);
   }, []);
 
@@ -59,6 +66,16 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   };
 
   const toggleNotifs = async (v: boolean) => {
+    if (v) {
+      const granted = await requestNotificationPermissions();
+      if (!granted) {
+        Alert.alert('Permission needed', 'Please enable notifications in your device settings to receive daily reminders.');
+        return;
+      }
+      await scheduleDailyReminder(9, 0);
+    } else {
+      await cancelAllReminders();
+    }
     setNotifs(v);
     await setNotificationsEnabled(v);
   };
@@ -100,6 +117,12 @@ export default function ProfileScreen({ profile, onReset }: Props) {
             <Text style={styles.statValue}>{sessions}</Text>
             <Text style={styles.statLabel}>sessions</Text>
           </GradientCard>
+        </View>
+
+        {/* Activity heatmap */}
+        <Text style={styles.sectionLabel}>Last 30 days</Text>
+        <View style={styles.heatmapWrap}>
+          <ActivityHeatmap sessions={allSessions} />
         </View>
 
         {/* Settings */}
@@ -173,6 +196,13 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(253,164,175,0.25)',
   },
   resetText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.accentWarm },
+  heatmapWrap: {
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+  },
   appVersion: {
     textAlign: 'center', fontFamily: FONTS.regular, fontSize: 11,
     color: COLORS.textDim, marginTop: SPACING.xl,

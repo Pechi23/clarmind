@@ -17,11 +17,11 @@ export const COLORS = {
 };
 
 export const GRADIENTS = {
-  background: ['#0f0c29', '#1a1a3e', '#24243e'] as string[],
-  card: ['rgba(167,139,250,0.15)', 'rgba(167,139,250,0.05)'] as string[],
-  button: ['#a78bfa', '#7c3aed'] as string[],
-  warm: ['#fda4af', '#f472b6'] as string[],
-  cool: ['#7dd3fc', '#3b82f6'] as string[],
+  background: ['#0f0c29', '#1a1a3e', '#24243e'] as const,
+  card: ['rgba(167,139,250,0.15)', 'rgba(167,139,250,0.05)'] as const,
+  button: ['#a78bfa', '#7c3aed'] as const,
+  warm: ['#fda4af', '#f472b6'] as const,
+  cool: ['#7dd3fc', '#3b82f6'] as const,
 };
 
 export const FONTS = {
