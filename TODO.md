@@ -1,171 +1,139 @@
-# ClarMind — Progress & Roadmap
+# ClarMind — Roadmap, Architecture & Idea Bank
 
-> **Living document.** Update this at the end of every session so the next one picks up cleanly.
-
----
-
-## ✅ Done (v1.0 MVP)
-
-### Foundation
-- [x] Expo + TypeScript scaffold with proper folder structure
-- [x] Inter font family loading via `@expo-google-fonts/inter`
-- [x] Splash screen control via `expo-splash-screen`
-- [x] Babel config with `react-native-reanimated/plugin`
-- [x] `.env` setup for `EXPO_PUBLIC_GEMINI_API_KEY` (gitignored)
-- [x] GitHub repo created (`Pechi23/clarmind`)
-- [x] EAS Build config (`eas.json`) with dev/preview/production profiles
-- [x] Bundle IDs set: `com.clarmind.app`
-
-### AI / Daily content
-- [x] Gemini REST integration (`gemini-2.0-flash`)
-- [x] Daily content cached in AsyncStorage — 1 API call per user per day
-- [x] Pull-to-refresh forces regenerate
-- [x] 429 rate-limit handling with friendly error
-- [x] Strict JSON schema for output (quote/zodiac/stress/mindfulness/affirmation)
-
-### Onboarding
-- [x] 2-step flow: name → zodiac picker
-- [x] All 12 signs with English + Romanian names + emoji + element
-- [x] Form validation (min 2 char name, sign required)
-
-### Home Screen
-- [x] Greeting with time-of-day awareness
-- [x] Streak badge (fire pill)
-- [x] Daily quote card with author
-- [x] Affirmation card (zodiac-tinted)
-- [x] Zodiac message card
-- [x] Stress relief tip card
-- [x] Mindful task card
-- [x] Pull-to-refresh
-
-### Breathe Screen
-- [x] 3 breathing patterns (Box, 4-7-8, Deep Calm)
-- [x] Preset durations (2, 5, 10, 20 min)
-- [x] Animated breathing circle (Reanimated 3, scale + glow)
-- [x] Phase labels with timer countdown
-- [x] Haptic feedback on phase transitions
-- [x] Wind-down mode (after 9 PM): banner, auto-select 4-7-8, darker palette
-- [x] Soundscape picker (Silence, Rain, Forest, Ocean, Deep Space)
-- [x] expo-av background loop player
-- [x] Session completion screen with XP earned
-- [x] Mood check-in modal (5-emoji scale, post-session)
-
-### Leaderboard
-- [x] 2 tabs: Streak / Total Time
-- [x] 14 deterministic fake users (seeded by date)
-- [x] Romanian names + zodiac diversity
-- [x] Top 3 medals (👑 🥈 🥉)
-- [x] Current user highlighted with gold border
-- [x] Pull-to-refresh
-
-### Profile
-- [x] Zodiac avatar header card with sign + element + dates
-- [x] Stats grid (streak / total minutes / sessions)
-- [x] 30-day activity heatmap with 5-level intensity
-- [x] Daily reminder toggle (real `expo-notifications` scheduling at 9 AM)
-- [x] Reset onboarding (with confirmation dialog)
-- [x] App version display
-
-### Navigation
-- [x] Bottom tabs (Home / Breathe / Top / Profile)
-- [x] Custom floating glass tab bar with active glow
-- [x] Haptic feedback on tab change
-- [x] No labels — clean icon-only design
-
-### Design System
-- [x] All tokens centralized in `theme.ts`
-- [x] Glassmorphism cards via `GradientCard`
-- [x] Consistent gradient backgrounds across all screens
-- [x] Inter font weights wired
-
-### Platform Compatibility
-- [x] Web platform guards on Haptics / Notifications / Audio
-- [x] Edge-to-edge enabled on Android
-- [x] iOS silent-mode audio playback enabled
-
-### Documentation
-- [x] `CLAUDE.md` — developer reference for future sessions
-- [x] `TODO.md` — this file
-- [x] `README.md` — quick start + ship checklist
+> **Handoff document.** Written so a fresh agent (or developer) can pick any item
+> and implement it without prior context. Read `CLAUDE.md` first for conventions,
+> then this file for *what to build next and how*.
+> Update the Session Log at the bottom after every working session.
 
 ---
 
-## ✅ Done (v1.1 — Gamification)
+## 1. Architecture snapshot (current state)
 
-- [x] **IMPROVEMENTS.md** — competitive review + full gamification design doc
-- [x] **XP economy** — real persisted XP: +10/min meditation, +10 daily open, +15 guide read, +25/challenge, +50 perfect-day bonus, +5 mood check-in (`services/gamification.ts`)
-- [x] **13 Mind Ranks** — Wandering Mind → Clear Mind → Enlightened, exponential XP curve (`constants/achievements.ts`)
-- [x] **16 achievements** — 4 categories (firsts/consistency/volume/mastery), auto-unlock detection, celebration cards on session completion
-- [x] **Daily challenges** — 3 per day seeded by date, auto-completed by matching sessions, shown on Home with checkmarks + XP values
-- [x] **Level chip** on Home header, **XP toast** notifications
-- [x] **Profile upgrades** — rank card with XP progress bar, achievements grid (locked/unlocked)
-- [x] **Full reset** now wipes gamification keys too
+**Local-first, zero-backend.** Everything persists in AsyncStorage under `clarmind_*` keys. The only network calls are Gemini (daily content) and Pixabay CDN (soundscape audio).
 
-## 🚧 In Progress
+```
+┌─────────────────────────────────────────────────────────────┐
+│ App.tsx — fonts, splash, profile gate                       │
+│   ├── OnboardingScreen (no profile yet)                     │
+│   └── AppNavigator — bottom tabs, custom glass tab bar      │
+│         ├── HomeScreen      daily AI content + challenges   │
+│         ├── BreatheScreen   patterns, timer, soundscapes    │
+│         ├── LeaderboardScreen  seeded fake users + you      │
+│         └── ProfileScreen   rank, badges, heatmap, settings │
+├─────────────────────────────────────────────────────────────┤
+│ services/                                                   │
+│   claude.ts        Gemini REST (gemini-2.0-flash), daily    │
+│                    JSON content, cached 1/day               │
+│   storage.ts       AsyncStorage CRUD: profile, content,     │
+│                    streak, sessions, moods, prefs           │
+│   gamification.ts  XP, levels, achievements, challenges     │
+│   leaderboard.ts   date-seeded fake users                   │
+│   soundscape.ts    expo-av loop player                      │
+│   notifications.ts daily reminder scheduling                │
+├─────────────────────────────────────────────────────────────┤
+│ constants/  theme.ts (ALL design tokens) · zodiac.ts ·      │
+│             breathing.ts · achievements.ts (XP, ranks)      │
+│ components/ GradientCard · BreathingCircle · StreakBadge ·  │
+│             ActivityHeatmap                                 │
+└─────────────────────────────────────────────────────────────┘
+```
 
-_Nothing right now — pick from "Next up" below._
+**Key patterns an implementing agent must follow:**
+- **Date-seeded determinism** — daily variation without a backend: seed `Math.sin`-style PRNG with `YYYYMMDD` (see `leaderboard.ts`, `gamification.ts getTodayChallenges`). Reuse this for any "changes daily" feature.
+- **Screens refresh on tab focus** via `useFocusEffect` (navigation keeps tabs mounted).
+- **Native APIs guarded** with `Platform.OS !== 'web'` (haptics, notifications, audio).
+- **All colors/spacing from `theme.ts`** — never hardcode. Gradient arrays must be `as const` (tuple types).
+- **XP flows through `gamification.ts` only** — never write `clarmind_xp_total` directly.
+- After native module installs: `npx expo install --fix`, restart Metro with `--clear`.
 
----
-
-## 📋 Next up (v1.1 ship)
-
-### Critical for App Store / Play Store
-- [ ] Replace Pixabay CDN audio with bundled local files (offline-friendly + no third-party in production)
-- [ ] Generate proper app icons (1024×1024, all densities) — replace default Expo icon
-- [ ] Generate splash screen image with ClarMind branding
-- [ ] Privacy Policy URL (required for stores)
-- [ ] Terms of Service page
-- [ ] Apple Developer Program enrollment ($99/yr)
-- [ ] Google Play Developer enrollment ($25 one-time)
-- [ ] Set up EAS project (`eas init`) and link to repo
-- [ ] First `eas build -p android --profile preview` and test APK on device
-- [ ] First `eas build -p ios --profile preview` and test TestFlight
-- [ ] Submit to internal testing track on both stores
-
-### Polish
-- [ ] Verify Gemini key works after fresh install
-- [ ] Add loading skeleton for daily content (instead of spinner)
-- [ ] Add empty-state illustrations for new users on Profile + Leaderboard
-- [ ] Sound preview when picking a soundscape
-- [ ] Soft bell audio cue on phase transitions (eyes-closed users)
-- [ ] Reminder time picker (currently hard-coded to 9 AM)
-
----
-
-## 🌟 v2.0 Ideas
-
-- [ ] HealthKit (iOS) / Google Fit (Android) integration for "mindful minutes"
-- [ ] Premium tier with paywall ($3.99/mo) — unlock all soundscapes, history, custom timers
-- [ ] DNS-based content blocker (adult / social media) — separate VPN profile
-- [ ] Forest-style focus mode (timer where leaving the app "kills" the tree)
-- [ ] Real backend (Supabase) — global leaderboard, account sync across devices
-- [ ] Apple Watch / WearOS companion
-- [ ] Romanian full localization (currently only zodiac names)
-- [ ] Mood trends chart over time (line/bar)
-- [ ] Streak recovery mechanics (1-day grace per week)
-- [ ] Social: invite friends, see friends-only leaderboard
-- [ ] Offline-first content fallback (pre-cached quote pool)
+**Data model (types/index.ts):** `UserProfile { name, zodiacSign, onboardingComplete }` · `DailyContent` (6 AI fields + generatedAt) · `MeditationSession { date, durationMinutes, pattern, completedAt }` · `MoodEntry { date, mood 1-5, context }`.
 
 ---
 
-## 🐛 Known Issues / Tech Debt
+## 2. Shipped
 
-- New Architecture (`newArchEnabled: true`) prevents the legacy Chrome JS Debugger from connecting. Use Metro terminal logs or React Native DevTools instead.
-- Soundscape URLs depend on Pixabay's CDN — if it 404s the session still runs silently (graceful degrade).
-- Web platform: `expo-av` may show warnings; gracefully handled but not fully tested.
-- TypeScript strict mode not yet enabled — tsconfig is permissive.
+### v1.0 — Core (2026-04-25)
+Onboarding (name + zodiac, RO names) · Home with 5 AI daily cards (Gemini, cached 1/day, 429 handling) · Breathe (3 patterns, animated circle, haptics, 5 soundscapes, wind-down mode after 21:00, mood check-in) · Leaderboard (streak/time tabs, seeded fakes, gold highlight) · Profile (stats, 30-day heatmap, reminder toggle, reset) · custom tab bar · EAS config · docs (CLAUDE.md, README.md, SHIPPING.md).
+
+### v1.1 — Gamification (2026-06-13)
+Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/challenge, +50 perfect day, +5 mood) · 13 named Mind Ranks with XP curve · 16 achievements with auto-unlock + celebration cards · 3 date-seeded daily challenges with session auto-completion · level chip + XP toast on Home · rank card with progress bar + badge grid on Profile · full reset wipes all keys. Design rationale in `IMPROVEMENTS.md`.
 
 ---
 
-## 📝 Session Log
+## 3. Implementation queue (priority order)
 
-| Date | Session focus | Outcome |
+### P0 — Ship blockers (do before store submission)
+| # | Task | Implementation notes |
 |---|---|---|
-| 2026-04-25 | Initial scaffold | Onboarding + Home + Gemini integration shipped |
-| 2026-04-25 | Switched AI provider | Claude → Gemini (free tier) via REST |
-| 2026-04-25 | Full feature build | Breathe / Leaderboard / Profile / Navigation / Soundscapes / Notifications / Heatmap |
-| 2026-04-25 | Documentation | CLAUDE.md, TODO.md, README.md, EAS config |
-| 2026-06-13 | Gamification (v1.1) | IMPROVEMENTS.md roadmap; XP/levels/achievements service; daily challenges on Home; rank card + badge grid in Profile; real XP on session completion |
+| 0.1 | **App icon + splash** | Replace `assets/icon.png` (1024², no transparency), `adaptive-icon.png`, `splash-icon.png`. Design prompt in SHIPPING.md §2.1 |
+| 0.2 | **Bundle soundscapes locally** | Download 5 CC0 loops → `assets/sounds/`, switch `soundscape.ts` URLs to `require(...)`. Kills CDN dependency + enables offline |
+| 0.3 | **Privacy policy URL** | SHIPPING.md §2.3. Host on GitHub Pages |
+| 0.4 | **EAS init + preview builds** | `eas init`, set `EXPO_PUBLIC_GEMINI_API_KEY` via `eas env:create`, build preview APK + TestFlight |
+| 0.5 | **Reminder time picker** | Profile: replace fixed 9 AM with a time picker (`@react-native-community/datetimepicker`), persist `clarmind_reminder_time`, reschedule on change |
+
+### P1 — Retention loop (the "make it the best" sprint)
+
+| # | Feature | Why + how |
+|---|---|---|
+| 1.1 | **🌌 Constellation Sky (Mind Garden, but on-brand)** | THE flagship feature. Instead of Forest's trees: every completed session lights one star in the user's personal night sky. 7 consecutive days = stars connect into a constellation shaped like their zodiac sign; the sky fills over months. Skipping a day dims (not deletes) recent stars — gentler than Forest. **New tab or replaces Leaderboard as center tab.** Implementation: `react-native-svg` canvas; star positions seeded from `sessionIndex + zodiac`; data derived entirely from existing `MeditationSession[]` (no new storage). Premium later: nebula skins, shooting stars. Zero art budget — SVG circles with glow gradients match the existing aesthetic perfectly |
+| 1.2 | **Streak freeze ("Stardust Shield")** | #1 churn-saver (Duolingo). Earn 1 shield per 7-day streak (max 2 held). On a missed day, auto-consume a shield → streak survives, show "shield used" banner. Modify `updateStreak()` in `storage.ts`; store `clarmind_shields`. Show shield count next to StreakBadge |
+| 1.3 | **Weekly recap card** | Monday first-open: modal card with minutes, sessions, XP, mood trend vs last week, sharable. Data from existing sessions/moods. Gemini generates 1 encouraging sentence about the week |
+| 1.4 | **Smarter notification copy** | Reference streak/rank/shield in reminder text: "Your 12-day streak is waiting, Zen Apprentice". Build message at schedule time from stored stats |
+| 1.5 | **Onboarding goal quiz** | Add step 3: "What brings you here?" (Sleep / Stress / Focus / Curiosity). Store in profile, inject into the Gemini prompt → visibly personalized content from day 1 |
+
+### P2 — Content depth
+| # | Feature | Notes |
+|---|---|---|
+| 2.1 | **"Clara" — AI companion chat** | Floating button on Home → short empathetic chat (Gemini, system prompt: warm mindfulness coach, 5 exchanges/day free). Differentiator: Calm/Headspace have nothing conversational. Reuse the existing Gemini service pattern; keep a rolling transcript in AsyncStorage |
+| 2.2 | **7-day micro-courses** | AI-generated programs ("7 Days of Letting Go"). One unlock per day = built-in return visit. Generate day N content on demand, cache like daily content |
+| 2.3 | **Mood-aware sessions** | Pre-session mood prompt; if mood ≤ 2 suggest longer session + warmer phase labels. Post-vs-pre delta shown on completion ("You moved +2 toward calm") |
+| 2.4 | **Evening reflection journal** | After 21:00, Home shows 1 AI question ("What can you release before sleep?"). Answers stored locally; weekly recap quotes them |
+| 2.5 | **Sound mixer** | Layer 2 soundscapes with volume sliders (rain + space drone). `expo-av` supports parallel sounds — extend `soundscape.ts` to manage a Map of active sounds |
+| 2.6 | **Romanian localization** | `i18n-js` + `expo-localization`; extract ~200 strings to `src/i18n/{en,ro}.ts`. Zodiac names already exist. Gemini prompt gains "respond in Romanian" flag |
+| 2.7 | **Seasonal events** | Calendar-seeded (no backend): full-moon meditation nights, solstice challenges, New Year reset ritual. Date check + special challenge pool + unique badge each |
+
+### P3 — Monetization (after ~1k installs)
+- Premium $3.99/mo or $24.99/yr via RevenueCat (`react-native-purchases`).
+- **Paywall depth, not access** — free forever: sessions, XP, streaks, daily content. Premium: all soundscapes + mixer, micro-courses, Clara unlimited, mood analytics charts, custom breathing patterns, extra streak shields, constellation skins.
+- Paywall moments: after first achievement unlock (high), 3rd session completion, locked soundscape tap.
+
+### P4 — Social & platform
+- Share cards: SVG → image (`react-native-view-shot`) gradient card with rank/constellation for IG stories.
+- Home-screen widgets (streak + quote) — needs dev-build, `expo-apple-targets` / Glance.
+- Supabase backend → real leaderboard, friends. Migration: mirror AsyncStorage to Supabase keyed by anonymous device ID; merge on account creation.
+- Watch companions (breathe haptics on wrist).
+
+---
+
+## 4. Idea bank (unprioritized, for inspiration)
+- **Haptic-only mode** — phone face down, breathing guided purely by vibration pattern. Accessibility + "screen-free meditation" marketing angle.
+- **Breath calibration** — user taps along their natural breath for 30s; app scales pattern durations to their comfortable pace.
+- **"The world is breathing" counter** — ambient seeded count ("2,847 minds breathing right now") on Breathe screen. Social presence without a backend.
+- **Zodiac energy meter** — daily 1-10 "cosmic energy" gauge per sign (seeded), feeds the AI message. Co-Star-style hook.
+- **Sleep timer auto-fade** — soundscape continues after session, fades out over N minutes for falling asleep.
+- **App shortcuts / quick actions** — long-press icon → "2-min breather" straight into a session.
+- **Mood → music** — soundscape suggestion based on last mood entry.
+
+---
+
+## 5. Known issues / tech debt
+- Expo Go SDK-54 dropped remote push notifications — reminder toggle is a no-op in Expo Go; works in dev/production builds. Non-blocking.
+- `expo start --android` can hit interactive prompts (port busy, Expo Go version upgrade) in non-interactive shells — run in a real terminal, or pre-install matching Expo Go.
+- Pixabay CDN soundscape URLs unverified — P0.2 replaces them with bundled assets.
+- `sound-bather` achievement unlocks on any session (soundscape not yet stored per session) — add `soundscape?: string` to `MeditationSession` when implementing P1/P2 audio work.
+- TypeScript strict mode off; package minor-version drift warnings (`expo@54.0.33` vs `54.0.35`) — run `npx expo install --fix` before next build.
+
+---
+
+## 6. Session log
+
+| Date | Focus | Outcome |
+|---|---|---|
+| 2026-04-25 | Scaffold | Onboarding, Home, Gemini (switched from Claude to free tier) |
+| 2026-04-25 | Feature build | Breathe, Leaderboard, Profile, navigation, soundscapes, notifications, heatmap |
+| 2026-04-25 | Ship prep | EAS config, CLAUDE.md, README.md, SHIPPING.md; 17/17 expo-doctor |
+| 2026-06-13 | Gamification v1.1 | XP/ranks/achievements/challenges live; IMPROVEMENTS.md; emulator smoke test |
+| 2026-06-13 | Handoff doc | This file rewritten as architecture + prioritized implementation queue for next agent |
 
 ---
 
