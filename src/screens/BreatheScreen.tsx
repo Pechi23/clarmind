@@ -11,6 +11,12 @@ import { saveMeditationSession, getTotalMeditationMinutes } from '../services/st
 import { MoodEntry } from '../types';
 import { saveMoodEntry } from '../services/storage';
 import { SOUNDSCAPES, Soundscape, playSoundscape, stopSoundscape } from '../services/soundscape';
+import {
+  addXp, applySessionToChallenges, checkAchievements,
+  completeChallenge, getTodayChallenges,
+} from '../services/gamification';
+import { XP } from '../constants/achievements';
+import { AchievementDef } from '../constants/achievements';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
 
@@ -28,6 +34,8 @@ export default function BreatheScreen() {
   const [moodModalOpen, setMoodModalOpen] = useState(false);
   const [totalMinutes, setTotalMinutes] = useState(0);
   const [soundscape, setSoundscape] = useState<Soundscape>(SOUNDSCAPES[0]);
+  const [earnedXp, setEarnedXp] = useState(0);
+  const [newBadges, setNewBadges] = useState<AchievementDef[]>([]);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -93,6 +101,18 @@ export default function BreatheScreen() {
       pattern: pattern.id,
       completedAt: new Date().toISOString(),
     });
+
+    // Real XP: per-minute + auto-completed challenges, then badge check
+    const sessionXp = durationMin * XP.PER_MINUTE;
+    await addXp(sessionXp);
+    const challengeXp = await applySessionToChallenges(
+      durationMin, pattern.id, soundscape.id !== 'silence'
+    );
+    const unlocked = await checkAchievements();
+
+    setEarnedXp(sessionXp + challengeXp);
+    setNewBadges(unlocked);
+
     if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     setMode('complete');
     setMoodModalOpen(true);
@@ -111,7 +131,19 @@ export default function BreatheScreen() {
       context: 'post-session',
     };
     await saveMoodEntry(entry);
+    await addXp(XP.MOOD_CHECKIN);
+    const moodChallengeXp = await applySessionToChallengesForMood();
+    const unlocked = await checkAchievements();
+    setEarnedXp((xp) => xp + XP.MOOD_CHECKIN + moodChallengeXp);
+    if (unlocked.length) setNewBadges((b) => [...b, ...unlocked]);
     setMoodModalOpen(false);
+  };
+
+  // mood-checkin is a challenge too
+  const applySessionToChallengesForMood = async (): Promise<number> => {
+    const challenges = await getTodayChallenges();
+    const moodChallenge = challenges.find((c) => c.id === 'mood-checkin' && !c.done);
+    return moodChallenge ? completeChallenge('mood-checkin') : 0;
   };
 
   // ============== SELECT MODE ==============
@@ -260,9 +292,22 @@ export default function BreatheScreen() {
         </Text>
         <View style={styles.xpBox}>
           <Text style={styles.xpLabel}>XP earned</Text>
-          <Text style={styles.xpValue}>+{durationMin * 10}</Text>
+          <Text style={styles.xpValue}>+{earnedXp}</Text>
         </View>
-        <TouchableOpacity onPress={() => setMode('select')} activeOpacity={0.85} style={styles.startButton}>
+        {newBadges.length > 0 && (
+          <View style={styles.badgeUnlockBox}>
+            {newBadges.map((b) => (
+              <View key={b.id} style={styles.badgeUnlockRow}>
+                <Text style={styles.badgeUnlockEmoji}>{b.emoji}</Text>
+                <View>
+                  <Text style={styles.badgeUnlockTitle}>Achievement unlocked!</Text>
+                  <Text style={styles.badgeUnlockName}>{b.name}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+        <TouchableOpacity onPress={() => { setNewBadges([]); setMode('select'); }} activeOpacity={0.85} style={styles.startButton}>
           <LinearGradient colors={GRADIENTS.button} style={styles.startGradient}>
             <Text style={styles.startText}>Done</Text>
           </LinearGradient>
@@ -392,6 +437,19 @@ const styles = StyleSheet.create({
   },
   xpLabel: { fontFamily: FONTS.medium, fontSize: 12, color: COLORS.textMuted, letterSpacing: 1 },
   xpValue: { fontFamily: FONTS.bold, fontSize: 32, color: COLORS.primary },
+  badgeUnlockBox: { gap: SPACING.sm, marginBottom: SPACING.xl, width: '100%' },
+  badgeUnlockRow: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    backgroundColor: 'rgba(252,211,77,0.1)',
+    borderWidth: 1, borderColor: 'rgba(252,211,77,0.35)',
+    borderRadius: RADIUS.md, padding: SPACING.md,
+  },
+  badgeUnlockEmoji: { fontSize: 30 },
+  badgeUnlockTitle: {
+    fontFamily: FONTS.medium, fontSize: 11, color: '#fcd34d',
+    letterSpacing: 1, textTransform: 'uppercase',
+  },
+  badgeUnlockName: { fontFamily: FONTS.bold, fontSize: 17, color: COLORS.text },
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center', alignItems: 'center', padding: SPACING.lg,

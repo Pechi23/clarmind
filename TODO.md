@@ -90,6 +90,17 @@
 
 ---
 
+## ✅ Done (v1.1 — Gamification)
+
+- [x] **IMPROVEMENTS.md** — competitive review + full gamification design doc
+- [x] **XP economy** — real persisted XP: +10/min meditation, +10 daily open, +15 guide read, +25/challenge, +50 perfect-day bonus, +5 mood check-in (`services/gamification.ts`)
+- [x] **13 Mind Ranks** — Wandering Mind → Clear Mind → Enlightened, exponential XP curve (`constants/achievements.ts`)
+- [x] **16 achievements** — 4 categories (firsts/consistency/volume/mastery), auto-unlock detection, celebration cards on session completion
+- [x] **Daily challenges** — 3 per day seeded by date, auto-completed by matching sessions, shown on Home with checkmarks + XP values
+- [x] **Level chip** on Home header, **XP toast** notifications
+- [x] **Profile upgrades** — rank card with XP progress bar, achievements grid (locked/unlocked)
+- [x] **Full reset** now wipes gamification keys too
+
 ## 🚧 In Progress
 
 _Nothing right now — pick from "Next up" below._
@@ -154,7 +165,8 @@ _Nothing right now — pick from "Next up" below._
 | 2026-04-25 | Switched AI provider | Claude → Gemini (free tier) via REST |
 | 2026-04-25 | Full feature build | Breathe / Leaderboard / Profile / Navigation / Soundscapes / Notifications / Heatmap |
 | 2026-04-25 | Documentation | CLAUDE.md, TODO.md, README.md, EAS config |
+| 2026-06-13 | Gamification (v1.1) | IMPROVEMENTS.md roadmap; XP/levels/achievements service; daily challenges on Home; rank card + badge grid in Profile; real XP on session completion |
 
 ---
 
-**Last updated:** 2026-04-25
+**Last updated:** 2026-06-13

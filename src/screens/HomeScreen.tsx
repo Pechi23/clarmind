@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, ActivityIndicator, RefreshControl,
@@ -11,6 +12,11 @@ import { getDailyContent, saveDailyContent, getStreak, updateStreak } from '../s
 import { generateDailyContent } from '../services/claude';
 import GradientCard from '../components/GradientCard';
 import StreakBadge from '../components/StreakBadge';
+import {
+  claimDailyOpenXp, claimGuideReadXp, getTodayChallenges, getXp,
+  completeChallenge, checkAchievements, DailyChallenge,
+} from '../services/gamification';
+import { getLevelForXp } from '../constants/achievements';
 
 interface Props {
   profile: UserProfile;
@@ -22,6 +28,21 @@ export default function HomeScreen({ profile }: Props) {
   const [refreshing, setRefreshing] = useState(false);
   const [streak, setStreak] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [challenges, setChallenges] = useState<DailyChallenge[]>([]);
+  const [xp, setXp] = useState(0);
+  const [xpToast, setXpToast] = useState<string | null>(null);
+  const guideAwarded = React.useRef(false);
+
+  const showXpToast = (msg: string) => {
+    setXpToast(msg);
+    setTimeout(() => setXpToast(null), 2500);
+  };
+
+  const refreshGamification = useCallback(async () => {
+    const [ch, total] = await Promise.all([getTodayChallenges(), getXp()]);
+    setChallenges(ch);
+    setXp(total);
+  }, []);
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
   const today = new Date().toISOString().split('T')[0];
@@ -54,10 +75,39 @@ export default function HomeScreen({ profile }: Props) {
       setLoading(true);
       const [s] = await Promise.all([updateStreak(), loadContent()]);
       setStreak(s);
+      const dailyXp = await claimDailyOpenXp();
+      if (dailyXp > 0) showXpToast(`+${dailyXp} XP · Welcome back`);
+      await checkAchievements();
+      await refreshGamification();
       setLoading(false);
     };
     init();
-  }, [loadContent]);
+  }, [loadContent, refreshGamification]);
+
+  // Refresh challenges/XP whenever the tab regains focus (e.g. after a session)
+  useFocusEffect(
+    useCallback(() => {
+      refreshGamification();
+    }, [refreshGamification])
+  );
+
+  // Guide-read XP when the user scrolls near the bottom (once per day)
+  const handleScrollEnd = async (e: any) => {
+    if (guideAwarded.current) return;
+    const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 80) {
+      guideAwarded.current = true;
+      const awarded = await claimGuideReadXp();
+      let total = awarded;
+      const readChallenge = challenges.find((c) => c.id === 'read-guide' && !c.done);
+      if (readChallenge) total += await completeChallenge('read-guide');
+      if (total > 0) {
+        showXpToast(`+${total} XP · Daily guide read`);
+        await checkAchievements();
+        await refreshGamification();
+      }
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -76,9 +126,17 @@ export default function HomeScreen({ profile }: Props) {
 
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
+      {xpToast && (
+        <View style={styles.xpToast}>
+          <Text style={styles.xpToastText}>{xpToast}</Text>
+        </View>
+      )}
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
+        onMomentumScrollEnd={handleScrollEnd}
+        onScrollEndDrag={handleScrollEnd}
+        scrollEventThrottle={400}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -93,7 +151,12 @@ export default function HomeScreen({ profile }: Props) {
             <Text style={styles.greetingLabel}>{greeting()},</Text>
             <Text style={styles.greetingName}>{profile.name} {zodiacInfo.emoji}</Text>
           </View>
-          <StreakBadge streak={streak} />
+          <View style={styles.headerBadges}>
+            <View style={styles.levelChip}>
+              <Text style={styles.levelChipText}>Lv {getLevelForXp(xp).level}</Text>
+            </View>
+            <StreakBadge streak={streak} />
+          </View>
         </View>
 
         {/* Date */}
@@ -125,6 +188,30 @@ export default function HomeScreen({ profile }: Props) {
               <Text style={styles.affirmationLabel}>Today's Affirmation</Text>
               <Text style={styles.affirmationText}>{content.affirmation}</Text>
             </LinearGradient>
+
+            {/* Daily challenges */}
+            <GradientCard colors={['rgba(252,211,77,0.14)', 'rgba(252,211,77,0.04)']} style={styles.cardSpacing}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionEmoji}>🎯</Text>
+                <Text style={styles.sectionLabel}>Today's Challenges</Text>
+                <Text style={styles.challengeCount}>
+                  {challenges.filter((c) => c.done).length}/{challenges.length}
+                </Text>
+              </View>
+              {challenges.map((c) => (
+                <View key={c.id} style={styles.challengeRow}>
+                  <Text style={[styles.challengeCheck, c.done && styles.challengeCheckDone]}>
+                    {c.done ? '✓' : '○'}
+                  </Text>
+                  <Text style={styles.challengeEmoji}>{c.emoji}</Text>
+                  <Text style={[styles.challengeText, c.done && styles.challengeTextDone]}>
+                    {c.text}
+                  </Text>
+                  <Text style={styles.challengeXp}>+25</Text>
+                </View>
+              ))}
+              <Text style={styles.challengeBonus}>Complete all 3 for a +50 XP bonus ✨</Text>
+            </GradientCard>
 
             {/* Zodiac */}
             <GradientCard style={styles.cardSpacing}>
@@ -284,6 +371,40 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold,
     fontSize: 14,
     color: COLORS.white,
+  },
+  headerBadges: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  levelChip: {
+    backgroundColor: 'rgba(167,139,250,0.15)',
+    paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)',
+  },
+  levelChipText: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.primaryLight },
+  xpToast: {
+    position: 'absolute', top: 64, alignSelf: 'center', zIndex: 10,
+    backgroundColor: 'rgba(167,139,250,0.95)',
+    paddingHorizontal: 20, paddingVertical: 10,
+    borderRadius: RADIUS.full,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 8,
+  },
+  xpToastText: { fontFamily: FONTS.semiBold, fontSize: 14, color: '#fff' },
+  challengeCount: {
+    fontFamily: FONTS.bold, fontSize: 13, color: '#fcd34d', marginLeft: 'auto',
+  },
+  challengeRow: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    paddingVertical: 7,
+  },
+  challengeCheck: { fontFamily: FONTS.bold, fontSize: 16, color: COLORS.textDim, width: 20 },
+  challengeCheckDone: { color: COLORS.success },
+  challengeEmoji: { fontSize: 15 },
+  challengeText: { fontFamily: FONTS.regular, fontSize: 14, color: COLORS.text, flex: 1 },
+  challengeTextDone: { color: COLORS.textDim, textDecorationLine: 'line-through' },
+  challengeXp: { fontFamily: FONTS.semiBold, fontSize: 12, color: '#fcd34d' },
+  challengeBonus: {
+    fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted,
+    marginTop: SPACING.sm, textAlign: 'center',
   },
   refreshHint: {
     fontFamily: FONTS.regular,

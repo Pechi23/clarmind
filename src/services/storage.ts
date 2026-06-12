@@ -22,7 +22,9 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
 };
 
 export const clearUserProfile = async (): Promise<void> => {
-  await AsyncStorage.multiRemove(Object.values(KEYS));
+  // Wipe everything ClarMind stored, including gamification keys owned by other modules
+  const allKeys = await AsyncStorage.getAllKeys();
+  await AsyncStorage.multiRemove(allKeys.filter((k) => k.startsWith('clarmind_')));
 };
 
 export const saveDailyContent = async (content: DailyContent): Promise<void> => {

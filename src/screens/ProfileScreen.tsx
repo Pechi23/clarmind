@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch,
 } from 'react-native';
@@ -16,6 +17,8 @@ import {
 } from '../services/notifications';
 import ActivityHeatmap from '../components/ActivityHeatmap';
 import { MeditationSession } from '../types';
+import { getXp, getUnlockedAchievements } from '../services/gamification';
+import { ACHIEVEMENTS, getLevelForXp } from '../constants/achievements';
 
 interface Props {
   profile: UserProfile;
@@ -28,24 +31,38 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [sessions, setSessions] = useState(0);
   const [notifs, setNotifs] = useState(false);
   const [allSessions, setAllSessions] = useState<MeditationSession[]>([]);
+  const [xp, setXp] = useState(0);
+  const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
 
   const load = useCallback(async () => {
-    const [s, m, sess, n] = await Promise.all([
+    const [s, m, sess, n, totalXp, unlocked] = await Promise.all([
       getStreak(),
       getTotalMeditationMinutes(),
       getMeditationSessions(),
       getNotificationsEnabled(),
+      getXp(),
+      getUnlockedAchievements(),
     ]);
     setStreak(s);
     setTotalMin(m);
     setSessions(sess.length);
     setAllSessions(sess);
     setNotifs(n);
+    setXp(totalXp);
+    setUnlockedIds(unlocked);
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const levelInfo = getLevelForXp(xp);
+  const levelProgress = Math.min(
+    1,
+    (xp - levelInfo.currentLevelXp) / Math.max(1, levelInfo.nextLevelXp - levelInfo.currentLevelXp)
+  );
 
   const handleReset = () => {
     Alert.alert(
@@ -100,6 +117,23 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           <Text style={styles.headerDate}>{zodiacInfo.dateRange}</Text>
         </LinearGradient>
 
+        {/* Level & XP */}
+        <GradientCard colors={['rgba(167,139,250,0.2)', 'rgba(124,58,237,0.06)']} style={{ marginBottom: SPACING.lg }}>
+          <View style={styles.levelHeader}>
+            <View>
+              <Text style={styles.levelRank}>{levelInfo.rank}</Text>
+              <Text style={styles.levelNumber}>Level {levelInfo.level}</Text>
+            </View>
+            <Text style={styles.levelXp}>{xp} XP</Text>
+          </View>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${Math.round(levelProgress * 100)}%` }]} />
+          </View>
+          <Text style={styles.progressLabel}>
+            {levelInfo.nextLevelXp - xp} XP to next level
+          </Text>
+        </GradientCard>
+
         {/* Stats */}
         <View style={styles.statsGrid}>
           <GradientCard style={styles.statCard}>
@@ -117,6 +151,29 @@ export default function ProfileScreen({ profile, onReset }: Props) {
             <Text style={styles.statValue}>{sessions}</Text>
             <Text style={styles.statLabel}>sessions</Text>
           </GradientCard>
+        </View>
+
+        {/* Achievements */}
+        <Text style={styles.sectionLabel}>
+          Achievements · {unlockedIds.length}/{ACHIEVEMENTS.length}
+        </Text>
+        <View style={styles.badgeGrid}>
+          {ACHIEVEMENTS.map((a) => {
+            const unlocked = unlockedIds.includes(a.id);
+            return (
+              <View key={a.id} style={[styles.badgeCell, !unlocked && styles.badgeCellLocked]}>
+                <Text style={[styles.badgeEmoji, !unlocked && styles.badgeEmojiLocked]}>
+                  {unlocked ? a.emoji : '🔒'}
+                </Text>
+                <Text style={[styles.badgeName, !unlocked && styles.badgeNameLocked]} numberOfLines={1}>
+                  {a.name}
+                </Text>
+                <Text style={styles.badgeDesc} numberOfLines={2}>
+                  {a.description}
+                </Text>
+              </View>
+            );
+          })}
         </View>
 
         {/* Activity heatmap */}
@@ -196,6 +253,46 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(253,164,175,0.25)',
   },
   resetText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.accentWarm },
+  levelHeader: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'flex-start', marginBottom: SPACING.md,
+  },
+  levelRank: { fontFamily: FONTS.bold, fontSize: 20, color: COLORS.text },
+  levelNumber: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primaryLight, marginTop: 2 },
+  levelXp: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.primary },
+  progressTrack: {
+    height: 8, borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden', marginBottom: SPACING.sm,
+  },
+  progressFill: {
+    height: '100%', borderRadius: 4,
+    backgroundColor: COLORS.primary,
+  },
+  progressLabel: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted },
+  badgeGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm,
+    marginBottom: SPACING.lg,
+  },
+  badgeCell: {
+    width: '31%', flexGrow: 1,
+    backgroundColor: 'rgba(252,211,77,0.08)',
+    borderWidth: 1, borderColor: 'rgba(252,211,77,0.25)',
+    borderRadius: RADIUS.md, padding: SPACING.sm,
+    alignItems: 'center', gap: 2,
+  },
+  badgeCellLocked: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderColor: 'rgba(255,255,255,0.07)',
+  },
+  badgeEmoji: { fontSize: 24 },
+  badgeEmojiLocked: { opacity: 0.4 },
+  badgeName: { fontFamily: FONTS.semiBold, fontSize: 11, color: COLORS.text, textAlign: 'center' },
+  badgeNameLocked: { color: COLORS.textDim },
+  badgeDesc: {
+    fontFamily: FONTS.regular, fontSize: 9, color: COLORS.textDim,
+    textAlign: 'center', lineHeight: 12,
+  },
   heatmapWrap: {
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: RADIUS.md,
