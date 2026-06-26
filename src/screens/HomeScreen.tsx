@@ -29,6 +29,7 @@ export default function HomeScreen({ profile }: Props) {
   const [streak, setStreak] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [challenges, setChallenges] = useState<DailyChallenge[]>([]);
+  const [shields, setShields] = useState(0);
   const [xp, setXp] = useState(0);
   const [xpToast, setXpToast] = useState<string | null>(null);
   const guideAwarded = React.useRef(false);
@@ -61,7 +62,7 @@ export default function HomeScreen({ profile }: Props) {
       if (!forceRefresh && cached && cached.generatedAt === today) {
         setContent(cached);
       } else {
-        const fresh = await generateDailyContent(profile.name, profile.zodiacSign);
+        const fresh = await generateDailyContent(profile.name, profile.zodiacSign, profile.goal);
         await saveDailyContent(fresh);
         setContent(fresh);
       }
@@ -73,10 +74,17 @@ export default function HomeScreen({ profile }: Props) {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      const [s] = await Promise.all([updateStreak(), loadContent()]);
-      setStreak(s);
+      const [streakResult] = await Promise.all([updateStreak(), loadContent()]);
+      setStreak(streakResult.streak);
+      setShields(streakResult.shields);
       const dailyXp = await claimDailyOpenXp();
-      if (dailyXp > 0) showXpToast(`+${dailyXp} XP · Welcome back`);
+      if (streakResult.shieldUsed) {
+        showXpToast('🛡️ Stardust Shield saved your streak!');
+      } else if (streakResult.shieldEarned) {
+        showXpToast('🛡️ Shield earned — 7-day streak!');
+      } else if (dailyXp > 0) {
+        showXpToast(`+${dailyXp} XP · Welcome back`);
+      }
       await checkAchievements();
       await refreshGamification();
       setLoading(false);
@@ -152,6 +160,11 @@ export default function HomeScreen({ profile }: Props) {
             <Text style={styles.greetingName}>{profile.name} {zodiacInfo.emoji}</Text>
           </View>
           <View style={styles.headerBadges}>
+            {shields > 0 && (
+              <View style={styles.shieldChip}>
+                <Text style={styles.shieldChipText}>🛡️{shields > 1 ? ` ×${shields}` : ''}</Text>
+              </View>
+            )}
             <View style={styles.levelChip}>
               <Text style={styles.levelChipText}>Lv {getLevelForXp(xp).level}</Text>
             </View>
@@ -373,6 +386,13 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   headerBadges: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  shieldChip: {
+    backgroundColor: 'rgba(125,211,252,0.12)',
+    paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: RADIUS.full,
+    borderWidth: 1, borderColor: 'rgba(125,211,252,0.3)',
+  },
+  shieldChipText: { fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.accent },
   levelChip: {
     backgroundColor: 'rgba(167,139,250,0.15)',
     paddingHorizontal: 12, paddingVertical: 6,

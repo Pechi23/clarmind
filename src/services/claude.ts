@@ -2,14 +2,22 @@
 // Free tier: 1,500 requests/day — https://aistudio.google.com
 // To switch to Claude later: replace fetch call with Anthropic SDK
 import { ZodiacSign } from '../constants/zodiac';
-import { DailyContent } from '../types';
+import { DailyContent, UserGoal } from '../types';
+
+const GOAL_CONTEXT: Record<UserGoal, string> = {
+  sleep: 'Their main goal is sleeping better — lean toward rest, winding down, and releasing the day.',
+  stress: 'Their main goal is managing stress — lean toward grounding, breathing room, and perspective.',
+  focus: 'Their main goal is sharpening focus — lean toward clarity, single-tasking, and mental energy.',
+  curiosity: 'They are exploring mindfulness out of curiosity — keep it inviting, varied, and light.',
+};
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 export const generateDailyContent = async (
   name: string,
-  zodiacSign: ZodiacSign
+  zodiacSign: ZodiacSign,
+  goal?: UserGoal
 ): Promise<DailyContent> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
@@ -21,6 +29,7 @@ export const generateDailyContent = async (
   });
 
   const prompt = `You are ClarMind, a calming mindfulness and wellness AI assistant. Generate personalized daily content for ${name}, whose zodiac sign is ${zodiacSign}. Today is ${today}.
+${goal ? GOAL_CONTEXT[goal] : ''}
 
 Return ONLY a valid JSON object with exactly these fields:
 {

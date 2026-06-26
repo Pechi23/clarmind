@@ -100,6 +100,7 @@ export default function BreatheScreen() {
       durationMinutes: durationMin,
       pattern: pattern.id,
       completedAt: new Date().toISOString(),
+      soundscape: soundscape.id,
     });
 
     // Real XP: per-minute + auto-completed challenges, then badge check

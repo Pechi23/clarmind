@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserProfile, DailyContent, MeditationSession, MoodEntry } from '../types';
+import { UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult } from '../types';
 
 const KEYS = {
   USER_PROFILE: 'clarmind_user_profile',
@@ -10,7 +10,10 @@ const KEYS = {
   MOOD_ENTRIES: 'clarmind_mood_entries',
   NOTIFICATIONS_ENABLED: 'clarmind_notifications_enabled',
   REMINDER_TIME: 'clarmind_reminder_time',
+  SHIELDS: 'clarmind_shields',
 };
+
+const MAX_SHIELDS = 2;
 
 export const saveUserProfile = async (profile: UserProfile): Promise<void> => {
   await AsyncStorage.setItem(KEYS.USER_PROFILE, JSON.stringify(profile));
@@ -41,28 +44,53 @@ export const getStreak = async (): Promise<number> => {
   return data ? parseInt(data, 10) : 0;
 };
 
-export const updateStreak = async (): Promise<number> => {
+export const getShields = async (): Promise<number> => {
+  const v = await AsyncStorage.getItem(KEYS.SHIELDS);
+  return v ? parseInt(v, 10) : 0;
+};
+
+const daysBetween = (fromIso: string, toIso: string): number => {
+  const from = new Date(fromIso + 'T00:00:00');
+  const to = new Date(toIso + 'T00:00:00');
+  return Math.round((to.getTime() - from.getTime()) / 86400000);
+};
+
+/**
+ * Daily streak update with Stardust Shields:
+ * - exactly 1 missed day + a shield available -> shield consumed, streak continues
+ * - every 7-day milestone earns a shield (max 2 held)
+ */
+export const updateStreak = async (): Promise<StreakResult> => {
   const today = new Date().toISOString().split('T')[0];
   const lastOpen = await AsyncStorage.getItem(KEYS.LAST_OPEN);
   let streak = await getStreak();
+  let shields = await getShields();
+  let shieldUsed = false;
+  let shieldEarned = false;
 
-  if (lastOpen) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    if (lastOpen === yesterdayStr) {
+  if (!lastOpen) {
+    streak = 1;
+  } else if (lastOpen !== today) {
+    const gap = daysBetween(lastOpen, today);
+    if (gap === 1) {
       streak += 1;
-    } else if (lastOpen !== today) {
+    } else if (gap === 2 && shields > 0) {
+      shields -= 1;
+      shieldUsed = true;
+      streak += 1;
+    } else {
       streak = 1;
     }
-  } else {
-    streak = 1;
+    if (streak > 0 && streak % 7 === 0 && shields < MAX_SHIELDS) {
+      shields += 1;
+      shieldEarned = true;
+    }
   }
 
   await AsyncStorage.setItem(KEYS.STREAK, String(streak));
+  await AsyncStorage.setItem(KEYS.SHIELDS, String(shields));
   await AsyncStorage.setItem(KEYS.LAST_OPEN, today);
-  return streak;
+  return { streak, shields, shieldUsed, shieldEarned };
 };
 
 // Meditation sessions
@@ -95,6 +123,17 @@ export const getMoodEntries = async (): Promise<MoodEntry[]> => {
 };
 
 // Notifications
+export interface ReminderTime { hour: number; minute: number }
+
+export const setReminderTime = async (time: ReminderTime): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.REMINDER_TIME, JSON.stringify(time));
+};
+
+export const getReminderTime = async (): Promise<ReminderTime> => {
+  const v = await AsyncStorage.getItem(KEYS.REMINDER_TIME);
+  return v ? JSON.parse(v) : { hour: 9, minute: 0 };
+};
+
 export const setNotificationsEnabled = async (enabled: boolean): Promise<void> => {
   await AsyncStorage.setItem(KEYS.NOTIFICATIONS_ENABLED, String(enabled));
 };

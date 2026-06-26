@@ -1,5 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { getStreak } from './storage';
+import { getXp } from './gamification';
+import { getLevelForXp } from '../constants/achievements';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -40,10 +43,22 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   return final === 'granted';
 };
 
+const buildPersonalizedMessage = async (): Promise<string> => {
+  const [streak, xp] = await Promise.all([getStreak(), getXp()]);
+  const { rank } = getLevelForXp(xp);
+  const personalized = [
+    streak >= 2 ? `🔥 Day ${streak + 1} is waiting, ${rank}. Keep the flame alive.` : null,
+    streak >= 2 ? `🛡️ Don't let your ${streak}-day streak fade — two mindful minutes is all it takes.` : null,
+    `🌌 A new star is waiting in your sky, ${rank}.`,
+  ].filter(Boolean) as string[];
+  const pool = [...personalized, ...REMINDER_MESSAGES];
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
 export const scheduleDailyReminder = async (hour = 9, minute = 0): Promise<void> => {
   if (Platform.OS === 'web') return;
   await Notifications.cancelAllScheduledNotificationsAsync();
-  const message = REMINDER_MESSAGES[Math.floor(Math.random() * REMINDER_MESSAGES.length)];
+  const message = await buildPersonalizedMessage();
 
   await Notifications.scheduleNotificationAsync({
     content: {

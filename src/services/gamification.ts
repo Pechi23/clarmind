@@ -78,7 +78,7 @@ export const checkAchievements = async (): Promise<AchievementDef[]> => {
   const conditions: Record<string, boolean> = {
     'first-breath': sessions.length >= 1,
     'mood-explorer': moods.length >= 1,
-    'sound-bather': sessions.length >= 1, // refined when soundscape tracked per session
+    'sound-bather': sessions.some((s) => s.soundscape && s.soundscape !== 'silence'),
     'night-owl': hasNightSession,
     'streak-3': streak >= 3,
     'streak-7': streak >= 7,

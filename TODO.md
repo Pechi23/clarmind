@@ -58,6 +58,9 @@ Onboarding (name + zodiac, RO names) · Home with 5 AI daily cards (Gemini, cach
 ### v1.1 — Gamification (2026-06-13)
 Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/challenge, +50 perfect day, +5 mood) · 13 named Mind Ranks with XP curve · 16 achievements with auto-unlock + celebration cards · 3 date-seeded daily challenges with session auto-completion · level chip + XP toast on Home · rank card with progress bar + badge grid on Profile · full reset wipes all keys. Design rationale in `IMPROVEMENTS.md`.
 
+### v1.2 — Retention sprint (2026-06-26)
+**🌌 Constellation Sky** (new tab): one star per session, 7 consecutive days form the user's zodiac constellation (12 hand-tuned SVG shapes), active-streak stars glow brighter, empty-state + "days to next constellation" hint. Pure `react-native-svg`, derived entirely from `MeditationSession[]` — no new storage. · **Stardust Shield streak freeze**: earn 1 shield per 7-day streak (max 2), auto-consume on a single missed day so streak survives, shield chip on Home + toast messaging. · **Onboarding goal quiz** (step 3): Sleep/Stress/Focus/Curiosity, stored on profile, injected into the Gemini daily-content prompt. · **Personalized notifications**: copy references streak count + rank name. · **Reminder time picker**: 5 preset chips in Profile, persisted, reschedules live. · soundscape now stored per session (sound-bather achievement honest).
+
 ---
 
 ## 3. Implementation queue (priority order)
@@ -69,17 +72,17 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 0.2 | **Bundle soundscapes locally** | Download 5 CC0 loops → `assets/sounds/`, switch `soundscape.ts` URLs to `require(...)`. Kills CDN dependency + enables offline |
 | 0.3 | **Privacy policy URL** | SHIPPING.md §2.3. Host on GitHub Pages |
 | 0.4 | **EAS init + preview builds** | `eas init`, set `EXPO_PUBLIC_GEMINI_API_KEY` via `eas env:create`, build preview APK + TestFlight |
-| 0.5 | **Reminder time picker** | Profile: replace fixed 9 AM with a time picker (`@react-native-community/datetimepicker`), persist `clarmind_reminder_time`, reschedule on change |
+| 0.5 | ✅ **Reminder time picker** | DONE v1.2 — 5 preset chips in Profile, persisted to `clarmind_reminder_time`, reschedules live |
 
 ### P1 — Retention loop (the "make it the best" sprint)
 
 | # | Feature | Why + how |
 |---|---|---|
-| 1.1 | **🌌 Constellation Sky (Mind Garden, but on-brand)** | THE flagship feature. Instead of Forest's trees: every completed session lights one star in the user's personal night sky. 7 consecutive days = stars connect into a constellation shaped like their zodiac sign; the sky fills over months. Skipping a day dims (not deletes) recent stars — gentler than Forest. **New tab or replaces Leaderboard as center tab.** Implementation: `react-native-svg` canvas; star positions seeded from `sessionIndex + zodiac`; data derived entirely from existing `MeditationSession[]` (no new storage). Premium later: nebula skins, shooting stars. Zero art budget — SVG circles with glow gradients match the existing aesthetic perfectly |
-| 1.2 | **Streak freeze ("Stardust Shield")** | #1 churn-saver (Duolingo). Earn 1 shield per 7-day streak (max 2 held). On a missed day, auto-consume a shield → streak survives, show "shield used" banner. Modify `updateStreak()` in `storage.ts`; store `clarmind_shields`. Show shield count next to StreakBadge |
-| 1.3 | **Weekly recap card** | Monday first-open: modal card with minutes, sessions, XP, mood trend vs last week, sharable. Data from existing sessions/moods. Gemini generates 1 encouraging sentence about the week |
-| 1.4 | **Smarter notification copy** | Reference streak/rank/shield in reminder text: "Your 12-day streak is waiting, Zen Apprentice". Build message at schedule time from stored stats |
-| 1.5 | **Onboarding goal quiz** | Add step 3: "What brings you here?" (Sleep / Stress / Focus / Curiosity). Store in profile, inject into the Gemini prompt → visibly personalized content from day 1 |
+| 1.1 | ✅ **🌌 Constellation Sky** | DONE v1.2 — new tab, one star/session, 7-day runs form zodiac constellations, active stars glow. `ConstellationSky.tsx` + `constants/constellations.ts`. Premium skins still open for v2 |
+| 1.2 | ✅ **Streak freeze ("Stardust Shield")** | DONE v1.2 — 1 shield/7-day streak (max 2), auto-consumed on single missed day, chip on Home |
+| 1.3 | **Weekly recap card** | Monday first-open: modal card with minutes, sessions, XP, mood trend vs last week, sharable. Data from existing sessions/moods. Gemini generates 1 encouraging sentence about the week. **← next up** |
+| 1.4 | ✅ **Smarter notification copy** | DONE v1.2 — `buildPersonalizedMessage()` references streak + rank, mixed with generic pool |
+| 1.5 | ✅ **Onboarding goal quiz** | DONE v1.2 — step 3 Sleep/Stress/Focus/Curiosity, injected into Gemini prompt via `GOAL_CONTEXT` |
 
 ### P2 — Content depth
 | # | Feature | Notes |
@@ -134,7 +137,8 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-04-25 | Ship prep | EAS config, CLAUDE.md, README.md, SHIPPING.md; 17/17 expo-doctor |
 | 2026-06-13 | Gamification v1.1 | XP/ranks/achievements/challenges live; IMPROVEMENTS.md; emulator smoke test |
 | 2026-06-13 | Handoff doc | This file rewritten as architecture + prioritized implementation queue for next agent |
+| 2026-06-26 | Retention v1.2 | Constellation Sky tab, Stardust Shield streak freeze, onboarding goal quiz, personalized notifications, reminder time picker, per-session soundscape tracking; tsc clean |
 
 ---
 
-**Last updated:** 2026-06-13
+**Last updated:** 2026-06-26

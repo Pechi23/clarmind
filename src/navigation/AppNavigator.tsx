@@ -10,6 +10,7 @@ import { COLORS, FONTS } from '../constants/theme';
 import { UserProfile } from '../types';
 import HomeScreen from '../screens/HomeScreen';
 import BreatheScreen from '../screens/BreatheScreen';
+import SkyScreen from '../screens/SkyScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
@@ -23,6 +24,7 @@ interface Props {
 const TAB_ICONS: Record<string, string> = {
   Home: '🌙',
   Breathe: '🌬️',
+  Sky: '🌌',
   Top: '🏆',
   Profile: '⚙️',
 };
@@ -79,6 +81,9 @@ export default function AppNavigator({ profile, onReset }: Props) {
           {() => <HomeScreen profile={profile} />}
         </Tab.Screen>
         <Tab.Screen name="Breathe" component={BreatheScreen} />
+        <Tab.Screen name="Sky">
+          {() => <SkyScreen profile={profile} />}
+        </Tab.Screen>
         <Tab.Screen name="Top">
           {() => <LeaderboardScreen profile={profile} />}
         </Tab.Screen>

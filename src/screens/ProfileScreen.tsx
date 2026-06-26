@@ -10,6 +10,7 @@ import { UserProfile } from '../types';
 import {
   getStreak, getTotalMeditationMinutes, getMeditationSessions,
   clearUserProfile, setNotificationsEnabled, getNotificationsEnabled,
+  getReminderTime, setReminderTime, ReminderTime,
 } from '../services/storage';
 import GradientCard from '../components/GradientCard';
 import {
@@ -33,17 +34,30 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [allSessions, setAllSessions] = useState<MeditationSession[]>([]);
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+  const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
+
+  const REMINDER_PRESETS: ReminderTime[] = [
+    { hour: 7, minute: 0 },
+    { hour: 9, minute: 0 },
+    { hour: 12, minute: 30 },
+    { hour: 18, minute: 0 },
+    { hour: 21, minute: 30 },
+  ];
+
+  const formatTime = (t: ReminderTime) =>
+    `${String(t.hour).padStart(2, '0')}:${String(t.minute).padStart(2, '0')}`;
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
 
   const load = useCallback(async () => {
-    const [s, m, sess, n, totalXp, unlocked] = await Promise.all([
+    const [s, m, sess, n, totalXp, unlocked, rTime] = await Promise.all([
       getStreak(),
       getTotalMeditationMinutes(),
       getMeditationSessions(),
       getNotificationsEnabled(),
       getXp(),
       getUnlockedAchievements(),
+      getReminderTime(),
     ]);
     setStreak(s);
     setTotalMin(m);
@@ -52,6 +66,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     setNotifs(n);
     setXp(totalXp);
     setUnlockedIds(unlocked);
+    setReminderTimeState(rTime);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -89,12 +104,20 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         Alert.alert('Permission needed', 'Please enable notifications in your device settings to receive daily reminders.');
         return;
       }
-      await scheduleDailyReminder(9, 0);
+      await scheduleDailyReminder(reminderTime.hour, reminderTime.minute);
     } else {
       await cancelAllReminders();
     }
     setNotifs(v);
     await setNotificationsEnabled(v);
+  };
+
+  const pickReminderTime = async (t: ReminderTime) => {
+    setReminderTimeState(t);
+    await setReminderTime(t);
+    if (notifs) {
+      await scheduleDailyReminder(t.hour, t.minute);
+    }
   };
 
   return (
@@ -197,12 +220,35 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           />
         </View>
 
+        {notifs && (
+          <View style={styles.reminderTimeWrap}>
+            <Text style={styles.reminderTimeLabel}>Remind me at</Text>
+            <View style={styles.timeChipRow}>
+              {REMINDER_PRESETS.map((t) => {
+                const selected = t.hour === reminderTime.hour && t.minute === reminderTime.minute;
+                return (
+                  <TouchableOpacity
+                    key={formatTime(t)}
+                    onPress={() => pickReminderTime(t)}
+                    activeOpacity={0.85}
+                    style={[styles.timeChip, selected && styles.timeChipSelected]}
+                  >
+                    <Text style={[styles.timeChipText, selected && styles.timeChipTextSelected]}>
+                      {formatTime(t)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         {/* Reset */}
         <TouchableOpacity onPress={handleReset} activeOpacity={0.85} style={styles.resetButton}>
           <Text style={styles.resetText}>Reset onboarding</Text>
         </TouchableOpacity>
 
-        <Text style={styles.appVersion}>ClarMind · v1.0.0</Text>
+        <Text style={styles.appVersion}>ClarMind · v1.2.0</Text>
       </ScrollView>
     </LinearGradient>
   );
@@ -247,6 +293,25 @@ const styles = StyleSheet.create({
   },
   settingTitle: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
   settingSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textDim, marginTop: 2 },
+  reminderTimeWrap: {
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: RADIUS.md,
+    padding: SPACING.md, marginTop: -SPACING.sm, marginBottom: SPACING.lg,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+  },
+  reminderTimeLabel: {
+    fontFamily: FONTS.medium, fontSize: 12, color: COLORS.textMuted, marginBottom: SPACING.sm,
+  },
+  timeChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
+  timeChip: {
+    paddingHorizontal: 14, paddingVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: RADIUS.full,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+  },
+  timeChipSelected: {
+    backgroundColor: 'rgba(167,139,250,0.2)', borderColor: COLORS.primary,
+  },
+  timeChipText: { fontFamily: FONTS.semiBold, fontSize: 13, color: COLORS.textMuted },
+  timeChipTextSelected: { color: COLORS.primaryLight },
   resetButton: {
     backgroundColor: 'rgba(253,164,175,0.1)', borderRadius: RADIUS.md,
     padding: SPACING.md, alignItems: 'center', marginTop: SPACING.md,

@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS, ZodiacInfo } from '../constants/zodiac';
 import { saveUserProfile } from '../services/storage';
-import { UserProfile } from '../types';
+import { UserProfile, UserGoal } from '../types';
 
 const { width } = Dimensions.get('window');
 
@@ -15,20 +15,29 @@ interface Props {
   onComplete: () => void;
 }
 
+const GOALS: { id: UserGoal; emoji: string; title: string; subtitle: string }[] = [
+  { id: 'sleep',     emoji: '😴', title: 'Sleep better',     subtitle: 'Wind down and rest deeply' },
+  { id: 'stress',    emoji: '🌊', title: 'Manage stress',    subtitle: 'Find calm in busy days' },
+  { id: 'focus',     emoji: '🎯', title: 'Sharpen focus',    subtitle: 'Train a clearer mind' },
+  { id: 'curiosity', emoji: '✨', title: 'Just exploring',   subtitle: 'See what mindfulness can do' },
+];
+
 export default function OnboardingScreen({ onComplete }: Props) {
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState('');
   const [selectedZodiac, setSelectedZodiac] = useState<ZodiacInfo | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<UserGoal | null>(null);
 
   const handleNameNext = () => {
     if (name.trim().length >= 2) setStep(2);
   };
 
   const handleFinish = async () => {
-    if (!selectedZodiac) return;
+    if (!selectedZodiac || !selectedGoal) return;
     const profile: UserProfile = {
       name: name.trim(),
       zodiacSign: selectedZodiac.name,
+      goal: selectedGoal,
       onboardingComplete: true,
     };
     await saveUserProfile(profile);
@@ -41,7 +50,55 @@ export default function OnboardingScreen({ onComplete }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
-        {step === 1 ? (
+        {step === 3 ? (
+          <View style={styles.flex}>
+            <View style={styles.stepHeader}>
+              <TouchableOpacity onPress={() => setStep(2)}>
+                <Text style={styles.back}>← Back</Text>
+              </TouchableOpacity>
+              <Text style={styles.logo}>✦ ClarMind</Text>
+              <View style={{ width: 50 }} />
+            </View>
+            <Text style={styles.headline2}>What brings{'\n'}you here?</Text>
+            <Text style={styles.subtext2}>
+              We'll shape your daily guidance around this.
+            </Text>
+            <View style={styles.goalList}>
+              {GOALS.map((g) => {
+                const isSelected = selectedGoal === g.id;
+                return (
+                  <TouchableOpacity
+                    key={g.id}
+                    style={[styles.goalCard, isSelected && styles.goalCardSelected]}
+                    onPress={() => setSelectedGoal(g.id)}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.goalEmoji}>{g.emoji}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.goalTitle, isSelected && { color: '#c4b5fd' }]}>
+                        {g.title}
+                      </Text>
+                      <Text style={styles.goalSubtitle}>{g.subtitle}</Text>
+                    </View>
+                    {isSelected && <Text style={styles.goalCheck}>✓</Text>}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <View style={styles.bottomBar}>
+              <TouchableOpacity
+                style={[styles.button, !selectedGoal && styles.buttonDisabled]}
+                onPress={handleFinish}
+                disabled={!selectedGoal}
+                activeOpacity={0.8}
+              >
+                <LinearGradient colors={GRADIENTS.button} style={styles.buttonGradient}>
+                  <Text style={styles.buttonText}>Start my journey ✦</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : step === 1 ? (
           <View style={styles.stepContainer}>
             <Text style={styles.logo}>✦ ClarMind</Text>
             <Text style={styles.headline}>Clear your mind,{'\n'}every single day.</Text>
@@ -113,12 +170,12 @@ export default function OnboardingScreen({ onComplete }: Props) {
             <View style={styles.bottomBar}>
               <TouchableOpacity
                 style={[styles.button, !selectedZodiac && styles.buttonDisabled]}
-                onPress={handleFinish}
+                onPress={() => selectedZodiac && setStep(3)}
                 disabled={!selectedZodiac}
                 activeOpacity={0.8}
               >
                 <LinearGradient colors={GRADIENTS.button} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>Start my journey ✦</Text>
+                  <Text style={styles.buttonText}>Continue →</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -249,6 +306,22 @@ const styles = StyleSheet.create({
     color: COLORS.textDim,
     textAlign: 'center',
   },
+  goalList: { paddingHorizontal: SPACING.lg, gap: SPACING.sm, marginTop: SPACING.md },
+  goalCard: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.md, borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    padding: SPACING.md,
+  },
+  goalCardSelected: {
+    borderColor: '#a78bfa',
+    backgroundColor: 'rgba(167,139,250,0.15)',
+  },
+  goalEmoji: { fontSize: 28 },
+  goalTitle: { fontFamily: FONTS.semiBold, fontSize: 16, color: COLORS.text },
+  goalSubtitle: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
+  goalCheck: { fontFamily: FONTS.bold, fontSize: 18, color: '#a78bfa' },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
