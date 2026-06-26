@@ -100,6 +100,26 @@ npx expo install --fix       # if version mismatches
 npx expo start --clear       # required after babel/reanimated changes
 ```
 
+## Testing
+
+Pure logic (date math, streak/shield rules, constellation runs, level curve,
+seeded challenges) lives in dependency-free modules so it can be unit-tested
+without the React Native runtime:
+
+- `services/streakLogic.ts` — `computeStreakUpdate` (storage.ts wraps it with I/O)
+- `services/skyLogic.ts` — `getRuns`, `countConstellations`
+- `services/challengeLogic.ts` — `pickDailyChallengeDefs` (seeded)
+- `constants/achievements.ts` — `getLevelForXp`
+
+```bash
+npm test            # jest, 43 tests across 5 suites
+npm run typecheck   # tsc --noEmit (tests excluded from app build)
+```
+
+When adding a feature with branching logic (dates, scoring, seeded
+randomness), put the pure part in a `*Logic.ts` module and add a test in
+`__tests__/`. Keep AsyncStorage / RN imports out of those modules.
+
 Press `a` for Android (Expo Go) · `w` for Web · iOS needs EAS Build (no Mac required).
 
 ### Environment

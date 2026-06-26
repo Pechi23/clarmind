@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ACHIEVEMENTS, AchievementDef, XP, getLevelForXp } from '../constants/achievements';
 import { getMeditationSessions, getMoodEntries, getStreak } from './storage';
 import { BREATHING_PATTERNS } from './../constants/breathing';
+import { pickDailyChallengeDefs } from './challengeLogic';
 
 const KEYS = {
   XP_TOTAL: 'clarmind_xp_total',
@@ -115,40 +116,9 @@ export interface DailyChallenge {
   done: boolean;
 }
 
-interface ChallengeDef {
-  id: string;
-  text: string;
-  emoji: string;
-}
-
-const CHALLENGE_POOL: ChallengeDef[] = [
-  { id: 'session-5min',   text: 'Complete a 5-minute session',      emoji: '⏱️' },
-  { id: 'pattern-478',    text: 'Try the 4-7-8 pattern',            emoji: '😴' },
-  { id: 'pattern-box',    text: 'Do a Box Breathing session',       emoji: '📦' },
-  { id: 'mood-checkin',   text: 'Log your mood after a session',    emoji: '😌' },
-  { id: 'read-guide',     text: 'Read your full daily guide',       emoji: '📖' },
-  { id: 'morning',        text: 'Meditate before noon',             emoji: '🌅' },
-  { id: 'two-sessions',   text: 'Complete 2 sessions today',        emoji: '✌️' },
-  { id: 'session-10min',  text: 'Complete a 10-minute session',     emoji: '🧘' },
-  { id: 'soundscape',     text: 'Meditate with a soundscape',       emoji: '🎧' },
-];
-
-const seededShuffleIndices = (seed: number, length: number, count: number): number[] => {
-  const picked: number[] = [];
-  let s = seed;
-  while (picked.length < count) {
-    s = (s * 9301 + 49297) % 233280;
-    const idx = Math.floor((s / 233280) * length);
-    if (!picked.includes(idx)) picked.push(idx);
-  }
-  return picked;
-};
-
 export const getTodayChallenges = async (): Promise<DailyChallenge[]> => {
   const today = todayStr();
-  const seed = parseInt(today.replace(/-/g, ''), 10);
-  const indices = seededShuffleIndices(seed, CHALLENGE_POOL.length, 3);
-  const defs = indices.map((i) => CHALLENGE_POOL[i]);
+  const defs = pickDailyChallengeDefs(today, 3);
 
   const raw = await AsyncStorage.getItem(KEYS.CHALLENGES);
   const stored: { date: string; done: string[] } = raw

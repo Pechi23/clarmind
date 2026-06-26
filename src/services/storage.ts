@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult } from '../types';
+import { computeStreakUpdate } from './streakLogic';
 
 const KEYS = {
   USER_PROFILE: 'clarmind_user_profile',
@@ -12,8 +13,6 @@ const KEYS = {
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
 };
-
-const MAX_SHIELDS = 2;
 
 export const saveUserProfile = async (profile: UserProfile): Promise<void> => {
   await AsyncStorage.setItem(KEYS.USER_PROFILE, JSON.stringify(profile));
@@ -49,48 +48,24 @@ export const getShields = async (): Promise<number> => {
   return v ? parseInt(v, 10) : 0;
 };
 
-const daysBetween = (fromIso: string, toIso: string): number => {
-  const from = new Date(fromIso + 'T00:00:00');
-  const to = new Date(toIso + 'T00:00:00');
-  return Math.round((to.getTime() - from.getTime()) / 86400000);
-};
-
 /**
- * Daily streak update with Stardust Shields:
- * - exactly 1 missed day + a shield available -> shield consumed, streak continues
- * - every 7-day milestone earns a shield (max 2 held)
+ * Daily streak update with Stardust Shields. Reads current state, delegates the
+ * math to the pure `computeStreakUpdate`, persists the result.
  */
 export const updateStreak = async (): Promise<StreakResult> => {
   const today = new Date().toISOString().split('T')[0];
-  const lastOpen = await AsyncStorage.getItem(KEYS.LAST_OPEN);
-  let streak = await getStreak();
-  let shields = await getShields();
-  let shieldUsed = false;
-  let shieldEarned = false;
+  const [lastOpen, prevStreak, prevShields] = await Promise.all([
+    AsyncStorage.getItem(KEYS.LAST_OPEN),
+    getStreak(),
+    getShields(),
+  ]);
 
-  if (!lastOpen) {
-    streak = 1;
-  } else if (lastOpen !== today) {
-    const gap = daysBetween(lastOpen, today);
-    if (gap === 1) {
-      streak += 1;
-    } else if (gap === 2 && shields > 0) {
-      shields -= 1;
-      shieldUsed = true;
-      streak += 1;
-    } else {
-      streak = 1;
-    }
-    if (streak > 0 && streak % 7 === 0 && shields < MAX_SHIELDS) {
-      shields += 1;
-      shieldEarned = true;
-    }
-  }
+  const result = computeStreakUpdate({ prevStreak, prevShields, lastOpen, today });
 
-  await AsyncStorage.setItem(KEYS.STREAK, String(streak));
-  await AsyncStorage.setItem(KEYS.SHIELDS, String(shields));
+  await AsyncStorage.setItem(KEYS.STREAK, String(result.streak));
+  await AsyncStorage.setItem(KEYS.SHIELDS, String(result.shields));
   await AsyncStorage.setItem(KEYS.LAST_OPEN, today);
-  return { streak, shields, shieldUsed, shieldEarned };
+  return result;
 };
 
 // Meditation sessions

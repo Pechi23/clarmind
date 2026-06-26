@@ -3,6 +3,9 @@ import Svg, { Circle, Line, Defs, RadialGradient, Stop } from 'react-native-svg'
 import { MeditationSession } from '../types';
 import { ZodiacSign } from '../constants/zodiac';
 import { CONSTELLATIONS } from '../constants/constellations';
+import { getRuns, countConstellations } from '../services/skyLogic';
+
+export { getRuns, countConstellations };
 
 const W = 360;
 const H = 460;
@@ -20,29 +23,6 @@ const rand = (seed: number) => {
   const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
 };
-
-/** Groups unique session dates into runs of consecutive days. */
-export const getRuns = (sessions: MeditationSession[]): string[][] => {
-  const dates = [...new Set(sessions.map((s) => s.date))].sort();
-  const runs: string[][] = [];
-  let current: string[] = [];
-  for (const d of dates) {
-    if (current.length === 0) {
-      current = [d];
-    } else {
-      const prev = new Date(current[current.length - 1] + 'T00:00:00');
-      const cur = new Date(d + 'T00:00:00');
-      const gap = Math.round((cur.getTime() - prev.getTime()) / 86400000);
-      if (gap === 1) current.push(d);
-      else { runs.push(current); current = [d]; }
-    }
-  }
-  if (current.length) runs.push(current);
-  return runs;
-};
-
-export const countConstellations = (sessions: MeditationSession[]): number =>
-  getRuns(sessions).reduce((acc, run) => acc + Math.floor(run.length / 7), 0);
 
 export default function ConstellationSky({ sessions, zodiac, width = W, height = H }: Props) {
   const { ambient, stars, constellations } = useMemo(() => {

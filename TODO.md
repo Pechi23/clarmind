@@ -138,7 +138,8 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-13 | Gamification v1.1 | XP/ranks/achievements/challenges live; IMPROVEMENTS.md; emulator smoke test |
 | 2026-06-13 | Handoff doc | This file rewritten as architecture + prioritized implementation queue for next agent |
 | 2026-06-26 | Retention v1.2 | Constellation Sky tab, Stardust Shield streak freeze, onboarding goal quiz, personalized notifications, reminder time picker, per-session soundscape tracking; tsc clean |
+| 2026-06-27 | Test harness | Extracted pure logic (streakLogic, skyLogic, challengeLogic); Jest + ts-jest; 43 unit tests across 5 suites, all green; `npm test` / `npm run typecheck` scripts |
 
 ---
 
-**Last updated:** 2026-06-26
+**Last updated:** 2026-06-27
