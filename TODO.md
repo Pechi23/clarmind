@@ -80,7 +80,7 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 |---|---|---|
 | 1.1 | ✅ **🌌 Constellation Sky** | DONE v1.2 — new tab, one star/session, 7-day runs form zodiac constellations, active stars glow. `ConstellationSky.tsx` + `constants/constellations.ts`. Premium skins still open for v2 |
 | 1.2 | ✅ **Streak freeze ("Stardust Shield")** | DONE v1.2 — 1 shield/7-day streak (max 2), auto-consumed on single missed day, chip on Home |
-| 1.3 | **Weekly recap card** | Monday first-open: modal card with minutes, sessions, XP, mood trend vs last week, sharable. Data from existing sessions/moods. Gemini generates 1 encouraging sentence about the week. **← next up** |
+| 1.3 | ✅ **Weekly recap card** | DONE v1.3 — once-per-ISO-week modal with this-vs-last-week minutes/sessions/active-days/mood deltas + Gemini reflection (offline fallback). `weeklyRecapLogic.ts` + `WeeklyRecapModal.tsx`. Share-image still open for P4 |
 | 1.4 | ✅ **Smarter notification copy** | DONE v1.2 — `buildPersonalizedMessage()` references streak + rank, mixed with generic pool |
 | 1.5 | ✅ **Onboarding goal quiz** | DONE v1.2 — step 3 Sleep/Stress/Focus/Curiosity, injected into Gemini prompt via `GOAL_CONTEXT` |
 
@@ -139,6 +139,7 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-13 | Handoff doc | This file rewritten as architecture + prioritized implementation queue for next agent |
 | 2026-06-26 | Retention v1.2 | Constellation Sky tab, Stardust Shield streak freeze, onboarding goal quiz, personalized notifications, reminder time picker, per-session soundscape tracking; tsc clean |
 | 2026-06-27 | Test harness | Extracted pure logic (streakLogic, skyLogic, challengeLogic); Jest + ts-jest; 43 unit tests across 5 suites, all green; `npm test` / `npm run typecheck` scripts |
+| 2026-06-27 | Weekly Recap (v1.3) | Once-per-week recap modal with this-vs-last-week deltas + Gemini reflection (offline fallback); weeklyRecapLogic + 11 tests (caught a real getMondayKey timezone bug); 54 tests total |
 
 ---
 

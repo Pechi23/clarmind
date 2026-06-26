@@ -8,15 +8,22 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile, DailyContent } from '../types';
-import { getDailyContent, saveDailyContent, getStreak, updateStreak } from '../services/storage';
-import { generateDailyContent } from '../services/claude';
+import {
+  getDailyContent, saveDailyContent, getStreak, updateStreak,
+  getMeditationSessions, getMoodEntries, getLastRecapWeek, setLastRecapWeek,
+} from '../services/storage';
+import { generateDailyContent, generateWeeklyReflection } from '../services/claude';
 import GradientCard from '../components/GradientCard';
 import StreakBadge from '../components/StreakBadge';
+import WeeklyRecapModal from '../components/WeeklyRecapModal';
 import {
   claimDailyOpenXp, claimGuideReadXp, getTodayChallenges, getXp,
   completeChallenge, checkAchievements, DailyChallenge,
 } from '../services/gamification';
 import { getLevelForXp } from '../constants/achievements';
+import {
+  computeWeeklyRecap, getMondayKey, buildFallbackReflection, WeeklyRecap,
+} from '../services/weeklyRecapLogic';
 
 interface Props {
   profile: UserProfile;
@@ -32,7 +39,32 @@ export default function HomeScreen({ profile }: Props) {
   const [shields, setShields] = useState(0);
   const [xp, setXp] = useState(0);
   const [xpToast, setXpToast] = useState<string | null>(null);
+  const [recap, setRecap] = useState<WeeklyRecap | null>(null);
+  const [recapReflection, setRecapReflection] = useState('');
+  const [recapVisible, setRecapVisible] = useState(false);
   const guideAwarded = React.useRef(false);
+
+  // Show the weekly recap once per ISO week, when there's recent activity.
+  const maybeShowWeeklyRecap = useCallback(async () => {
+    const weekKey = getMondayKey();
+    const lastShown = await getLastRecapWeek();
+    if (lastShown === weekKey) return;
+
+    const [sessions, moods] = await Promise.all([getMeditationSessions(), getMoodEntries()]);
+    const computed = computeWeeklyRecap(sessions, moods);
+    // Skip empty weeks — only surface the recap when there's something to reflect on.
+    if (computed.thisWeek.sessions === 0 && computed.lastWeek.sessions === 0) return;
+
+    await setLastRecapWeek(weekKey);
+    setRecap(computed);
+    setRecapReflection(buildFallbackReflection(computed));
+    setRecapVisible(true);
+
+    // Upgrade the reflection with a Gemini-written line if available.
+    generateWeeklyReflection(profile.name, computed)
+      .then(setRecapReflection)
+      .catch(() => {});
+  }, [profile.name]);
 
   const showXpToast = (msg: string) => {
     setXpToast(msg);
@@ -88,9 +120,11 @@ export default function HomeScreen({ profile }: Props) {
       await checkAchievements();
       await refreshGamification();
       setLoading(false);
+      // After the screen is ready, consider surfacing the weekly recap.
+      maybeShowWeeklyRecap();
     };
     init();
-  }, [loadContent, refreshGamification]);
+  }, [loadContent, refreshGamification, maybeShowWeeklyRecap]);
 
   // Refresh challenges/XP whenever the tab regains focus (e.g. after a session)
   useFocusEffect(
@@ -134,6 +168,14 @@ export default function HomeScreen({ profile }: Props) {
 
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
+      {recap && (
+        <WeeklyRecapModal
+          visible={recapVisible}
+          recap={recap}
+          reflection={recapReflection}
+          onClose={() => setRecapVisible(false)}
+        />
+      )}
       {xpToast && (
         <View style={styles.xpToast}>
           <Text style={styles.xpToastText}>{xpToast}</Text>

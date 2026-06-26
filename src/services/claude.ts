@@ -3,6 +3,7 @@
 // To switch to Claude later: replace fetch call with Anthropic SDK
 import { ZodiacSign } from '../constants/zodiac';
 import { DailyContent, UserGoal } from '../types';
+import { WeeklyRecap, buildFallbackReflection } from './weeklyRecapLogic';
 
 const GOAL_CONTEXT: Record<UserGoal, string> = {
   sleep: 'Their main goal is sleeping better — lean toward rest, winding down, and releasing the day.',
@@ -71,4 +72,43 @@ Keep the tone warm, calm, and encouraging. No markdown, no extra text — just t
     ...parsed,
     generatedAt: new Date().toISOString().split('T')[0],
   };
+};
+
+/**
+ * One warm sentence reflecting on the user's week. Always resolves — falls back
+ * to a locally-derived sentence if the network/API is unavailable, so the recap
+ * card never blocks or shows an error.
+ */
+export const generateWeeklyReflection = async (
+  name: string,
+  recap: WeeklyRecap
+): Promise<string> => {
+  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
+  const fallback = buildFallbackReflection(recap);
+  if (!apiKey) return fallback;
+
+  const { thisWeek, lastWeek, minutesDelta, moodDelta } = recap;
+  const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
+
+This week: ${thisWeek.sessions} sessions, ${thisWeek.minutes} minutes, ${thisWeek.activeDays} active days${thisWeek.avgMood !== null ? `, average mood ${thisWeek.avgMood}/5` : ''}.
+Last week: ${lastWeek.sessions} sessions, ${lastWeek.minutes} minutes.
+Change in minutes: ${minutesDelta >= 0 ? '+' : ''}${minutesDelta}${moodDelta !== null ? `. Mood change: ${moodDelta >= 0 ? '+' : ''}${moodDelta}` : ''}.`;
+
+  try {
+    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 60, temperature: 0.9 },
+      }),
+    });
+    if (!response.ok) return fallback;
+    const data = await response.json();
+    const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const clean = text.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+    return clean.length > 0 ? clean : fallback;
+  } catch {
+    return fallback;
+  }
 };

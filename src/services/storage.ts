@@ -12,6 +12,7 @@ const KEYS = {
   NOTIFICATIONS_ENABLED: 'clarmind_notifications_enabled',
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
+  LAST_RECAP_WEEK: 'clarmind_last_recap_week',
 };
 
 export const saveUserProfile = async (profile: UserProfile): Promise<void> => {
@@ -116,4 +117,13 @@ export const setNotificationsEnabled = async (enabled: boolean): Promise<void> =
 export const getNotificationsEnabled = async (): Promise<boolean> => {
   const data = await AsyncStorage.getItem(KEYS.NOTIFICATIONS_ENABLED);
   return data === 'true';
+};
+
+// Weekly recap — remember which week's recap we've already shown
+export const getLastRecapWeek = async (): Promise<string | null> => {
+  return AsyncStorage.getItem(KEYS.LAST_RECAP_WEEK);
+};
+
+export const setLastRecapWeek = async (weekKey: string): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.LAST_RECAP_WEEK, weekKey);
 };
