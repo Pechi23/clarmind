@@ -10,7 +10,9 @@ import BreathingCircle from '../components/BreathingCircle';
 import { saveMeditationSession, getTotalMeditationMinutes } from '../services/storage';
 import { MoodEntry } from '../types';
 import { saveMoodEntry } from '../services/storage';
-import { SOUNDSCAPES, Soundscape, playSoundscape, stopSoundscape } from '../services/soundscape';
+import {
+  SOUNDSCAPES, Soundscape, playSoundscape, stopSoundscape, fadeOutSoundscape, playChime,
+} from '../services/soundscape';
 import {
   addXp, applySessionToChallenges, checkAchievements,
   completeChallenge, getTodayChallenges,
@@ -56,6 +58,7 @@ export default function BreatheScreen() {
     setSecondsLeft(durationMin * 60);
     setPhaseSecondsLeft(pattern.phases[0].duration);
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
+    playChime('start').catch(() => {});
     playSoundscape(soundscape).catch(() => {});
 
     sessionTimer.current = setInterval(() => {
@@ -93,7 +96,8 @@ export default function BreatheScreen() {
 
   const finishSession = async () => {
     cleanup();
-    await stopSoundscape();
+    playChime('end').catch(() => {});
+    fadeOutSoundscape(4000).catch(() => {}); // gentle wind-down, esp. for sleep
     const today = new Date().toISOString().split('T')[0];
     await saveMeditationSession({
       date: today,

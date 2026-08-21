@@ -148,6 +148,24 @@ function space() {
   return normalize(crossfadeLoop(out, N), 0.75);
 }
 
+/** A soft, warm meditation bell — a struck tone with exponential decay. */
+function bell(freq, seconds) {
+  const len = Math.floor(seconds * SR);
+  const out = new Float32Array(len);
+  // A few inharmonic partials give it a "bowl" shimmer.
+  const partials = [[1, 1], [2.01, 0.5], [2.99, 0.28], [4.1, 0.15]];
+  for (let i = 0; i < len; i++) {
+    const t = i / SR;
+    const env = Math.exp(-t * 2.6);
+    let v = 0;
+    for (const [mult, amp] of partials) v += Math.sin(2 * Math.PI * freq * mult * t) * amp;
+    // gentle attack over 8ms
+    const attack = Math.min(1, t / 0.008);
+    out[i] = v * env * attack;
+  }
+  return normalize(out, 0.75);
+}
+
 // ---- render -----------------------------------------------------------------
 
 if (!fs.existsSync(OUT)) fs.mkdirSync(OUT, { recursive: true });
@@ -155,4 +173,6 @@ writeWav('rain.wav', rain());
 writeWav('ocean.wav', ocean());
 writeWav('forest.wav', forest());
 writeWav('space.wav', space());
-console.log('\nAmbient soundscapes generated in assets/sounds/.');
+writeWav('bell-start.wav', bell(528, 3.2));  // 528 Hz — warm "begin" tone
+writeWav('bell-end.wav', bell(396, 3.6));    // 396 Hz — lower "complete" tone
+console.log('\nAmbient soundscapes + bells generated in assets/sounds/.');

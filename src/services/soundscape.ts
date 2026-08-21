@@ -19,7 +19,26 @@ export const SOUNDSCAPES: Soundscape[] = [
   { id: 'space',   name: 'Deep Space',  emoji: '🌌', source: require('../../assets/sounds/space.wav') },
 ];
 
+const BELL_START = require('../../assets/sounds/bell-start.wav');
+const BELL_END = require('../../assets/sounds/bell-end.wav');
+
 let currentSound: Audio.Sound | null = null;
+
+/** Plays a one-shot meditation bell that unloads itself when finished. */
+export const playChime = async (which: 'start' | 'end'): Promise<void> => {
+  try {
+    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+    const { sound } = await Audio.Sound.createAsync(
+      which === 'start' ? BELL_START : BELL_END,
+      { volume: 0.6, shouldPlay: true }
+    );
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded && status.didJustFinish) sound.unloadAsync().catch(() => {});
+    });
+  } catch {
+    // non-fatal
+  }
+};
 
 export const playSoundscape = async (soundscape: Soundscape): Promise<void> => {
   await stopSoundscape();
@@ -49,6 +68,24 @@ export const stopSoundscape = async (): Promise<void> => {
       await currentSound.unloadAsync();
     } catch {}
     currentSound = null;
+  }
+};
+
+/** Gently fades the current soundscape to silence over `ms`, then stops it. */
+export const fadeOutSoundscape = async (ms = 4000): Promise<void> => {
+  const sound = currentSound;
+  if (!sound) return;
+  const steps = 12;
+  const interval = ms / steps;
+  try {
+    for (let i = steps - 1; i >= 0; i--) {
+      await new Promise((r) => setTimeout(r, interval));
+      // Guard against the sound being replaced/stopped mid-fade.
+      if (currentSound !== sound) return;
+      await sound.setVolumeAsync((0.5 * i) / steps).catch(() => {});
+    }
+  } finally {
+    if (currentSound === sound) await stopSoundscape();
   }
 };
 
