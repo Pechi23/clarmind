@@ -41,3 +41,9 @@ export interface MoodEntry {
   mood: number;            // 1 (anxious) to 5 (calm)
   context: 'pre-session' | 'post-session' | 'general';
 }
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  text: string;
+  at: string;              // ISO timestamp
+}

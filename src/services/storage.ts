@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult } from '../types';
+import {
+  UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage,
+} from '../types';
 import { computeStreakUpdate } from './streakLogic';
 
 const KEYS = {
@@ -13,7 +15,11 @@ const KEYS = {
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
   LAST_RECAP_WEEK: 'clarmind_last_recap_week',
+  CHAT_HISTORY: 'clarmind_chat_history',
+  CLARA_COUNT: 'clarmind_clara_count', // { date, count }
 };
+
+const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
 
 export const saveUserProfile = async (profile: UserProfile): Promise<void> => {
   await AsyncStorage.setItem(KEYS.USER_PROFILE, JSON.stringify(profile));
@@ -126,4 +132,35 @@ export const getLastRecapWeek = async (): Promise<string | null> => {
 
 export const setLastRecapWeek = async (weekKey: string): Promise<void> => {
   await AsyncStorage.setItem(KEYS.LAST_RECAP_WEEK, weekKey);
+};
+
+// Clara chat
+export const getChatHistory = async (): Promise<ChatMessage[]> => {
+  const data = await AsyncStorage.getItem(KEYS.CHAT_HISTORY);
+  return data ? JSON.parse(data) : [];
+};
+
+export const saveChatHistory = async (messages: ChatMessage[]): Promise<void> => {
+  const trimmed = messages.slice(-CHAT_HISTORY_CAP);
+  await AsyncStorage.setItem(KEYS.CHAT_HISTORY, JSON.stringify(trimmed));
+};
+
+export const clearChatHistory = async (): Promise<void> => {
+  await AsyncStorage.removeItem(KEYS.CHAT_HISTORY);
+};
+
+/** Returns today's Clara message count (resets daily). */
+export const getClaraCount = async (): Promise<number> => {
+  const today = new Date().toISOString().split('T')[0];
+  const raw = await AsyncStorage.getItem(KEYS.CLARA_COUNT);
+  if (!raw) return 0;
+  const parsed: { date: string; count: number } = JSON.parse(raw);
+  return parsed.date === today ? parsed.count : 0;
+};
+
+export const incrementClaraCount = async (): Promise<number> => {
+  const today = new Date().toISOString().split('T')[0];
+  const count = (await getClaraCount()) + 1;
+  await AsyncStorage.setItem(KEYS.CLARA_COUNT, JSON.stringify({ date: today, count }));
+  return count;
 };

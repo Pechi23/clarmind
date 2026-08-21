@@ -87,7 +87,7 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 ### P2 — Content depth
 | # | Feature | Notes |
 |---|---|---|
-| 2.1 | **"Clara" — AI companion chat** | Floating button on Home → short empathetic chat (Gemini, system prompt: warm mindfulness coach, 5 exchanges/day free). Differentiator: Calm/Headspace have nothing conversational. Reuse the existing Gemini service pattern; keep a rolling transcript in AsyncStorage |
+| 2.1 | ✅ **"Clara" — AI companion chat** | DONE v1.4 — floating 🌙 button on Home → full chat screen (Gemini w/ systemInstruction, warm-coach persona + crisis safety guardrail, 20 msgs/day). Rolling transcript in AsyncStorage, offline fallback lines. `services/clara.ts` + `ClaraScreen.tsx` |
 | 2.2 | **7-day micro-courses** | AI-generated programs ("7 Days of Letting Go"). One unlock per day = built-in return visit. Generate day N content on demand, cache like daily content |
 | 2.3 | **Mood-aware sessions** | Pre-session mood prompt; if mood ≤ 2 suggest longer session + warmer phase labels. Post-vs-pre delta shown on completion ("You moved +2 toward calm") |
 | 2.4 | **Evening reflection journal** | After 21:00, Home shows 1 AI question ("What can you release before sleep?"). Answers stored locally; weekly recap quotes them |
@@ -140,6 +140,7 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-26 | Retention v1.2 | Constellation Sky tab, Stardust Shield streak freeze, onboarding goal quiz, personalized notifications, reminder time picker, per-session soundscape tracking; tsc clean |
 | 2026-06-27 | Test harness | Extracted pure logic (streakLogic, skyLogic, challengeLogic); Jest + ts-jest; 43 unit tests across 5 suites, all green; `npm test` / `npm run typecheck` scripts |
 | 2026-06-27 | Weekly Recap (v1.3) | Once-per-week recap modal with this-vs-last-week deltas + Gemini reflection (offline fallback); weeklyRecapLogic + 11 tests (caught a real getMondayKey timezone bug); 54 tests total |
+| 2026-06-27 | Deploy prep + Clara (v1.4) | Real branded icon/splash/favicon (sharp generator); privacy policy + terms + store listing copy; Home loading skeleton; "Clara" AI companion chat with safety guardrail + daily cap |
 
 ---
 

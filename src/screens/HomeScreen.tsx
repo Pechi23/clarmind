@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, RefreshControl,
+  TouchableOpacity, RefreshControl, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
@@ -17,6 +17,7 @@ import GradientCard from '../components/GradientCard';
 import StreakBadge from '../components/StreakBadge';
 import WeeklyRecapModal from '../components/WeeklyRecapModal';
 import { HomeContentSkeleton } from '../components/Skeleton';
+import ClaraScreen from './ClaraScreen';
 import {
   claimDailyOpenXp, claimGuideReadXp, getTodayChallenges, getXp,
   completeChallenge, checkAchievements, DailyChallenge,
@@ -43,6 +44,7 @@ export default function HomeScreen({ profile }: Props) {
   const [recap, setRecap] = useState<WeeklyRecap | null>(null);
   const [recapReflection, setRecapReflection] = useState('');
   const [recapVisible, setRecapVisible] = useState(false);
+  const [claraOpen, setClaraOpen] = useState(false);
   const guideAwarded = React.useRef(false);
 
   // Show the weekly recap once per ISO week, when there's recent activity.
@@ -192,6 +194,21 @@ export default function HomeScreen({ profile }: Props) {
           <Text style={styles.xpToastText}>{xpToast}</Text>
         </View>
       )}
+
+      {/* Clara — AI companion */}
+      <Modal visible={claraOpen} animationType="slide" onRequestClose={() => setClaraOpen(false)}>
+        <ClaraScreen profile={profile} onClose={() => setClaraOpen(false)} />
+      </Modal>
+      <TouchableOpacity
+        style={styles.claraFab}
+        onPress={() => setClaraOpen(true)}
+        activeOpacity={0.85}
+      >
+        <LinearGradient colors={GRADIENTS.button} style={styles.claraFabGradient}>
+          <Text style={styles.claraFabIcon}>🌙</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -462,6 +479,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3, shadowRadius: 8, elevation: 8,
   },
   xpToastText: { fontFamily: FONTS.semiBold, fontSize: 14, color: '#fff' },
+  claraFab: {
+    position: 'absolute', right: SPACING.lg, bottom: 96, zIndex: 20,
+    borderRadius: RADIUS.full,
+    shadowColor: '#a78bfa', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5, shadowRadius: 12, elevation: 10,
+  },
+  claraFabGradient: {
+    width: 58, height: 58, borderRadius: 29,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+  },
+  claraFabIcon: { fontSize: 26 },
   challengeCount: {
     fontFamily: FONTS.bold, fontSize: 13, color: '#fcd34d', marginLeft: 'auto',
   },

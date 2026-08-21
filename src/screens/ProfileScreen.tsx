@@ -248,7 +248,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           <Text style={styles.resetText}>Reset onboarding</Text>
         </TouchableOpacity>
 
-        <Text style={styles.appVersion}>ClarMind · v1.3.0</Text>
+        <Text style={styles.appVersion}>ClarMind · v1.4.0</Text>
       </ScrollView>
     </LinearGradient>
   );
