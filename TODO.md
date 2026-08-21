@@ -9,7 +9,7 @@
 
 ## 1. Architecture snapshot (current state)
 
-**Local-first, zero-backend.** Everything persists in AsyncStorage under `clarmind_*` keys. The only network calls are Gemini (daily content) and Pixabay CDN (soundscape audio).
+**Local-first, zero-backend.** Everything persists in AsyncStorage under `clarmind_*` keys. The only network calls are to Gemini (daily content, Clara chat, weekly reflection — all language-aware). Soundscapes are procedurally-generated WAVs bundled in `assets/sounds/` (offline). Full EN/RO i18n via `src/i18n/`. See `CLAUDE.md` for the current file-by-file layout.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

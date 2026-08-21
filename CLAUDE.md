@@ -30,48 +30,86 @@ Romanian language is partially supported (zodiac sign names) — primary UI is E
 ```
 clarmind/
 ├── App.tsx                      Root: fonts, profile gate, navigation
-├── babel.config.js              Reanimated plugin
+├── babel.config.js              Reanimated + private-field transforms
+├── jest.config.js / jest.setup.js  ts-jest + AsyncStorage mock
 ├── app.json                     Expo config (bundle IDs, splash, icons)
 ├── eas.json                     EAS Build profiles (dev/preview/prod)
 ├── .env                         EXPO_PUBLIC_GEMINI_API_KEY (gitignored)
+├── scripts/
+│   ├── generate-assets.js       Icon/splash generator (sharp)
+│   └── generate-sounds.js       Procedural ambient WAV + bell generator
+├── assets/sounds/               Bundled loops: rain/ocean/forest/space + 2 bells
+├── legal/                       privacy-policy.md, index.html, STORE_LISTING.md
 ├── src/
 │   ├── components/
 │   │   ├── ActivityHeatmap.tsx  30-day meditation heatmap
 │   │   ├── BreathingCircle.tsx  Animated reanimated circle
+│   │   ├── ConstellationSky.tsx SVG night sky (stars + constellations)
 │   │   ├── GradientCard.tsx     Glassmorphism card wrapper
-│   │   └── StreakBadge.tsx      Fire streak pill
+│   │   ├── Skeleton.tsx         Shimmer loading placeholders
+│   │   ├── StreakBadge.tsx      Fire streak pill
+│   │   └── WeeklyRecapModal.tsx Weekly recap card
 │   ├── constants/
+│   │   ├── achievements.ts      16 badges, 13 ranks, XP rules, getLevelForXp
 │   │   ├── breathing.ts         3 patterns, durations
+│   │   ├── constellations.ts    12 zodiac SVG shapes
+│   │   ├── localize.ts          id → localized text helpers (sign/element/pattern/…)
 │   │   ├── theme.ts             Colors, fonts, spacing, radius
 │   │   └── zodiac.ts            12 signs (English + Romanian names)
+│   ├── i18n/
+│   │   ├── en.ts / ro.ts        Full translation dictionaries (shape = en)
+│   │   └── index.tsx            I18nProvider, useI18n(), t(), module translate()
 │   ├── navigation/
-│   │   └── AppNavigator.tsx     Bottom tabs + custom glass tab bar
+│   │   └── AppNavigator.tsx     5 bottom tabs + custom glass tab bar
 │   ├── screens/
-│   │   ├── OnboardingScreen.tsx 2-step: name → zodiac picker
-│   │   ├── HomeScreen.tsx       Daily AI content + streak
-│   │   ├── BreatheScreen.tsx    Pattern + duration + soundscape + session
+│   │   ├── OnboardingScreen.tsx 3-step: name+lang → zodiac → goal
+│   │   ├── HomeScreen.tsx       Daily AI content, challenges, Clara FAB, recap
+│   │   ├── BreatheScreen.tsx    Pattern/duration/soundscape/session + mood
+│   │   ├── SkyScreen.tsx        Constellation Sky
 │   │   ├── LeaderboardScreen.tsx Streak / total time tabs (seeded fakes)
-│   │   └── ProfileScreen.tsx    Avatar, stats, heatmap, settings
+│   │   ├── ProfileScreen.tsx    Rank, XP, badges, heatmap, settings, language
+│   │   └── ClaraScreen.tsx      AI companion chat
 │   ├── services/
-│   │   ├── claude.ts            (named for future migration) Gemini REST call
+│   │   ├── claude.ts            Gemini REST: daily content + weekly reflection (lang-aware)
+│   │   ├── clara.ts             Gemini chat (systemInstruction, safety, lang-aware)
+│   │   ├── gamification.ts      XP, achievements, daily challenges
+│   │   ├── streakLogic.ts       Pure streak + Stardust Shield math (tested)
+│   │   ├── skyLogic.ts          Pure constellation run detection (tested)
+│   │   ├── challengeLogic.ts    Pure seeded daily-challenge picker (tested)
+│   │   ├── weeklyRecapLogic.ts  Pure weekly stats + week key (tested)
+│   │   ├── sessionSuggestion.ts Pure mood/time → suggestion (tested)
 │   │   ├── leaderboard.ts       Seeded fake users
-│   │   ├── notifications.ts     Schedule/cancel daily reminders
-│   │   ├── soundscape.ts        expo-av player wrapper
-│   │   └── storage.ts           AsyncStorage CRUD
+│   │   ├── notifications.ts     Schedule/cancel daily reminders (personalized)
+│   │   ├── soundscape.ts        expo-av player: loops, bells, fade-out
+│   │   └── storage.ts           AsyncStorage CRUD (wraps streakLogic)
 │   └── types/
-│       └── index.ts             UserProfile, DailyContent, MeditationSession, MoodEntry
+│       └── index.ts             UserProfile, DailyContent, MeditationSession, MoodEntry, ChatMessage, …
 ```
 
 ## Data model
 
 ```typescript
-UserProfile         { name, zodiacSign, onboardingComplete }
+UserProfile         { name, zodiacSign, goal?, onboardingComplete }
 DailyContent        { quote, quoteAuthor, zodiacMessage, stressTip, mindfulnessTask, affirmation, generatedAt }
-MeditationSession   { date, durationMinutes, pattern, completedAt }
+MeditationSession   { date, durationMinutes, pattern, completedAt, soundscape? }
 MoodEntry           { date, mood (1-5), context }
+ChatMessage         { role, text, at }
+StreakResult        { streak, shields, shieldUsed, shieldEarned }
 ```
 
-All persisted to AsyncStorage under `clarmind_*` keys (see `services/storage.ts`).
+All persisted to AsyncStorage under `clarmind_*` keys (see `services/storage.ts`). Language in `clarmind_language`.
+
+## Internationalization (EN/RO)
+
+- All user-facing strings live in `src/i18n/{en,ro}.ts` (nested; `en` is the source-of-truth shape).
+- In components: `const { t, language, setLanguage } = useI18n();` then `t('home.affirmationLabel')`, `t('sky.hintProgress', { days, sign })`.
+- Content constants (patterns, soundscapes, challenges, achievements, ranks, zodiac, elements) localize via `constants/localize.ts` helpers keyed by their stable id.
+- Services (no React) use the module-level `translate()` / receive a `language` arg; the provider keeps it in sync. AI prompts (daily content, Clara, weekly reflection) take `language` and reply in it.
+- **Adding a string:** add the key to `en.ts` AND `ro.ts` (same path), then `t('...')` in the UI. Never hardcode display text.
+
+## Pure logic + tests
+
+Bug-prone logic is extracted into dependency-free `*Logic.ts` / `sessionSuggestion.ts` modules and unit-tested; the data layer is covered by AsyncStorage-mocked integration tests. `npm test` = 90 tests / 10 suites. Keep this pattern: new branching logic goes in a pure module with a test in `__tests__/`.
 
 ## Design system
 
