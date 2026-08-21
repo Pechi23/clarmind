@@ -9,6 +9,8 @@ import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile } from '../types';
 import { buildLeaderboard, LeaderboardUser } from '../services/leaderboard';
 import { getStreak, getTotalMeditationMinutes } from '../services/storage';
+import { useI18n } from '../i18n';
+import { signName } from '../constants/localize';
 
 interface Props {
   profile: UserProfile;
@@ -17,6 +19,7 @@ interface Props {
 type Tab = 'streak' | 'totalMinutes';
 
 export default function LeaderboardScreen({ profile }: Props) {
+  const { t, language } = useI18n();
   const [tab, setTab] = useState<Tab>('streak');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -56,8 +59,8 @@ export default function LeaderboardScreen({ profile }: Props) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
         }
       >
-        <Text style={styles.kicker}>LEADERBOARD</Text>
-        <Text style={styles.title}>Top minds.</Text>
+        <Text style={styles.kicker}>{t('leaderboard.kicker')}</Text>
+        <Text style={styles.title}>{t('leaderboard.title')}</Text>
 
         <View style={styles.tabs}>
           <TouchableOpacity
@@ -65,7 +68,7 @@ export default function LeaderboardScreen({ profile }: Props) {
             style={[styles.tab, tab === 'streak' && styles.tabActive]}
             activeOpacity={0.85}
           >
-            <Text style={[styles.tabText, tab === 'streak' && styles.tabTextActive]}>🔥 Streak</Text>
+            <Text style={[styles.tabText, tab === 'streak' && styles.tabTextActive]}>{t('leaderboard.streak')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setTab('totalMinutes')}
@@ -73,7 +76,7 @@ export default function LeaderboardScreen({ profile }: Props) {
             activeOpacity={0.85}
           >
             <Text style={[styles.tabText, tab === 'totalMinutes' && styles.tabTextActive]}>
-              ⏱️ Total Time
+              {t('leaderboard.totalTime')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -82,7 +85,7 @@ export default function LeaderboardScreen({ profile }: Props) {
           {users.map((u, idx) => {
             const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === u.zodiac)!;
             const value = tab === 'streak' ? `${u.streak}` : `${u.totalMinutes}`;
-            const unit = tab === 'streak' ? `day${u.streak !== 1 ? 's' : ''}` : 'min';
+            const unit = tab === 'streak' ? (u.streak !== 1 ? t('common.days') : t('common.day')) : t('common.min');
             const rankIcon = idx < 3 ? top3Icons[idx] : null;
 
             return (
@@ -107,9 +110,9 @@ export default function LeaderboardScreen({ profile }: Props) {
 
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.name, u.isCurrentUser && { color: '#fcd34d' }]}>
-                    {u.name} {u.isCurrentUser ? '· You' : ''}
+                    {u.name} {u.isCurrentUser ? `· ${t('leaderboard.you')}` : ''}
                   </Text>
-                  <Text style={styles.zodiacText}>{zodiacInfo.romanian}</Text>
+                  <Text style={styles.zodiacText}>{signName(zodiacInfo, language)}</Text>
                 </View>
 
                 <View style={styles.valueWrap}>
@@ -121,7 +124,7 @@ export default function LeaderboardScreen({ profile }: Props) {
           })}
         </View>
 
-        <Text style={styles.footnote}>Updates daily · Pull to refresh</Text>
+        <Text style={styles.footnote}>{t('leaderboard.footnote')}</Text>
       </ScrollView>
     </LinearGradient>
   );

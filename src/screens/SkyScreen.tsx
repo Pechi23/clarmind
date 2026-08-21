@@ -7,12 +7,15 @@ import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile, MeditationSession } from '../types';
 import { getMeditationSessions } from '../services/storage';
 import ConstellationSky, { getRuns, countConstellations } from '../components/ConstellationSky';
+import { useI18n } from '../i18n';
+import { signName } from '../constants/localize';
 
 interface Props {
   profile: UserProfile;
 }
 
 export default function SkyScreen({ profile }: Props) {
+  const { t, language } = useI18n();
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
 
   useFocusEffect(
@@ -36,17 +39,17 @@ export default function SkyScreen({ profile }: Props) {
   return (
     <LinearGradient colors={['#05030f', '#0f0c29', '#1a1a3e']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.kicker}>YOUR SKY</Text>
-        <Text style={styles.title}>Every breath{'\n'}lights a star.</Text>
+        <Text style={styles.kicker}>{t('sky.kicker')}</Text>
+        <Text style={styles.title}>{t('sky.title')}</Text>
 
         <View style={styles.statsRow}>
           <View style={styles.statPill}>
             <Text style={styles.statValue}>⭐ {sessions.length}</Text>
-            <Text style={styles.statLabel}>stars lit</Text>
+            <Text style={styles.statLabel}>{t('sky.starsLit')}</Text>
           </View>
           <View style={styles.statPill}>
             <Text style={styles.statValue}>{zodiacInfo.emoji} {constellationsFormed}</Text>
-            <Text style={styles.statLabel}>constellations</Text>
+            <Text style={styles.statLabel}>{t('sky.constellations')}</Text>
           </View>
         </View>
 
@@ -55,19 +58,17 @@ export default function SkyScreen({ profile }: Props) {
           {sessions.length === 0 && (
             <View style={styles.emptyOverlay}>
               <Text style={styles.emptyEmoji}>🌌</Text>
-              <Text style={styles.emptyText}>
-                Your sky is waiting.{'\n'}Complete a session to light your first star.
-              </Text>
+              <Text style={styles.emptyText}>{t('sky.emptyText')}</Text>
             </View>
           )}
         </View>
 
         <Text style={styles.nextHint}>
           {sessions.length === 0
-            ? `Meditate 7 days in a row to form the ${zodiacInfo.romanian} constellation.`
+            ? t('sky.hintEmpty', { sign: signName(zodiacInfo, language) })
             : activeRunLen > 0
-              ? `${daysToNext} more consecutive day${daysToNext !== 1 ? 's' : ''} until your next ${zodiacInfo.romanian} constellation ✨`
-              : 'Meditate today to start a new constellation run.'}
+              ? t('sky.hintProgress', { days: daysToNext, sign: signName(zodiacInfo, language) })
+              : t('sky.hintNew')}
         </Text>
       </ScrollView>
     </LinearGradient>
