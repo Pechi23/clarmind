@@ -89,11 +89,10 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 |---|---|---|
 | 2.1 | ✅ **"Clara" — AI companion chat** | DONE v1.4 — floating 🌙 button on Home → full chat screen (Gemini w/ systemInstruction, warm-coach persona + crisis safety guardrail, 20 msgs/day). Rolling transcript in AsyncStorage, offline fallback lines. `services/clara.ts` + `ClaraScreen.tsx` |
 | 2.2 | **7-day micro-courses** | AI-generated programs ("7 Days of Letting Go"). One unlock per day = built-in return visit. Generate day N content on demand, cache like daily content |
-| 2.3 | **Mood-aware sessions** | Pre-session mood prompt; if mood ≤ 2 suggest longer session + warmer phase labels. Post-vs-pre delta shown on completion ("You moved +2 toward calm") |
+| 2.3 | ✅ **Mood-aware sessions** | DONE v1.5 — `suggestSession()` recommends pattern+duration from recent mood + time; tappable localized banner on Breathe; 6 tests. (Post-vs-pre mood delta on completion still open.) |
 | 2.4 | **Evening reflection journal** | After 21:00, Home shows 1 AI question ("What can you release before sleep?"). Answers stored locally; weekly recap quotes them |
 | 2.5 | **Sound mixer** | Layer 2 soundscapes with volume sliders (rain + space drone). `expo-av` supports parallel sounds — extend `soundscape.ts` to manage a Map of active sounds |
 | 2.6 | ✅ **Romanian localization** | DONE v1.5 — full en/ro i18n (`src/i18n/`), EN/RO switcher in onboarding + Profile, expo-localization default, every screen localized incl. content (patterns/soundscapes/challenges/achievements/ranks/elements), AI (daily content, Clara, weekly reflection) responds in the chosen language |
-| 2.3 | ✅ **Mood-aware sessions** | DONE v1.5 — `suggestSession()` recommends pattern+duration from recent mood + time; tappable localized banner on Breathe; 6 tests |
 | 2.7 | **Seasonal events** | Calendar-seeded (no backend): full-moon meditation nights, solstice challenges, New Year reset ritual. Date check + special challenge pool + unique badge each |
 
 ### P3 — Monetization (after ~1k installs)
