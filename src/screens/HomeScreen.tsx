@@ -26,12 +26,15 @@ import { getLevelForXp } from '../constants/achievements';
 import {
   computeWeeklyRecap, getMondayKey, buildFallbackReflection, WeeklyRecap,
 } from '../services/weeklyRecapLogic';
+import { useI18n } from '../i18n';
+import { signName, elementName, challengeText } from '../constants/localize';
 
 interface Props {
   profile: UserProfile;
 }
 
 export default function HomeScreen({ profile }: Props) {
+  const { t, language } = useI18n();
   const [content, setContent] = useState<DailyContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -64,10 +67,10 @@ export default function HomeScreen({ profile }: Props) {
     setRecapVisible(true);
 
     // Upgrade the reflection with a Gemini-written line if available.
-    generateWeeklyReflection(profile.name, computed)
+    generateWeeklyReflection(profile.name, computed, language)
       .then(setRecapReflection)
       .catch(() => {});
-  }, [profile.name]);
+  }, [profile.name, language]);
 
   const showXpToast = (msg: string) => {
     setXpToast(msg);
@@ -85,9 +88,9 @@ export default function HomeScreen({ profile }: Props) {
 
   const greeting = () => {
     const h = new Date().getHours();
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return t('home.goodMorning');
+    if (h < 17) return t('home.goodAfternoon');
+    return t('home.goodEvening');
   };
 
   const loadContent = useCallback(async (forceRefresh = false) => {
@@ -97,14 +100,14 @@ export default function HomeScreen({ profile }: Props) {
       if (!forceRefresh && cached && cached.generatedAt === today) {
         setContent(cached);
       } else {
-        const fresh = await generateDailyContent(profile.name, profile.zodiacSign, profile.goal);
+        const fresh = await generateDailyContent(profile.name, profile.zodiacSign, profile.goal, language);
         await saveDailyContent(fresh);
         setContent(fresh);
       }
     } catch (e: any) {
       setError(e?.message ?? 'Unknown error');
     }
-  }, [profile, today]);
+  }, [profile, today, language]);
 
   useEffect(() => {
     const init = async () => {
@@ -114,11 +117,11 @@ export default function HomeScreen({ profile }: Props) {
       setShields(streakResult.shields);
       const dailyXp = await claimDailyOpenXp();
       if (streakResult.shieldUsed) {
-        showXpToast('🛡️ Stardust Shield saved your streak!');
+        showXpToast(t('home.shieldSaved'));
       } else if (streakResult.shieldEarned) {
-        showXpToast('🛡️ Shield earned — 7-day streak!');
+        showXpToast(t('home.shieldEarned'));
       } else if (dailyXp > 0) {
-        showXpToast(`+${dailyXp} XP · Welcome back`);
+        showXpToast(t('home.xpWelcome', { xp: dailyXp }));
       }
       await checkAchievements();
       await refreshGamification();
@@ -147,7 +150,7 @@ export default function HomeScreen({ profile }: Props) {
       const readChallenge = challenges.find((c) => c.id === 'read-guide' && !c.done);
       if (readChallenge) total += await completeChallenge('read-guide');
       if (total > 0) {
-        showXpToast(`+${total} XP · Daily guide read`);
+        showXpToast(t('home.xpGuide', { xp: total }));
         await checkAchievements();
         await refreshGamification();
       }
@@ -171,7 +174,7 @@ export default function HomeScreen({ profile }: Props) {
             </View>
           </View>
           <Text style={styles.dateText}>
-            {new Date().toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {new Date().toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
           </Text>
           <HomeContentSkeleton />
         </View>
@@ -244,14 +247,14 @@ export default function HomeScreen({ profile }: Props) {
 
         {/* Date */}
         <Text style={styles.dateText}>
-          {new Date().toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
+          {new Date().toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
         </Text>
 
         {error ? (
           <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorText}>{t('home.errorLoad')}</Text>
             <TouchableOpacity onPress={() => loadContent(true)} style={styles.retryButton}>
-              <Text style={styles.retryText}>Try again</Text>
+              <Text style={styles.retryText}>{t('common.tryAgain')}</Text>
             </TouchableOpacity>
           </View>
         ) : content ? (
@@ -268,7 +271,7 @@ export default function HomeScreen({ profile }: Props) {
               colors={[`${zodiacInfo.color}33`, `${zodiacInfo.color}11`]}
               style={[styles.affirmationCard, styles.cardSpacing]}
             >
-              <Text style={styles.affirmationLabel}>Today's Affirmation</Text>
+              <Text style={styles.affirmationLabel}>{t('home.affirmationLabel')}</Text>
               <Text style={styles.affirmationText}>{content.affirmation}</Text>
             </LinearGradient>
 
@@ -276,7 +279,7 @@ export default function HomeScreen({ profile }: Props) {
             <GradientCard colors={['rgba(252,211,77,0.14)', 'rgba(252,211,77,0.04)']} style={styles.cardSpacing}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionEmoji}>🎯</Text>
-                <Text style={styles.sectionLabel}>Today's Challenges</Text>
+                <Text style={styles.sectionLabel}>{t('home.challenges')}</Text>
                 <Text style={styles.challengeCount}>
                   {challenges.filter((c) => c.done).length}/{challenges.length}
                 </Text>
@@ -288,12 +291,12 @@ export default function HomeScreen({ profile }: Props) {
                   </Text>
                   <Text style={styles.challengeEmoji}>{c.emoji}</Text>
                   <Text style={[styles.challengeText, c.done && styles.challengeTextDone]}>
-                    {c.text}
+                    {challengeText(c.id, t)}
                   </Text>
                   <Text style={styles.challengeXp}>+25</Text>
                 </View>
               ))}
-              <Text style={styles.challengeBonus}>Complete all 3 for a +50 XP bonus ✨</Text>
+              <Text style={styles.challengeBonus}>{t('home.challengeBonus')}</Text>
             </GradientCard>
 
             {/* Zodiac */}
@@ -301,9 +304,9 @@ export default function HomeScreen({ profile }: Props) {
               <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionEmoji]}>{zodiacInfo.emoji}</Text>
                 <View>
-                  <Text style={styles.sectionLabel}>Your Zodiac Today</Text>
+                  <Text style={styles.sectionLabel}>{t('home.zodiacToday')}</Text>
                   <Text style={[styles.sectionSubLabel, { color: zodiacInfo.color }]}>
-                    {zodiacInfo.romanian} · {zodiacInfo.element}
+                    {signName(zodiacInfo, language)} · {elementName(zodiacInfo.element, t)}
                   </Text>
                 </View>
               </View>
@@ -314,7 +317,7 @@ export default function HomeScreen({ profile }: Props) {
             <GradientCard colors={['rgba(125,211,252,0.15)', 'rgba(59,130,246,0.05)']} style={styles.cardSpacing}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionEmoji}>🧘</Text>
-                <Text style={styles.sectionLabel}>Stress Relief Tip</Text>
+                <Text style={styles.sectionLabel}>{t('home.stressTip')}</Text>
               </View>
               <Text style={styles.bodyText}>{content.stressTip}</Text>
             </GradientCard>
@@ -323,12 +326,12 @@ export default function HomeScreen({ profile }: Props) {
             <GradientCard colors={['rgba(107,203,119,0.15)', 'rgba(107,203,119,0.05)']} style={styles.cardSpacing}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionEmoji}>✅</Text>
-                <Text style={styles.sectionLabel}>Today's Mindful Task</Text>
+                <Text style={styles.sectionLabel}>{t('home.mindfulTask')}</Text>
               </View>
               <Text style={styles.bodyText}>{content.mindfulnessTask}</Text>
             </GradientCard>
 
-            <Text style={styles.refreshHint}>Pull down to refresh your daily content</Text>
+            <Text style={styles.refreshHint}>{t('home.refreshHint')}</Text>
           </>
         ) : null}
 
