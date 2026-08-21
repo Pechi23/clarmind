@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, ActivityIndicator, RefreshControl,
+  TouchableOpacity, RefreshControl,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
@@ -16,6 +16,7 @@ import { generateDailyContent, generateWeeklyReflection } from '../services/clau
 import GradientCard from '../components/GradientCard';
 import StreakBadge from '../components/StreakBadge';
 import WeeklyRecapModal from '../components/WeeklyRecapModal';
+import { HomeContentSkeleton } from '../components/Skeleton';
 import {
   claimDailyOpenXp, claimGuideReadXp, getTodayChallenges, getXp,
   completeChallenge, checkAchievements, DailyChallenge,
@@ -159,9 +160,19 @@ export default function HomeScreen({ profile }: Props) {
 
   if (loading) {
     return (
-      <LinearGradient colors={GRADIENTS.background} style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Preparing your day, {profile.name}...</Text>
+      <LinearGradient colors={GRADIENTS.background} style={styles.container}>
+        <View style={styles.scroll}>
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.greetingLabel}>{greeting()},</Text>
+              <Text style={styles.greetingName}>{profile.name} {zodiacInfo.emoji}</Text>
+            </View>
+          </View>
+          <Text style={styles.dateText}>
+            {new Date().toLocaleDateString('en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </Text>
+          <HomeContentSkeleton />
+        </View>
       </LinearGradient>
     );
   }
