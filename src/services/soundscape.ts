@@ -1,28 +1,29 @@
-// Soundscape player using expo-av
-// Uses free CC0 / public-domain ambient loops hosted on a CDN.
-// Replace with your own bundled assets (require('../../assets/sounds/rain.mp3')) for offline support.
+// Soundscape player using expo-av.
+// Ambient loops are generated procedurally and BUNDLED locally (assets/sounds),
+// so they play offline and don't depend on any third-party CDN.
+// Regenerate with: node scripts/generate-sounds.js
 import { Audio } from 'expo-av';
 
 export interface Soundscape {
   id: string;
   name: string;
   emoji: string;
-  url: string;
+  source: number | null; // require()'d asset module, or null for silence
 }
 
 export const SOUNDSCAPES: Soundscape[] = [
-  { id: 'silence', name: 'Silence',     emoji: '🤫', url: '' },
-  { id: 'rain',    name: 'Gentle Rain', emoji: '🌧️', url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_2c9a6b4b29.mp3' },
-  { id: 'forest',  name: 'Forest',      emoji: '🌲', url: 'https://cdn.pixabay.com/audio/2024/05/23/audio_8b5dc6f1e0.mp3' },
-  { id: 'ocean',   name: 'Ocean Waves', emoji: '🌊', url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_8497b1d057.mp3' },
-  { id: 'space',   name: 'Deep Space',  emoji: '🌌', url: 'https://cdn.pixabay.com/audio/2022/10/30/audio_b8a3c1bf6e.mp3' },
+  { id: 'silence', name: 'Silence',     emoji: '🤫', source: null },
+  { id: 'rain',    name: 'Gentle Rain', emoji: '🌧️', source: require('../../assets/sounds/rain.wav') },
+  { id: 'forest',  name: 'Forest',      emoji: '🌲', source: require('../../assets/sounds/forest.wav') },
+  { id: 'ocean',   name: 'Ocean Waves', emoji: '🌊', source: require('../../assets/sounds/ocean.wav') },
+  { id: 'space',   name: 'Deep Space',  emoji: '🌌', source: require('../../assets/sounds/space.wav') },
 ];
 
 let currentSound: Audio.Sound | null = null;
 
 export const playSoundscape = async (soundscape: Soundscape): Promise<void> => {
   await stopSoundscape();
-  if (!soundscape.url) return;
+  if (soundscape.source == null) return;
 
   try {
     await Audio.setAudioModeAsync({
@@ -31,7 +32,7 @@ export const playSoundscape = async (soundscape: Soundscape): Promise<void> => {
       shouldDuckAndroid: true,
     });
     const { sound } = await Audio.Sound.createAsync(
-      { uri: soundscape.url },
+      soundscape.source,
       { isLooping: true, volume: 0.5, shouldPlay: true }
     );
     currentSound = sound;
