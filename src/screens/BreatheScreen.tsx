@@ -19,12 +19,20 @@ import {
 } from '../services/gamification';
 import { XP } from '../constants/achievements';
 import { AchievementDef } from '../constants/achievements';
+import { useI18n } from '../i18n';
+import { patternName, patternDesc, soundscapeName } from '../constants/localize';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
 
 type Mode = 'select' | 'session' | 'complete';
 
 export default function BreatheScreen() {
+  const { t } = useI18n();
+  const phaseLabel = (label: string) =>
+    label === 'Hold' ? t('breathe.hold')
+      : label === 'Breathe in' ? t('breathe.breatheIn')
+      : label === 'Breathe out' ? t('breathe.breatheOut')
+      : label;
   const [mode, setMode] = useState<Mode>('select');
   const [pattern, setPattern] = useState<BreathingPattern>(
     isAfter9PM() ? BREATHING_PATTERNS[1] : BREATHING_PATTERNS[0]
@@ -156,15 +164,15 @@ export default function BreatheScreen() {
     return (
       <LinearGradient colors={GRADIENTS.background} style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text style={styles.kicker}>MEDITATION</Text>
-          <Text style={styles.title}>Find your{'\n'}calm.</Text>
+          <Text style={styles.kicker}>{t('breathe.kicker')}</Text>
+          <Text style={styles.title}>{t('breathe.title')}</Text>
           {isAfter9PM() && (
             <View style={styles.windDownBanner}>
-              <Text style={styles.windDownText}>🌙 Wind-down mode · 4-7-8 recommended</Text>
+              <Text style={styles.windDownText}>{t('breathe.windDown')}</Text>
             </View>
           )}
 
-          <Text style={styles.label}>Choose a pattern</Text>
+          <Text style={styles.label}>{t('breathe.choosePattern')}</Text>
           <View style={styles.patternList}>
             {BREATHING_PATTERNS.map((p) => {
               const selected = pattern.id === p.id;
@@ -180,15 +188,15 @@ export default function BreatheScreen() {
                 >
                   <View style={[styles.patternDot, { backgroundColor: p.color }]} />
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.patternName, selected && { color: p.color }]}>{p.name}</Text>
-                    <Text style={styles.patternDesc}>{p.description}</Text>
+                    <Text style={[styles.patternName, selected && { color: p.color }]}>{patternName(p.id, t)}</Text>
+                    <Text style={styles.patternDesc}>{patternDesc(p.id, t)}</Text>
                   </View>
                 </TouchableOpacity>
               );
             })}
           </View>
 
-          <Text style={styles.label}>Session length</Text>
+          <Text style={styles.label}>{t('breathe.sessionLength')}</Text>
           <View style={styles.durationRow}>
             {PRESET_DURATIONS.map((d) => {
               const selected = durationMin === d;
@@ -205,13 +213,13 @@ export default function BreatheScreen() {
                   <Text style={[styles.durationText, selected && { color: pattern.color }]}>
                     {d}
                   </Text>
-                  <Text style={styles.durationUnit}>min</Text>
+                  <Text style={styles.durationUnit}>{t('common.min')}</Text>
                 </TouchableOpacity>
               );
             })}
           </View>
 
-          <Text style={styles.label}>Ambient sound</Text>
+          <Text style={styles.label}>{t('breathe.ambientSound')}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -231,18 +239,18 @@ export default function BreatheScreen() {
                 >
                   <Text style={styles.soundEmoji}>{s.emoji}</Text>
                   <Text style={[styles.soundName, selected && { color: pattern.color }]}>
-                    {s.name}
+                    {soundscapeName(s.id, t)}
                   </Text>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
 
-          <Text style={styles.totalText}>You've meditated {totalMinutes} minutes total ✨</Text>
+          <Text style={styles.totalText}>{t('breathe.totalMeditated', { min: totalMinutes })}</Text>
 
           <TouchableOpacity onPress={startSession} activeOpacity={0.85} style={styles.startButton}>
             <LinearGradient colors={GRADIENTS.button} style={styles.startGradient}>
-              <Text style={styles.startText}>Begin Session</Text>
+              <Text style={styles.startText}>{t('breathe.begin')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
@@ -266,7 +274,7 @@ export default function BreatheScreen() {
           <Text style={styles.timerText}>
             {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
           </Text>
-          <Text style={styles.patternBadge}>{pattern.name}</Text>
+          <Text style={styles.patternBadge}>{patternName(pattern.id, t)}</Text>
         </View>
 
         <View style={styles.sessionMid}>
@@ -275,12 +283,12 @@ export default function BreatheScreen() {
             duration={phase.duration * 1000}
             color={pattern.color}
           />
-          <Text style={[styles.phaseLabel, { color: pattern.color }]}>{phase.label}</Text>
+          <Text style={[styles.phaseLabel, { color: pattern.color }]}>{phaseLabel(phase.label)}</Text>
           <Text style={styles.phaseSeconds}>{phaseSecondsLeft}</Text>
         </View>
 
         <TouchableOpacity onPress={cancelSession} style={styles.endButton}>
-          <Text style={styles.endText}>End session</Text>
+          <Text style={styles.endText}>{t('breathe.end')}</Text>
         </TouchableOpacity>
       </LinearGradient>
     );
@@ -291,12 +299,10 @@ export default function BreatheScreen() {
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <View style={styles.completeWrap}>
         <Text style={styles.completeEmoji}>✨</Text>
-        <Text style={styles.completeTitle}>Beautiful.</Text>
-        <Text style={styles.completeSubtitle}>
-          {durationMin} mindful minutes added{'\n'}to your journey.
-        </Text>
+        <Text style={styles.completeTitle}>{t('breathe.beautiful')}</Text>
+        <Text style={styles.completeSubtitle}>{t('breathe.completeSubtitle', { min: durationMin })}</Text>
         <View style={styles.xpBox}>
-          <Text style={styles.xpLabel}>XP earned</Text>
+          <Text style={styles.xpLabel}>{t('breathe.xpEarned')}</Text>
           <Text style={styles.xpValue}>+{earnedXp}</Text>
         </View>
         {newBadges.length > 0 && (
@@ -305,8 +311,8 @@ export default function BreatheScreen() {
               <View key={b.id} style={styles.badgeUnlockRow}>
                 <Text style={styles.badgeUnlockEmoji}>{b.emoji}</Text>
                 <View>
-                  <Text style={styles.badgeUnlockTitle}>Achievement unlocked!</Text>
-                  <Text style={styles.badgeUnlockName}>{b.name}</Text>
+                  <Text style={styles.badgeUnlockTitle}>{t('breathe.achievementUnlocked')}</Text>
+                  <Text style={styles.badgeUnlockName}>{t(`achievements.${b.id}.name`)}</Text>
                 </View>
               </View>
             ))}
@@ -314,7 +320,7 @@ export default function BreatheScreen() {
         )}
         <TouchableOpacity onPress={() => { setNewBadges([]); setMode('select'); }} activeOpacity={0.85} style={styles.startButton}>
           <LinearGradient colors={GRADIENTS.button} style={styles.startGradient}>
-            <Text style={styles.startText}>Done</Text>
+            <Text style={styles.startText}>{t('common.done')}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -323,7 +329,7 @@ export default function BreatheScreen() {
       <Modal visible={moodModalOpen} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>How do you feel now?</Text>
+            <Text style={styles.modalTitle}>{t('breathe.moodQuestion')}</Text>
             <View style={styles.moodRow}>
               {[1, 2, 3, 4, 5].map((m) => (
                 <TouchableOpacity
@@ -337,11 +343,11 @@ export default function BreatheScreen() {
               ))}
             </View>
             <View style={styles.moodLabels}>
-              <Text style={styles.moodLabelText}>Anxious</Text>
-              <Text style={styles.moodLabelText}>Calm</Text>
+              <Text style={styles.moodLabelText}>{t('breathe.moodAnxious')}</Text>
+              <Text style={styles.moodLabelText}>{t('breathe.moodCalm')}</Text>
             </View>
             <TouchableOpacity onPress={() => setMoodModalOpen(false)}>
-              <Text style={styles.skipText}>Skip</Text>
+              <Text style={styles.skipText}>{t('common.skip')}</Text>
             </TouchableOpacity>
           </View>
         </View>
