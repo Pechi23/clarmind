@@ -21,6 +21,8 @@ import { XP } from '../constants/achievements';
 import { AchievementDef } from '../constants/achievements';
 import { useI18n } from '../i18n';
 import { patternName, patternDesc, soundscapeName } from '../constants/localize';
+import { suggestSession } from '../services/sessionSuggestion';
+import { getMoodEntries } from '../services/storage';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
 
@@ -46,6 +48,7 @@ export default function BreatheScreen() {
   const [soundscape, setSoundscape] = useState<Soundscape>(SOUNDSCAPES[0]);
   const [earnedXp, setEarnedXp] = useState(0);
   const [newBadges, setNewBadges] = useState<AchievementDef[]>([]);
+  const [suggestion, setSuggestion] = useState<ReturnType<typeof suggestSession>>(null);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -59,6 +62,22 @@ export default function BreatheScreen() {
 
   useEffect(() => () => { cleanup(); stopSoundscape(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
+
+  // Compute a mood-aware suggestion whenever we return to the select screen.
+  useEffect(() => {
+    if (mode !== 'select') return;
+    getMoodEntries().then((entries) => {
+      const recent = entries.length ? entries[entries.length - 1].mood : null;
+      setSuggestion(suggestSession(recent, new Date().getHours()));
+    });
+  }, [mode]);
+
+  const applySuggestion = () => {
+    if (!suggestion) return;
+    const p = BREATHING_PATTERNS.find((bp) => bp.id === suggestion.patternId);
+    if (p) setPattern(p);
+    setDurationMin(suggestion.minutes);
+  };
 
   const startSession = () => {
     setMode('session');
@@ -166,10 +185,11 @@ export default function BreatheScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <Text style={styles.kicker}>{t('breathe.kicker')}</Text>
           <Text style={styles.title}>{t('breathe.title')}</Text>
-          {isAfter9PM() && (
-            <View style={styles.windDownBanner}>
-              <Text style={styles.windDownText}>{t('breathe.windDown')}</Text>
-            </View>
+          {suggestion && (
+            <TouchableOpacity style={styles.windDownBanner} onPress={applySuggestion} activeOpacity={0.85}>
+              <Text style={styles.windDownText}>{t(suggestion.reasonKey)}</Text>
+              <Text style={styles.suggestionApply}>{t('breathe.applySuggestion')} →</Text>
+            </TouchableOpacity>
           )}
 
           <Text style={styles.label}>{t('breathe.choosePattern')}</Text>
@@ -376,6 +396,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(125,211,252,0.25)',
   },
   windDownText: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.accent },
+  suggestionApply: { fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.primaryLight, marginTop: 6 },
   label: {
     fontFamily: FONTS.medium, fontSize: 13, color: COLORS.textMuted,
     letterSpacing: 1, textTransform: 'uppercase', marginTop: SPACING.lg,

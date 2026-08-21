@@ -52,6 +52,7 @@ export const en = {
     kicker: 'MEDITATION',
     title: 'Find your\ncalm.',
     windDown: '🌙 Wind-down mode · 4-7-8 recommended',
+    applySuggestion: 'Use this',
     choosePattern: 'Choose a pattern',
     sessionLength: 'Session length',
     ambientSound: 'Ambient sound',

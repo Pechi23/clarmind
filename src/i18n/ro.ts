@@ -54,6 +54,7 @@ export const ro: TranslationShape = {
     kicker: 'MEDITAȚIE',
     title: 'Găsește-ți\ncalmul.',
     windDown: '🌙 Mod de relaxare · 4-7-8 recomandat',
+    applySuggestion: 'Folosește',
     choosePattern: 'Alege un tipar',
     sessionLength: 'Durata sesiunii',
     ambientSound: 'Sunet ambiental',
