@@ -15,3 +15,10 @@ export const soundscapeName = (id: string, t: TFunc): string => t(`soundscapes.$
 export const challengeText = (id: string, t: TFunc): string => t(`challenges.${id}`);
 export const achievementName = (id: string, t: TFunc): string => t(`achievements.${id}.name`);
 export const achievementDesc = (id: string, t: TFunc): string => t(`achievements.${id}.description`);
+
+/** Localized Mind Rank name for a level (1-12 named, 13+ Enlightened + numerals). */
+export const rankName = (level: number, t: TFunc): string => {
+  if (level <= 12) return t(`ranks.${level}`);
+  const extra = Math.min(level - 12, 10);
+  return `${t('ranks.enlightened')} ${'I'.repeat(extra)}`;
+};

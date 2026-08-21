@@ -20,6 +20,8 @@ import ActivityHeatmap from '../components/ActivityHeatmap';
 import { MeditationSession } from '../types';
 import { getXp, getUnlockedAchievements } from '../services/gamification';
 import { ACHIEVEMENTS, getLevelForXp } from '../constants/achievements';
+import { useI18n } from '../i18n';
+import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
 
 interface Props {
   profile: UserProfile;
@@ -27,6 +29,7 @@ interface Props {
 }
 
 export default function ProfileScreen({ profile, onReset }: Props) {
+  const { t, language, setLanguage } = useI18n();
   const [streak, setStreak] = useState(0);
   const [totalMin, setTotalMin] = useState(0);
   const [sessions, setSessions] = useState(0);
@@ -44,8 +47,8 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     { hour: 21, minute: 30 },
   ];
 
-  const formatTime = (t: ReminderTime) =>
-    `${String(t.hour).padStart(2, '0')}:${String(t.minute).padStart(2, '0')}`;
+  const formatTime = (rt: ReminderTime) =>
+    `${String(rt.hour).padStart(2, '0')}:${String(rt.minute).padStart(2, '0')}`;
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
 
@@ -81,12 +84,12 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
   const handleReset = () => {
     Alert.alert(
-      'Reset everything?',
-      'This will erase your profile, streak and all meditation history.',
+      t('profile.resetTitle'),
+      t('profile.resetMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('profile.cancel'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('profile.reset'),
           style: 'destructive',
           onPress: async () => {
             await clearUserProfile();
@@ -101,7 +104,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     if (v) {
       const granted = await requestNotificationPermissions();
       if (!granted) {
-        Alert.alert('Permission needed', 'Please enable notifications in your device settings to receive daily reminders.');
+        Alert.alert(t('profile.permissionTitle'), t('profile.permissionMsg'));
         return;
       }
       await scheduleDailyReminder(reminderTime.hour, reminderTime.minute);
@@ -112,18 +115,18 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     await setNotificationsEnabled(v);
   };
 
-  const pickReminderTime = async (t: ReminderTime) => {
-    setReminderTimeState(t);
-    await setReminderTime(t);
+  const pickReminderTime = async (rt: ReminderTime) => {
+    setReminderTimeState(rt);
+    await setReminderTime(rt);
     if (notifs) {
-      await scheduleDailyReminder(t.hour, t.minute);
+      await scheduleDailyReminder(rt.hour, rt.minute);
     }
   };
 
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.kicker}>PROFILE</Text>
+        <Text style={styles.kicker}>{t('profile.kicker')}</Text>
 
         {/* Header card */}
         <LinearGradient
@@ -135,7 +138,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </View>
           <Text style={styles.headerName}>{profile.name}</Text>
           <Text style={[styles.headerZodiac, { color: zodiacInfo.color }]}>
-            {zodiacInfo.romanian} · {zodiacInfo.element}
+            {signName(zodiacInfo, language)} · {elementName(zodiacInfo.element, t)}
           </Text>
           <Text style={styles.headerDate}>{zodiacInfo.dateRange}</Text>
         </LinearGradient>
@@ -144,16 +147,16 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         <GradientCard colors={['rgba(167,139,250,0.2)', 'rgba(124,58,237,0.06)']} style={{ marginBottom: SPACING.lg }}>
           <View style={styles.levelHeader}>
             <View>
-              <Text style={styles.levelRank}>{levelInfo.rank}</Text>
-              <Text style={styles.levelNumber}>Level {levelInfo.level}</Text>
+              <Text style={styles.levelRank}>{rankName(levelInfo.level, t)}</Text>
+              <Text style={styles.levelNumber}>{t('profile.level', { n: levelInfo.level })}</Text>
             </View>
-            <Text style={styles.levelXp}>{xp} XP</Text>
+            <Text style={styles.levelXp}>{t('profile.xp', { xp })}</Text>
           </View>
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${Math.round(levelProgress * 100)}%` }]} />
           </View>
           <Text style={styles.progressLabel}>
-            {levelInfo.nextLevelXp - xp} XP to next level
+            {t('profile.toNextLevel', { xp: levelInfo.nextLevelXp - xp })}
           </Text>
         </GradientCard>
 
@@ -162,23 +165,23 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           <GradientCard style={styles.statCard}>
             <Text style={styles.statEmoji}>🔥</Text>
             <Text style={styles.statValue}>{streak}</Text>
-            <Text style={styles.statLabel}>day streak</Text>
+            <Text style={styles.statLabel}>{t('profile.dayStreak')}</Text>
           </GradientCard>
           <GradientCard style={styles.statCard}>
             <Text style={styles.statEmoji}>⏱️</Text>
             <Text style={styles.statValue}>{totalMin}</Text>
-            <Text style={styles.statLabel}>minutes</Text>
+            <Text style={styles.statLabel}>{t('profile.minutesStat')}</Text>
           </GradientCard>
           <GradientCard style={styles.statCard}>
             <Text style={styles.statEmoji}>✨</Text>
             <Text style={styles.statValue}>{sessions}</Text>
-            <Text style={styles.statLabel}>sessions</Text>
+            <Text style={styles.statLabel}>{t('profile.sessions')}</Text>
           </GradientCard>
         </View>
 
         {/* Achievements */}
         <Text style={styles.sectionLabel}>
-          Achievements · {unlockedIds.length}/{ACHIEVEMENTS.length}
+          {t('profile.achievements')} · {unlockedIds.length}/{ACHIEVEMENTS.length}
         </Text>
         <View style={styles.badgeGrid}>
           {ACHIEVEMENTS.map((a) => {
@@ -189,10 +192,10 @@ export default function ProfileScreen({ profile, onReset }: Props) {
                   {unlocked ? a.emoji : '🔒'}
                 </Text>
                 <Text style={[styles.badgeName, !unlocked && styles.badgeNameLocked]} numberOfLines={1}>
-                  {a.name}
+                  {achievementName(a.id, t)}
                 </Text>
                 <Text style={styles.badgeDesc} numberOfLines={2}>
-                  {a.description}
+                  {achievementDesc(a.id, t)}
                 </Text>
               </View>
             );
@@ -200,17 +203,38 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         </View>
 
         {/* Activity heatmap */}
-        <Text style={styles.sectionLabel}>Last 30 days</Text>
+        <Text style={styles.sectionLabel}>{t('profile.last30')}</Text>
         <View style={styles.heatmapWrap}>
           <ActivityHeatmap sessions={allSessions} />
         </View>
 
         {/* Settings */}
-        <Text style={styles.sectionLabel}>Settings</Text>
+        <Text style={styles.sectionLabel}>{t('profile.settings')}</Text>
+
+        {/* Language */}
         <View style={styles.settingRow}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.settingTitle}>Daily reminder</Text>
-            <Text style={styles.settingSub}>Notify me to take a mindful moment</Text>
+            <Text style={styles.settingTitle}>{t('profile.language')}</Text>
+          </View>
+          <View style={styles.langToggle}>
+            {(['en', 'ro'] as const).map((lng) => (
+              <TouchableOpacity
+                key={lng}
+                onPress={() => setLanguage(lng)}
+                style={[styles.langChip, language === lng && styles.langChipActive]}
+              >
+                <Text style={[styles.langChipText, language === lng && styles.langChipTextActive]}>
+                  {lng === 'en' ? 'EN' : 'RO'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.settingTitle}>{t('profile.dailyReminder')}</Text>
+            <Text style={styles.settingSub}>{t('profile.reminderSub')}</Text>
           </View>
           <Switch
             value={notifs}
@@ -222,19 +246,19 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
         {notifs && (
           <View style={styles.reminderTimeWrap}>
-            <Text style={styles.reminderTimeLabel}>Remind me at</Text>
+            <Text style={styles.reminderTimeLabel}>{t('profile.remindAt')}</Text>
             <View style={styles.timeChipRow}>
-              {REMINDER_PRESETS.map((t) => {
-                const selected = t.hour === reminderTime.hour && t.minute === reminderTime.minute;
+              {REMINDER_PRESETS.map((rt) => {
+                const selected = rt.hour === reminderTime.hour && rt.minute === reminderTime.minute;
                 return (
                   <TouchableOpacity
-                    key={formatTime(t)}
-                    onPress={() => pickReminderTime(t)}
+                    key={formatTime(rt)}
+                    onPress={() => pickReminderTime(rt)}
                     activeOpacity={0.85}
                     style={[styles.timeChip, selected && styles.timeChipSelected]}
                   >
                     <Text style={[styles.timeChipText, selected && styles.timeChipTextSelected]}>
-                      {formatTime(t)}
+                      {formatTime(rt)}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -245,7 +269,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
         {/* Reset */}
         <TouchableOpacity onPress={handleReset} activeOpacity={0.85} style={styles.resetButton}>
-          <Text style={styles.resetText}>Reset onboarding</Text>
+          <Text style={styles.resetText}>{t('profile.reset')}</Text>
         </TouchableOpacity>
 
         <Text style={styles.appVersion}>ClarMind · v1.4.0</Text>
@@ -293,6 +317,14 @@ const styles = StyleSheet.create({
   },
   settingTitle: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
   settingSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textDim, marginTop: 2 },
+  langToggle: {
+    flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.full, padding: 3, gap: 2,
+  },
+  langChip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: RADIUS.full },
+  langChipActive: { backgroundColor: 'rgba(167,139,250,0.25)' },
+  langChipText: { fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.textMuted },
+  langChipTextActive: { color: COLORS.primaryLight },
   reminderTimeWrap: {
     backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: RADIUS.md,
     padding: SPACING.md, marginTop: -SPACING.sm, marginBottom: SPACING.lg,
