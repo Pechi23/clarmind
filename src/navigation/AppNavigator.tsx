@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS } from '../constants/theme';
 import { UserProfile } from '../types';
+import { useI18n } from '../i18n';
 import HomeScreen from '../screens/HomeScreen';
 import BreatheScreen from '../screens/BreatheScreen';
 import SkyScreen from '../screens/SkyScreen';
@@ -29,7 +30,12 @@ const TAB_ICONS: Record<string, string> = {
   Profile: '⚙️',
 };
 
+const TAB_KEYS: Record<string, string> = {
+  Home: 'tabs.home', Breathe: 'tabs.breathe', Sky: 'tabs.sky', Top: 'tabs.top', Profile: 'tabs.profile',
+};
+
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { t } = useI18n();
   return (
     <View style={styles.tabBarWrap}>
       <LinearGradient
@@ -58,6 +64,8 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               onPress={onPress}
               activeOpacity={0.7}
               style={styles.tabItem}
+              accessibilityRole="tab"
+              accessibilityLabel={t(TAB_KEYS[route.name] ?? route.name)}
             >
               {focused && <View style={styles.activeBg} />}
               <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>{icon}</Text>

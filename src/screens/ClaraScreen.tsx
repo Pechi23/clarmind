@@ -10,7 +10,8 @@ import {
   getChatHistory, saveChatHistory, clearChatHistory,
   getClaraCount, incrementClaraCount,
 } from '../services/storage';
-import { askClara, claraOpeners, CLARA_DAILY_LIMIT } from '../services/clara';
+import { askClara, CLARA_DAILY_LIMIT } from '../services/clara';
+import { useI18n } from '../i18n';
 
 interface Props {
   profile: UserProfile;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function ClaraScreen({ profile, onClose }: Props) {
+  const { t, language } = useI18n();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -31,7 +33,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
       if (history.length === 0) {
         const opener: ChatMessage = {
           role: 'assistant',
-          text: claraOpeners(profile.name),
+          text: t('clara.opener', { name: profile.name }),
           at: new Date().toISOString(),
         };
         setMessages([opener]);
@@ -58,7 +60,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     setSending(true);
     scrollToEnd();
 
-    const reply = await askClara(messages, text, profile);
+    const reply = await askClara(messages, text, profile, language);
     const claraMsg: ChatMessage = { role: 'assistant', text: reply, at: new Date().toISOString() };
     const withReply = [...next, claraMsg];
     setMessages(withReply);
@@ -73,7 +75,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     await clearChatHistory();
     const opener: ChatMessage = {
       role: 'assistant',
-      text: claraOpeners(profile.name),
+      text: t('clara.opener', { name: profile.name }),
       at: new Date().toISOString(),
     };
     setMessages([opener]);
@@ -95,10 +97,10 @@ export default function ClaraScreen({ profile, onClose }: Props) {
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Clara 🌙</Text>
-            <Text style={styles.headerSub}>your mindful companion</Text>
+            <Text style={styles.headerSub}>{t('clara.subtitle')}</Text>
           </View>
           <TouchableOpacity onPress={resetChat} hitSlop={12}>
-            <Text style={styles.reset}>Clear</Text>
+            <Text style={styles.reset}>{t('clara.clear')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -131,15 +133,13 @@ export default function ClaraScreen({ profile, onClose }: Props) {
         {/* Input */}
         {atLimit ? (
           <View style={styles.limitBox}>
-            <Text style={styles.limitText}>
-              You've reached today's gentle limit with Clara. She'll be here again tomorrow. 🌙
-            </Text>
+            <Text style={styles.limitText}>{t('clara.limit')}</Text>
           </View>
         ) : (
           <View style={styles.inputBar}>
             <TextInput
               style={styles.input}
-              placeholder="Tell Clara what's on your mind…"
+              placeholder={t('clara.inputPlaceholder')}
               placeholderTextColor={COLORS.textDim}
               value={input}
               onChangeText={setInput}
@@ -160,9 +160,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
             </TouchableOpacity>
           </View>
         )}
-        <Text style={styles.disclaimer}>
-          Clara is an AI companion, not a substitute for professional care.
-        </Text>
+        <Text style={styles.disclaimer}>{t('clara.disclaimer')}</Text>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
