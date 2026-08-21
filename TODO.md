@@ -92,7 +92,8 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2.3 | **Mood-aware sessions** | Pre-session mood prompt; if mood ≤ 2 suggest longer session + warmer phase labels. Post-vs-pre delta shown on completion ("You moved +2 toward calm") |
 | 2.4 | **Evening reflection journal** | After 21:00, Home shows 1 AI question ("What can you release before sleep?"). Answers stored locally; weekly recap quotes them |
 | 2.5 | **Sound mixer** | Layer 2 soundscapes with volume sliders (rain + space drone). `expo-av` supports parallel sounds — extend `soundscape.ts` to manage a Map of active sounds |
-| 2.6 | **Romanian localization** | `i18n-js` + `expo-localization`; extract ~200 strings to `src/i18n/{en,ro}.ts`. Zodiac names already exist. Gemini prompt gains "respond in Romanian" flag |
+| 2.6 | ✅ **Romanian localization** | DONE v1.5 — full en/ro i18n (`src/i18n/`), EN/RO switcher in onboarding + Profile, expo-localization default, every screen localized incl. content (patterns/soundscapes/challenges/achievements/ranks/elements), AI (daily content, Clara, weekly reflection) responds in the chosen language |
+| 2.3 | ✅ **Mood-aware sessions** | DONE v1.5 — `suggestSession()` recommends pattern+duration from recent mood + time; tappable localized banner on Breathe; 6 tests |
 | 2.7 | **Seasonal events** | Calendar-seeded (no backend): full-moon meditation nights, solstice challenges, New Year reset ritual. Date check + special challenge pool + unique badge each |
 
 ### P3 — Monetization (after ~1k installs)
@@ -140,9 +141,11 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-26 | Retention v1.2 | Constellation Sky tab, Stardust Shield streak freeze, onboarding goal quiz, personalized notifications, reminder time picker, per-session soundscape tracking; tsc clean |
 | 2026-06-27 | Test harness | Extracted pure logic (streakLogic, skyLogic, challengeLogic); Jest + ts-jest; 43 unit tests across 5 suites, all green; `npm test` / `npm run typecheck` scripts |
 | 2026-06-27 | Weekly Recap (v1.3) | Once-per-week recap modal with this-vs-last-week deltas + Gemini reflection (offline fallback); weeklyRecapLogic + 11 tests (caught a real getMondayKey timezone bug); 54 tests total |
+| 2026-06-27 | Deploy assets + Clara + audio fix (v1.4) | Branded icon/splash (sharp); privacy/terms/store copy; loading skeleton; Clara AI chat; bundled real ambient audio (URLs were 403); bells + fade; build-integrity fixes (babel-preset-expo, private-field lowering); 84-test data-layer suite |
+| 2026-06-27 | Romanian i18n + mood suggestion (v1.5) | Full EN/RO localization across every screen + content + AI; language switcher; mood-aware session suggestion; 90 tests / 10 suites; production bundle verified |
 | 2026-06-27 | Deploy prep + Clara (v1.4) | Real branded icon/splash/favicon (sharp generator); privacy policy + terms + store listing copy; Home loading skeleton; "Clara" AI companion chat with safety guardrail + daily cap |
 | 2026-06-27 | Build integrity + full test suite | Headless `expo export` caught & fixed: missing babel-preset-expo, private-field lowering for Hermes, removed unused AI SDKs; bundled real ambient audio (soundscape URLs were 403). Added AsyncStorage-mocked integration tests for storage + gamification + Clara. 84 tests / 9 suites green |
 
 ---
 
-**Last updated:** 2026-06-27
+**Last updated:** 2026-06-27 (v1.5)
