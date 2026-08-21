@@ -5,6 +5,31 @@ const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 export const CLARA_DAILY_LIMIT = 20;
+export const CLARA_CONTEXT_TURNS = 16;
+
+export interface GeminiTurn {
+  role: 'user' | 'model';
+  parts: { text: string }[];
+}
+
+/**
+ * Builds the Gemini `contents` array from the recent transcript plus the new
+ * user message. Pure and testable: keeps the last CLARA_CONTEXT_TURNS turns and
+ * maps assistant -> model.
+ */
+export const buildClaraContents = (
+  history: ChatMessage[],
+  userText: string
+): GeminiTurn[] => {
+  const recent = history.slice(-CLARA_CONTEXT_TURNS);
+  return [
+    ...recent.map((m) => ({
+      role: (m.role === 'assistant' ? 'model' : 'user') as 'user' | 'model',
+      parts: [{ text: m.text }],
+    })),
+    { role: 'user' as const, parts: [{ text: userText }] },
+  ];
+};
 
 const systemPrompt = (profile: UserProfile): string => `You are Clara, the gentle AI companion inside ClarMind, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}).
 
@@ -36,15 +61,7 @@ export const askClara = async (
   const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
   if (!apiKey) return fallback;
 
-  // Keep the last ~16 turns for context without bloating the request.
-  const recent = history.slice(-16);
-  const contents = [
-    ...recent.map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.text }],
-    })),
-    { role: 'user', parts: [{ text: userText }] },
-  ];
+  const contents = buildClaraContents(history, userText);
 
   try {
     const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {

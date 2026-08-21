@@ -120,11 +120,11 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 ---
 
 ## 5. Known issues / tech debt
+- **Local `expo export` Hermes step fails on Windows** — the bundled `sdks/hermesc/win64-bin/hermesc.exe` is an old DEBUG build (LLVM 8.0.0svn) that rejects modern syntax (private fields, some class expressions). The **JS bundle itself is valid** (a `jsEngine: jsc` export produces a complete 2.73MB bundle). **EAS Build compiles Hermes server-side with the correct toolchain**, so this does not affect real builds. To sanity-check the JS bundle locally, temporarily set `"jsEngine": "jsc"` in app.json and run `npx expo export --platform android`.
 - Expo Go SDK-54 dropped remote push notifications — reminder toggle is a no-op in Expo Go; works in dev/production builds. Non-blocking.
 - `expo start --android` can hit interactive prompts (port busy, Expo Go version upgrade) in non-interactive shells — run in a real terminal, or pre-install matching Expo Go.
-- Pixabay CDN soundscape URLs unverified — P0.2 replaces them with bundled assets.
-- `sound-bather` achievement unlocks on any session (soundscape not yet stored per session) — add `soundscape?: string` to `MeditationSession` when implementing P1/P2 audio work.
-- TypeScript strict mode off; package minor-version drift warnings (`expo@54.0.33` vs `54.0.35`) — run `npx expo install --fix` before next build.
+- TypeScript strict mode on for app code; tests excluded from tsc. `npm test` = 84 tests / 9 suites (pure logic + AsyncStorage-mocked integration).
+- Soundscapes are procedurally-generated WAVs (`scripts/generate-sounds.js`). Fine for launch; could be swapped for higher-fidelity recordings later.
 
 ---
 
@@ -141,6 +141,7 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-27 | Test harness | Extracted pure logic (streakLogic, skyLogic, challengeLogic); Jest + ts-jest; 43 unit tests across 5 suites, all green; `npm test` / `npm run typecheck` scripts |
 | 2026-06-27 | Weekly Recap (v1.3) | Once-per-week recap modal with this-vs-last-week deltas + Gemini reflection (offline fallback); weeklyRecapLogic + 11 tests (caught a real getMondayKey timezone bug); 54 tests total |
 | 2026-06-27 | Deploy prep + Clara (v1.4) | Real branded icon/splash/favicon (sharp generator); privacy policy + terms + store listing copy; Home loading skeleton; "Clara" AI companion chat with safety guardrail + daily cap |
+| 2026-06-27 | Build integrity + full test suite | Headless `expo export` caught & fixed: missing babel-preset-expo, private-field lowering for Hermes, removed unused AI SDKs; bundled real ambient audio (soundscape URLs were 403). Added AsyncStorage-mocked integration tests for storage + gamification + Clara. 84 tests / 9 suites green |
 
 ---
 
