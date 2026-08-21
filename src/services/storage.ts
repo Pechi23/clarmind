@@ -17,6 +17,7 @@ const KEYS = {
   LAST_RECAP_WEEK: 'clarmind_last_recap_week',
   CHAT_HISTORY: 'clarmind_chat_history',
   CLARA_COUNT: 'clarmind_clara_count', // { date, count }
+  LANGUAGE: 'clarmind_language',
 };
 
 const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
@@ -114,6 +115,15 @@ export const setReminderTime = async (time: ReminderTime): Promise<void> => {
 export const getReminderTime = async (): Promise<ReminderTime> => {
   const v = await AsyncStorage.getItem(KEYS.REMINDER_TIME);
   return v ? JSON.parse(v) : { hour: 9, minute: 0 };
+};
+
+// Language preference
+export const getLanguage = async (): Promise<string | null> => {
+  return AsyncStorage.getItem(KEYS.LANGUAGE);
+};
+
+export const setLanguage = async (lang: string): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.LANGUAGE, lang);
 };
 
 export const setNotificationsEnabled = async (enabled: boolean): Promise<void> => {

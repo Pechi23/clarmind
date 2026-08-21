@@ -16,12 +16,14 @@ import { UserProfile } from './src/types';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/constants/theme';
+import { I18nProvider, useI18n } from './src/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function App() {
+function Root() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [appReady, setAppReady] = useState(false);
+  const { ready: i18nReady } = useI18n();
 
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -43,12 +45,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (fontsLoaded && appReady) {
+    if (fontsLoaded && appReady && i18nReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, appReady]);
+  }, [fontsLoaded, appReady, i18nReady]);
 
-  if (!fontsLoaded || !appReady) {
+  if (!fontsLoaded || !appReady || !i18nReady) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator color={COLORS.primary} />
@@ -67,6 +69,14 @@ export default function App() {
         )}
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+export default function App() {
+  return (
+    <I18nProvider>
+      <Root />
+    </I18nProvider>
   );
 }
 

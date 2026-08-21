@@ -31,7 +31,7 @@ export const buildClaraContents = (
   ];
 };
 
-const systemPrompt = (profile: UserProfile): string => `You are Clara, the gentle AI companion inside ClarMind, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}).
+const systemPrompt = (profile: UserProfile, language: 'en' | 'ro'): string => `You are Clara, the gentle AI companion inside ClarMind, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}). ${language === 'ro' ? 'Reply ONLY in Romanian.' : 'Reply in English.'}
 
 Your voice: warm, calm, encouraging, and human. Short replies — usually 2-4 sentences. You listen first, validate feelings, and offer one small, practical mindfulness suggestion when it helps (a breath, a grounding exercise, a reframe, a moment of self-kindness). You may gently reference their zodiac sign for warmth, never as fact.
 
@@ -55,7 +55,8 @@ const FALLBACKS = [
 export const askClara = async (
   history: ChatMessage[],
   userText: string,
-  profile: UserProfile
+  profile: UserProfile,
+  language: 'en' | 'ro' = 'en'
 ): Promise<string> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
   const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
@@ -68,7 +69,7 @@ export const askClara = async (
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt(profile) }] },
+        systemInstruction: { parts: [{ text: systemPrompt(profile, language) }] },
         contents,
         generationConfig: { maxOutputTokens: 300, temperature: 0.85 },
       }),

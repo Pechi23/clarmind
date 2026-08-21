@@ -8,6 +8,8 @@ import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS, ZodiacInfo } from '../constants/zodiac';
 import { saveUserProfile } from '../services/storage';
 import { UserProfile, UserGoal } from '../types';
+import { useI18n } from '../i18n';
+import { signName } from '../constants/localize';
 
 const { width } = Dimensions.get('window');
 
@@ -15,14 +17,15 @@ interface Props {
   onComplete: () => void;
 }
 
-const GOALS: { id: UserGoal; emoji: string; title: string; subtitle: string }[] = [
-  { id: 'sleep',     emoji: '😴', title: 'Sleep better',     subtitle: 'Wind down and rest deeply' },
-  { id: 'stress',    emoji: '🌊', title: 'Manage stress',    subtitle: 'Find calm in busy days' },
-  { id: 'focus',     emoji: '🎯', title: 'Sharpen focus',    subtitle: 'Train a clearer mind' },
-  { id: 'curiosity', emoji: '✨', title: 'Just exploring',   subtitle: 'See what mindfulness can do' },
+const GOAL_META: { id: UserGoal; emoji: string }[] = [
+  { id: 'sleep', emoji: '😴' },
+  { id: 'stress', emoji: '🌊' },
+  { id: 'focus', emoji: '🎯' },
+  { id: 'curiosity', emoji: '✨' },
 ];
 
 export default function OnboardingScreen({ onComplete }: Props) {
+  const { t, language, setLanguage } = useI18n();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState('');
   const [selectedZodiac, setSelectedZodiac] = useState<ZodiacInfo | null>(null);
@@ -54,17 +57,15 @@ export default function OnboardingScreen({ onComplete }: Props) {
           <View style={styles.flex}>
             <View style={styles.stepHeader}>
               <TouchableOpacity onPress={() => setStep(2)}>
-                <Text style={styles.back}>← Back</Text>
+                <Text style={styles.back}>{t('common.back')}</Text>
               </TouchableOpacity>
               <Text style={styles.logo}>✦ ClarMind</Text>
               <View style={{ width: 50 }} />
             </View>
-            <Text style={styles.headline2}>What brings{'\n'}you here?</Text>
-            <Text style={styles.subtext2}>
-              We'll shape your daily guidance around this.
-            </Text>
+            <Text style={styles.headline2}>{t('onboarding.goalTitle')}</Text>
+            <Text style={styles.subtext2}>{t('onboarding.goalSubtitle')}</Text>
             <View style={styles.goalList}>
-              {GOALS.map((g) => {
+              {GOAL_META.map((g) => {
                 const isSelected = selectedGoal === g.id;
                 return (
                   <TouchableOpacity
@@ -76,9 +77,9 @@ export default function OnboardingScreen({ onComplete }: Props) {
                     <Text style={styles.goalEmoji}>{g.emoji}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.goalTitle, isSelected && { color: '#c4b5fd' }]}>
-                        {g.title}
+                        {t(`goals.${g.id}.title`)}
                       </Text>
-                      <Text style={styles.goalSubtitle}>{g.subtitle}</Text>
+                      <Text style={styles.goalSubtitle}>{t(`goals.${g.id}.subtitle`)}</Text>
                     </View>
                     {isSelected && <Text style={styles.goalCheck}>✓</Text>}
                   </TouchableOpacity>
@@ -93,23 +94,36 @@ export default function OnboardingScreen({ onComplete }: Props) {
                 activeOpacity={0.8}
               >
                 <LinearGradient colors={GRADIENTS.button} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>Start my journey ✦</Text>
+                  <Text style={styles.buttonText}>{t('onboarding.start')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
         ) : step === 1 ? (
           <View style={styles.stepContainer}>
-            <Text style={styles.logo}>✦ ClarMind</Text>
-            <Text style={styles.headline}>Clear your mind,{'\n'}every single day.</Text>
-            <Text style={styles.subtext}>
-              Personalized mindfulness, zodiac insights and daily calm — built just for you.
-            </Text>
+            <View style={styles.topRow}>
+              <Text style={styles.logo}>✦ ClarMind</Text>
+              <View style={styles.langToggle}>
+                {(['en', 'ro'] as const).map((lng) => (
+                  <TouchableOpacity
+                    key={lng}
+                    onPress={() => setLanguage(lng)}
+                    style={[styles.langChip, language === lng && styles.langChipActive]}
+                  >
+                    <Text style={[styles.langChipText, language === lng && styles.langChipTextActive]}>
+                      {lng === 'en' ? 'EN' : 'RO'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <Text style={styles.headline}>{t('onboarding.headline')}</Text>
+            <Text style={styles.subtext}>{t('onboarding.subtext')}</Text>
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>What should we call you?</Text>
+              <Text style={styles.label}>{t('onboarding.namePrompt')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Your name..."
+                placeholder={t('onboarding.namePlaceholder')}
                 placeholderTextColor={COLORS.textDim}
                 value={name}
                 onChangeText={setName}
@@ -125,7 +139,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
               activeOpacity={0.8}
             >
               <LinearGradient colors={GRADIENTS.button} style={styles.buttonGradient}>
-                <Text style={styles.buttonText}>Continue →</Text>
+                <Text style={styles.buttonText}>{t('common.continue')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -133,15 +147,13 @@ export default function OnboardingScreen({ onComplete }: Props) {
           <View style={styles.flex}>
             <View style={styles.stepHeader}>
               <TouchableOpacity onPress={() => setStep(1)}>
-                <Text style={styles.back}>← Back</Text>
+                <Text style={styles.back}>{t('common.back')}</Text>
               </TouchableOpacity>
               <Text style={styles.logo}>✦ ClarMind</Text>
               <View style={{ width: 50 }} />
             </View>
-            <Text style={styles.headline2}>What's your{'\n'}zodiac sign?</Text>
-            <Text style={styles.subtext2}>
-              Hi {name}! Your sign helps us personalize your daily message.
-            </Text>
+            <Text style={styles.headline2}>{t('onboarding.zodiacTitle')}</Text>
+            <Text style={styles.subtext2}>{t('onboarding.zodiacSubtitle', { name })}</Text>
             <ScrollView
               contentContainerStyle={styles.zodiacGrid}
               showsVerticalScrollIndicator={false}
@@ -160,7 +172,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
                   >
                     <Text style={styles.zodiacEmoji}>{sign.emoji}</Text>
                     <Text style={[styles.zodiacName, isSelected && { color: sign.color }]}>
-                      {sign.romanian}
+                      {signName(sign, language)}
                     </Text>
                     <Text style={styles.zodiacDate}>{sign.dateRange}</Text>
                   </TouchableOpacity>
@@ -175,7 +187,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
                 activeOpacity={0.8}
               >
                 <LinearGradient colors={GRADIENTS.button} style={styles.buttonGradient}>
-                  <Text style={styles.buttonText}>Continue →</Text>
+                  <Text style={styles.buttonText}>{t('common.continue')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -197,6 +209,23 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingBottom: SPACING.xl,
   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xxl,
+  },
+  langToggle: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.full,
+    padding: 3,
+    gap: 2,
+  },
+  langChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: RADIUS.full },
+  langChipActive: { backgroundColor: 'rgba(167,139,250,0.25)' },
+  langChipText: { fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.textMuted },
+  langChipTextActive: { color: COLORS.primaryLight },
   logo: {
     fontFamily: FONTS.semiBold,
     fontSize: 16,

@@ -18,11 +18,12 @@ const GEMINI_API_URL =
 export const generateDailyContent = async (
   name: string,
   zodiacSign: ZodiacSign,
-  goal?: UserGoal
+  goal?: UserGoal,
+  language: 'en' | 'ro' = 'en'
 ): Promise<DailyContent> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
-  const today = new Date().toLocaleDateString('en-GB', {
+  const today = new Date().toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-GB', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -42,7 +43,7 @@ Return ONLY a valid JSON object with exactly these fields:
   "affirmation": "a short powerful personal affirmation (1 sentence, starting with 'I am' or 'I have' or 'I choose')"
 }
 
-Keep the tone warm, calm, and encouraging. No markdown, no extra text — just the JSON.`;
+Keep the tone warm, calm, and encouraging. ${language === 'ro' ? 'Write ALL field values in Romanian.' : 'Write all field values in English.'} No markdown, no extra text — just the JSON.`;
 
   const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
@@ -81,14 +82,15 @@ Keep the tone warm, calm, and encouraging. No markdown, no extra text — just t
  */
 export const generateWeeklyReflection = async (
   name: string,
-  recap: WeeklyRecap
+  recap: WeeklyRecap,
+  language: 'en' | 'ro' = 'en'
 ): Promise<string> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
   const fallback = buildFallbackReflection(recap);
   if (!apiKey) return fallback;
 
   const { thisWeek, lastWeek, minutesDelta, moodDelta } = recap;
-  const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
+  const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week, ${language === 'ro' ? 'in Romanian' : 'in English'}. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
 
 This week: ${thisWeek.sessions} sessions, ${thisWeek.minutes} minutes, ${thisWeek.activeDays} active days${thisWeek.avgMood !== null ? `, average mood ${thisWeek.avgMood}/5` : ''}.
 Last week: ${lastWeek.sessions} sessions, ${lastWeek.minutes} minutes.
