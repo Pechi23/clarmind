@@ -13,7 +13,7 @@ const GOAL_CONTEXT: Record<UserGoal, string> = {
 };
 
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
 export const generateDailyContent = async (
   name: string,
@@ -50,7 +50,9 @@ Keep the tone warm, calm, and encouraging. ${language === 'ro' ? 'Write ALL fiel
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 600, temperature: 0.8 },
+      // gemini-3.x flash spends tokens on internal "thinking" too, so give the
+      // JSON output generous headroom or it truncates to invalid JSON.
+      generationConfig: { maxOutputTokens: 2048, temperature: 0.8 },
     }),
   });
 
@@ -102,7 +104,7 @@ Change in minutes: ${minutesDelta >= 0 ? '+' : ''}${minutesDelta}${moodDelta !==
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 60, temperature: 0.9 },
+        generationConfig: { maxOutputTokens: 512, temperature: 0.9 },
       }),
     });
     if (!response.ok) return fallback;

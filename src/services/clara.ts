@@ -2,7 +2,7 @@
 import { ChatMessage, UserProfile } from '../types';
 
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
 export const CLARA_DAILY_LIMIT = 20;
 export const CLARA_CONTEXT_TURNS = 16;
@@ -71,7 +71,7 @@ export const askClara = async (
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt(profile, language) }] },
         contents,
-        generationConfig: { maxOutputTokens: 300, temperature: 0.85 },
+        generationConfig: { maxOutputTokens: 1024, temperature: 0.85 },
       }),
     });
     if (!response.ok) return fallback;
