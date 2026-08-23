@@ -2,20 +2,12 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import * as Localization from 'expo-localization';
 import { en } from './en';
 import { ro } from './ro';
+import { translateWith } from './interpolate';
 import { getLanguage as loadLanguage, setLanguage as persistLanguage } from '../services/storage';
 
 export type Language = 'en' | 'ro';
 
 const DICTS = { en, ro } as const;
-
-/** Resolve a dot path like "home.affirmationLabel" against a dictionary. */
-const lookup = (dict: any, path: string): string | undefined =>
-  path.split('.').reduce((acc, key) => (acc == null ? undefined : acc[key]), dict);
-
-const interpolate = (str: string, params?: Record<string, string | number>): string =>
-  params
-    ? str.replace(/\{(\w+)\}/g, (_, k) => (params[k] !== undefined ? String(params[k]) : `{${k}}`))
-    : str;
 
 export type TFunc = (key: string, params?: Record<string, string | number>) => string;
 
@@ -63,10 +55,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const t = useCallback<TFunc>(
-    (key, params) => {
-      const value = lookup(DICTS[language], key) ?? lookup(DICTS.en, key) ?? key;
-      return typeof value === 'string' ? interpolate(value, params) : key;
-    },
+    (key, params) => translateWith(DICTS[language], DICTS.en, key, params),
     [language]
   );
 
@@ -83,7 +72,5 @@ export const useI18n = () => useContext(I18nContext);
 // language kept in sync by the provider.
 let currentLanguage: Language = 'en';
 export const _setModuleLanguage = (lang: Language) => { currentLanguage = lang; };
-export const translate: TFunc = (key, params) => {
-  const value = lookup(DICTS[currentLanguage], key) ?? lookup(DICTS.en, key) ?? key;
-  return typeof value === 'string' ? interpolate(value, params) : key;
-};
+export const translate: TFunc = (key, params) =>
+  translateWith(DICTS[currentLanguage], DICTS.en, key, params);
