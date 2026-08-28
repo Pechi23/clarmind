@@ -143,6 +143,17 @@ export const ro: TranslationShape = {
   tabs: {
     home: 'Acasă', breathe: 'Respiră', sky: 'Cer', top: 'Top', profile: 'Profil',
   },
+  share: {
+    button: 'Distribuie progresul',
+    cardTitle: 'Călătoria Mea ClarMind',
+    streak: 'zile la rând',
+    minutes: 'minute mindful',
+    stars: 'stele aprinse',
+    tagline: 'Limpezește-ți mintea, în fiecare zi.',
+    action: 'Distribuie',
+    close: 'Închide',
+    unavailable: 'Distribuirea nu este disponibilă pe acest dispozitiv.',
+  },
   courses: {
     label: 'Programe',
     homeCardTitle: 'Programe de 7 Zile',

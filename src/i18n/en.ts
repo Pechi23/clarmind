@@ -141,6 +141,17 @@ export const en = {
   tabs: {
     home: 'Home', breathe: 'Breathe', sky: 'Sky', top: 'Top', profile: 'Profile',
   },
+  share: {
+    button: 'Share my progress',
+    cardTitle: 'My ClarMind Journey',
+    streak: 'day streak',
+    minutes: 'mindful minutes',
+    stars: 'stars lit',
+    tagline: 'Clear your mind, every day.',
+    action: 'Share',
+    close: 'Close',
+    unavailable: 'Sharing is not available on this device.',
+  },
   courses: {
     label: 'Programs',
     homeCardTitle: '7-Day Programs',

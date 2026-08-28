@@ -22,6 +22,7 @@ import { getXp, getUnlockedAchievements } from '../services/gamification';
 import { ACHIEVEMENTS, getLevelForXp } from '../constants/achievements';
 import { useI18n } from '../i18n';
 import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
+import ShareCardModal from '../components/ShareCardModal';
 
 interface Props {
   profile: UserProfile;
@@ -38,6 +39,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
+  const [shareOpen, setShareOpen] = useState(false);
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -179,6 +181,13 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </GradientCard>
         </View>
 
+        {/* Share progress */}
+        <TouchableOpacity onPress={() => setShareOpen(true)} activeOpacity={0.85} style={styles.shareButton}>
+          <LinearGradient colors={GRADIENTS.button} style={styles.shareGradient}>
+            <Text style={styles.shareButtonText}>📤  {t('share.button')}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
         {/* Achievements */}
         <Text style={styles.sectionLabel}>
           {t('profile.achievements')} · {unlockedIds.length}/{ACHIEVEMENTS.length}
@@ -274,6 +283,16 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
         <Text style={styles.appVersion}>ClarMind · v1.6.0</Text>
       </ScrollView>
+
+      <ShareCardModal
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        profile={profile}
+        level={levelInfo.level}
+        streak={streak}
+        minutes={totalMin}
+        stars={sessions}
+      />
     </LinearGradient>
   );
 }
@@ -281,6 +300,9 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: SPACING.lg, paddingTop: 70, paddingBottom: 100 },
+  shareButton: { marginBottom: SPACING.xl },
+  shareGradient: { paddingVertical: 14, borderRadius: RADIUS.full, alignItems: 'center' },
+  shareButtonText: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.white },
   kicker: {
     fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.primary,
     letterSpacing: 3, marginBottom: SPACING.md,
