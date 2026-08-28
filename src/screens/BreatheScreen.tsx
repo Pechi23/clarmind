@@ -11,8 +11,12 @@ import { saveMeditationSession, getTotalMeditationMinutes } from '../services/st
 import { MoodEntry } from '../types';
 import { saveMoodEntry } from '../services/storage';
 import {
-  SOUNDSCAPES, Soundscape, playSoundscape, stopSoundscape, fadeOutSoundscape, playChime,
+  SOUNDSCAPES, syncMix, stopMix, fadeOutMix, playChime,
 } from '../services/soundscape';
+import {
+  MixState, toggleLayer, setLayerVolume, isLayerActive, mixSummary,
+} from '../services/soundscapeMixer';
+import Slider from '@react-native-community/slider';
 import {
   addXp, applySessionToChallenges, checkAchievements,
   completeChallenge, getTodayChallenges,
@@ -45,7 +49,7 @@ export default function BreatheScreen() {
   const [phaseSecondsLeft, setPhaseSecondsLeft] = useState(0);
   const [moodModalOpen, setMoodModalOpen] = useState(false);
   const [totalMinutes, setTotalMinutes] = useState(0);
-  const [soundscape, setSoundscape] = useState<Soundscape>(SOUNDSCAPES[0]);
+  const [mix, setMix] = useState<MixState>({});
   const [earnedXp, setEarnedXp] = useState(0);
   const [newBadges, setNewBadges] = useState<AchievementDef[]>([]);
   const [suggestion, setSuggestion] = useState<ReturnType<typeof suggestSession>>(null);
@@ -60,7 +64,7 @@ export default function BreatheScreen() {
     phaseTimer.current = null;
   };
 
-  useEffect(() => () => { cleanup(); stopSoundscape(); }, []);
+  useEffect(() => () => { cleanup(); stopMix(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
 
   // Compute a mood-aware suggestion whenever we return to the select screen.
@@ -86,7 +90,7 @@ export default function BreatheScreen() {
     setPhaseSecondsLeft(pattern.phases[0].duration);
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
     playChime('start').catch(() => {});
-    playSoundscape(soundscape).catch(() => {});
+    syncMix(mix).catch(() => {});
 
     sessionTimer.current = setInterval(() => {
       setSecondsLeft((s) => {
@@ -124,21 +128,22 @@ export default function BreatheScreen() {
   const finishSession = async () => {
     cleanup();
     playChime('end').catch(() => {});
-    fadeOutSoundscape(4000).catch(() => {}); // gentle wind-down, esp. for sleep
+    fadeOutMix(mix, 4000).catch(() => {}); // gentle wind-down, esp. for sleep
     const today = new Date().toISOString().split('T')[0];
     await saveMeditationSession({
       date: today,
       durationMinutes: durationMin,
       pattern: pattern.id,
       completedAt: new Date().toISOString(),
-      soundscape: soundscape.id,
+      soundscape: mixSummary(mix),
     });
 
     // Real XP: per-minute + auto-completed challenges, then badge check
+    const usedSoundscape = Object.keys(mix).length > 0;
     const sessionXp = durationMin * XP.PER_MINUTE;
     await addXp(sessionXp);
     const challengeXp = await applySessionToChallenges(
-      durationMin, pattern.id, soundscape.id !== 'silence'
+      durationMin, pattern.id, usedSoundscape
     );
     const unlocked = await checkAchievements();
 
@@ -152,7 +157,7 @@ export default function BreatheScreen() {
 
   const cancelSession = () => {
     cleanup();
-    stopSoundscape();
+    stopMix();
     setMode('select');
   };
 
@@ -246,25 +251,46 @@ export default function BreatheScreen() {
             contentContainerStyle={styles.soundRow}
           >
             {SOUNDSCAPES.map((s) => {
-              const selected = soundscape.id === s.id;
+              const active = isLayerActive(mix, s.id);
               return (
                 <TouchableOpacity
                   key={s.id}
-                  onPress={() => setSoundscape(s)}
+                  onPress={() => setMix((m) => toggleLayer(m, s.id))}
                   activeOpacity={0.85}
                   style={[
                     styles.soundChip,
-                    selected && { borderColor: pattern.color, backgroundColor: pattern.color + '22' },
+                    active && { borderColor: pattern.color, backgroundColor: pattern.color + '22' },
                   ]}
                 >
                   <Text style={styles.soundEmoji}>{s.emoji}</Text>
-                  <Text style={[styles.soundName, selected && { color: pattern.color }]}>
+                  <Text style={[styles.soundName, active && { color: pattern.color }]}>
                     {soundscapeName(s.id, t)}
                   </Text>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
+
+          {/* Per-layer volume sliders (mixer) */}
+          {Object.keys(mix).length > 0 && (
+            <View style={styles.mixer}>
+              {SOUNDSCAPES.filter((s) => s.id in mix).map((s) => (
+                <View key={s.id} style={styles.mixerRow}>
+                  <Text style={styles.mixerLabel}>{s.emoji} {soundscapeName(s.id, t)}</Text>
+                  <Slider
+                    style={styles.slider}
+                    minimumValue={0}
+                    maximumValue={1}
+                    value={mix[s.id]}
+                    onValueChange={(v) => setMix((m) => setLayerVolume(m, s.id, v))}
+                    minimumTrackTintColor={pattern.color}
+                    maximumTrackTintColor="rgba(255,255,255,0.15)"
+                    thumbTintColor={pattern.color}
+                  />
+                </View>
+              ))}
+            </View>
+          )}
 
           <Text style={styles.totalText}>{t('breathe.totalMeditated', { min: totalMinutes })}</Text>
 
@@ -430,6 +456,14 @@ const styles = StyleSheet.create({
   },
   soundEmoji: { fontSize: 16 },
   soundName: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.text },
+  mixer: {
+    marginTop: SPACING.md, gap: SPACING.xs,
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: RADIUS.md, padding: SPACING.md,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+  },
+  mixerRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  mixerLabel: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.textMuted, width: 110 },
+  slider: { flex: 1, height: 36 },
   totalText: {
     fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textMuted,
     textAlign: 'center', marginTop: SPACING.xl, marginBottom: SPACING.md,

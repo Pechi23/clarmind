@@ -94,3 +94,70 @@ export const setSoundscapeVolume = async (vol: number): Promise<void> => {
     try { await currentSound.setVolumeAsync(vol); } catch {}
   }
 };
+
+// ---- Layered mixer -----------------------------------------------------------
+// Plays several soundscapes at once, each at its own volume. Keyed by id.
+
+const layers = new Map<string, Audio.Sound>();
+const sourceFor = (id: string) => SOUNDSCAPES.find((s) => s.id === id)?.source ?? null;
+
+/** Start/stop/adjust playing layers so they match the given mix (id -> volume). */
+export const syncMix = async (mix: Record<string, number>): Promise<void> => {
+  try {
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+  } catch {}
+
+  // Stop layers no longer in the mix.
+  for (const [id, sound] of Array.from(layers.entries())) {
+    if (!(id in mix)) {
+      try { await sound.stopAsync(); await sound.unloadAsync(); } catch {}
+      layers.delete(id);
+    }
+  }
+
+  // Start new layers and update volumes.
+  for (const [id, volume] of Object.entries(mix)) {
+    const existing = layers.get(id);
+    if (existing) {
+      try { await existing.setVolumeAsync(volume); } catch {}
+    } else {
+      const source = sourceFor(id);
+      if (source == null) continue;
+      try {
+        const { sound } = await Audio.Sound.createAsync(source, {
+          isLooping: true, volume, shouldPlay: true,
+        });
+        layers.set(id, sound);
+      } catch (e) {
+        console.warn('Mix layer failed:', id, e);
+      }
+    }
+  }
+};
+
+export const stopMix = async (): Promise<void> => {
+  for (const [id, sound] of Array.from(layers.entries())) {
+    try { await sound.stopAsync(); await sound.unloadAsync(); } catch {}
+    layers.delete(id);
+  }
+};
+
+/** Fade every active layer to silence over `ms`, then stop them. */
+export const fadeOutMix = async (mix: Record<string, number>, ms = 4000): Promise<void> => {
+  if (layers.size === 0) return;
+  const steps = 12;
+  const interval = ms / steps;
+  for (let i = steps - 1; i >= 0; i--) {
+    await new Promise((r) => setTimeout(r, interval));
+    if (layers.size === 0) return;
+    for (const [id, sound] of layers.entries()) {
+      const base = mix[id] ?? 0.5;
+      try { await sound.setVolumeAsync((base * i) / steps); } catch {}
+    }
+  }
+  await stopMix();
+};
