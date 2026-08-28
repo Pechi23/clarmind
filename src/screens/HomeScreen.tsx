@@ -29,6 +29,8 @@ import {
 import { useI18n } from '../i18n';
 import { signName, elementName, challengeText } from '../constants/localize';
 import { getSeasonalEvent } from '../services/seasonalEvents';
+import { isEvening } from '../services/reflectionLogic';
+import ReflectionCard from '../components/ReflectionCard';
 
 interface Props {
   profile: UserProfile;
@@ -348,6 +350,9 @@ export default function HomeScreen({ profile }: Props) {
               </View>
               <Text style={styles.bodyText}>{content.mindfulnessTask}</Text>
             </GradientCard>
+
+            {/* Evening reflection journal */}
+            {isEvening() && <ReflectionCard />}
 
             <Text style={styles.refreshHint}>{t('home.refreshHint')}</Text>
           </>

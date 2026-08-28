@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage,
+  UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage, ReflectionEntry,
 } from '../types';
 import { computeStreakUpdate } from './streakLogic';
 
@@ -18,6 +18,7 @@ const KEYS = {
   CHAT_HISTORY: 'clarmind_chat_history',
   CLARA_COUNT: 'clarmind_clara_count', // { date, count }
   LANGUAGE: 'clarmind_language',
+  REFLECTIONS: 'clarmind_reflections',
 };
 
 const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
@@ -115,6 +116,25 @@ export const setReminderTime = async (time: ReminderTime): Promise<void> => {
 export const getReminderTime = async (): Promise<ReminderTime> => {
   const v = await AsyncStorage.getItem(KEYS.REMINDER_TIME);
   return v ? JSON.parse(v) : { hour: 9, minute: 0 };
+};
+
+// Evening reflections
+export const getReflections = async (): Promise<ReflectionEntry[]> => {
+  const data = await AsyncStorage.getItem(KEYS.REFLECTIONS);
+  return data ? JSON.parse(data) : [];
+};
+
+export const getReflectionForDate = async (date: string): Promise<ReflectionEntry | null> => {
+  const all = await getReflections();
+  return all.find((r) => r.date === date) ?? null;
+};
+
+export const saveReflection = async (entry: ReflectionEntry): Promise<void> => {
+  const all = await getReflections();
+  const idx = all.findIndex((r) => r.date === entry.date);
+  if (idx >= 0) all[idx] = entry;
+  else all.push(entry);
+  await AsyncStorage.setItem(KEYS.REFLECTIONS, JSON.stringify(all.slice(-120)));
 };
 
 // Language preference

@@ -47,3 +47,9 @@ export interface ChatMessage {
   text: string;
   at: string;              // ISO timestamp
 }
+
+export interface ReflectionEntry {
+  date: string;            // YYYY-MM-DD
+  questionKey: string;     // i18n key of the prompt shown
+  answer: string;
+}

@@ -143,6 +143,23 @@ export const ro: TranslationShape = {
   tabs: {
     home: 'Acasă', breathe: 'Respiră', sky: 'Cer', top: 'Top', profile: 'Profil',
   },
+  reflection: {
+    label: 'Reflecția de Seară',
+    placeholder: 'Scrie câteva cuvinte…',
+    save: 'Salvează',
+    saved: 'Salvat ✓',
+    savedToday: 'Reflecția din seara asta',
+    questions: {
+      release: 'Ce este un lucru pe care îl poți lăsa în urmă înainte de somn?',
+      wentWell: 'Ce a mers bine azi, oricât de mic?',
+      grateful: 'Pentru ce ești recunoscător în seara asta?',
+      emotion: 'Ce emoție porți cu tine — și o poți lăsa jos?',
+      lighter: 'Ce ar face ziua de mâine să pară puțin mai ușoară?',
+      calm: 'Cine sau ce ți-a adus calm azi?',
+      kind: 'Ce lucru bun ai făcut — pentru alții sau pentru tine?',
+      canWait: 'Ce poate aștepta până mâine?',
+    },
+  },
   seasonal: {
     fullMoon: { title: 'Lună Plină în Seara Asta 🌕', message: 'Luna este plină — o noapte perfectă pentru a lăsa în urmă ce nu îți mai folosește.' },
     newYear: { title: 'An Nou, Minte Limpede ✨', message: 'Un nou început. Stabilește o intenție calmă pentru anul ce vine.' },

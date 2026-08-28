@@ -141,6 +141,23 @@ export const en = {
   tabs: {
     home: 'Home', breathe: 'Breathe', sky: 'Sky', top: 'Top', profile: 'Profile',
   },
+  reflection: {
+    label: 'Evening Reflection',
+    placeholder: 'Write a few words…',
+    save: 'Save',
+    saved: 'Saved ✓',
+    savedToday: "Tonight's reflection",
+    questions: {
+      release: 'What is one thing you can release before sleep?',
+      wentWell: 'What went well today, however small?',
+      grateful: 'What are you grateful for tonight?',
+      emotion: 'What emotion are you carrying — and can you set it down?',
+      lighter: 'What would make tomorrow feel a little lighter?',
+      calm: 'Who or what brought you calm today?',
+      kind: 'What kind thing did you do — for others or yourself?',
+      canWait: 'What can wait until tomorrow?',
+    },
+  },
   seasonal: {
     fullMoon: { title: 'Full Moon Tonight 🌕', message: 'The moon is full — a perfect night to release what no longer serves you.' },
     newYear: { title: 'New Year, Clear Mind ✨', message: 'A fresh beginning. Set one calm intention for the year ahead.' },
