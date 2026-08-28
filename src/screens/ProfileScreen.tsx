@@ -272,7 +272,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           <Text style={styles.resetText}>{t('profile.reset')}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.appVersion}>ClarMind · v1.5.0</Text>
+        <Text style={styles.appVersion}>ClarMind · v1.6.0</Text>
       </ScrollView>
     </LinearGradient>
   );

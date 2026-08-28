@@ -88,12 +88,12 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | # | Feature | Notes |
 |---|---|---|
 | 2.1 | ✅ **"Clara" — AI companion chat** | DONE v1.4 — floating 🌙 button on Home → full chat screen (Gemini w/ systemInstruction, warm-coach persona + crisis safety guardrail, 20 msgs/day). Rolling transcript in AsyncStorage, offline fallback lines. `services/clara.ts` + `ClaraScreen.tsx` |
-| 2.2 | **7-day micro-courses** | AI-generated programs ("7 Days of Letting Go"). One unlock per day = built-in return visit. Generate day N content on demand, cache like daily content |
+| 2.2 | ✅ **7-day micro-courses** | DONE v1.6 — 3 programs, calendar-gated day unlock, AI day content (cached, offline fallback), CoursesScreen + Home entry. `courseLogic.ts` (13 tests) + `services/courses.ts` |
 | 2.3 | ✅ **Mood-aware sessions** | DONE v1.5 — `suggestSession()` recommends pattern+duration from recent mood + time; tappable localized banner on Breathe; 6 tests. (Post-vs-pre mood delta on completion still open.) |
-| 2.4 | **Evening reflection journal** | After 21:00, Home shows 1 AI question ("What can you release before sleep?"). Answers stored locally; weekly recap quotes them |
-| 2.5 | **Sound mixer** | Layer 2 soundscapes with volume sliders (rain + space drone). `expo-av` supports parallel sounds — extend `soundscape.ts` to manage a Map of active sounds |
+| 2.4 | ✅ **Evening reflection journal** | DONE v1.6 — after 20:00 Home shows a seeded localized question + text input, saved locally (`reflectionLogic.ts` + `ReflectionCard.tsx`, 6 tests) |
+| 2.5 | ✅ **Sound mixer** | DONE v1.6 — multi-select soundscape layers with per-layer volume sliders; `soundscapeMixer.ts` (pure, 11 tests) + layered expo-av player (syncMix/stopMix/fadeOutMix) |
 | 2.6 | ✅ **Romanian localization** | DONE v1.5 — full en/ro i18n (`src/i18n/`), EN/RO switcher in onboarding + Profile, expo-localization default, every screen localized incl. content (patterns/soundscapes/challenges/achievements/ranks/elements), AI (daily content, Clara, weekly reflection) responds in the chosen language |
-| 2.7 | **Seasonal events** | Calendar-seeded (no backend): full-moon meditation nights, solstice challenges, New Year reset ritual. Date check + special challenge pool + unique badge each |
+| 2.7 | ✅ **Seasonal events** | DONE v1.6 — full moon (accurate lunar calc) + solstices/equinoxes + New Year themed banner on Home (`seasonalEvents.ts`, 10 tests) |
 
 ### P3 — Monetization (after ~1k installs)
 - Premium $3.99/mo or $24.99/yr via RevenueCat (`react-native-purchases`).
@@ -145,9 +145,10 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-27 | Deploy assets + Clara + audio fix (v1.4) | Branded icon/splash (sharp); privacy/terms/store copy; loading skeleton; Clara AI chat; bundled real ambient audio (URLs were 403); bells + fade; build-integrity fixes (babel-preset-expo, private-field lowering); 84-test data-layer suite |
 | 2026-06-27 | Romanian i18n + mood suggestion (v1.5) | Full EN/RO localization across every screen + content + AI; language switcher; mood-aware session suggestion; 90 tests / 10 suites; production bundle verified |
 | 2026-06-27 | Live emulator smoke test + 2 critical fixes | Ran the app end-to-end in Expo Go — caught two bugs that tsc/jest/bundle all passed: (1) `loose:true` babel plugins crashed startup (`Cannot assign to read-only property 'NONE'`) — reverted; (2) Gemini `2.0-flash` model 404'd (dead) so daily content never loaded — updated to `3.6-flash` + raised token limits for the thinking model. Also fixed babel-preset-expo pinned to wrong v57. Verified working: onboarding→Home, AI quote+affirmation+challenges, gamification, 5 tabs. 102 tests / 11 suites. |
+| 2026-08-24 | P2 content-depth complete (v1.6) | Seasonal events banner, evening reflection journal, sound mixer (layers + volume sliders), 7-day micro-courses. All P2 items now done. 138 tests / 16 suites. |
 | 2026-06-27 | Deploy prep + Clara (v1.4) | Real branded icon/splash/favicon (sharp generator); privacy policy + terms + store listing copy; Home loading skeleton; "Clara" AI companion chat with safety guardrail + daily cap |
 | 2026-06-27 | Build integrity + full test suite | Headless `expo export` caught & fixed: missing babel-preset-expo, private-field lowering for Hermes, removed unused AI SDKs; bundled real ambient audio (soundscape URLs were 403). Added AsyncStorage-mocked integration tests for storage + gamification + Clara. 84 tests / 9 suites green |
 
 ---
 
-**Last updated:** 2026-06-27 (v1.5)
+**Last updated:** 2026-08-24 (v1.6 — all P2 complete)
