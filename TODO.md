@@ -101,7 +101,8 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 - Paywall moments: after first achievement unlock (high), 3rd session completion, locked soundscape tap.
 
 ### P4 — Social & platform
-- Share cards: SVG → image (`react-native-view-shot`) gradient card with rank/constellation for IG stories.
+- ✅ **Share cards** — DONE v1.6: `ShareCardModal` captures a branded rank/streak/minutes/stars card via `react-native-view-shot` and shares it through `expo-sharing`'s OS sheet. "Share my progress" button in Profile.
+- (Remaining P4 needs a dev build or backend: home-screen widgets, Supabase leaderboard/friends, watch companions.)
 - Home-screen widgets (streak + quote) — needs dev-build, `expo-apple-targets` / Glance.
 - Supabase backend → real leaderboard, friends. Migration: mirror AsyncStorage to Supabase keyed by anonymous device ID; merge on account creation.
 - Watch companions (breathe haptics on wrist).
@@ -146,6 +147,7 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-06-27 | Romanian i18n + mood suggestion (v1.5) | Full EN/RO localization across every screen + content + AI; language switcher; mood-aware session suggestion; 90 tests / 10 suites; production bundle verified |
 | 2026-06-27 | Live emulator smoke test + 2 critical fixes | Ran the app end-to-end in Expo Go — caught two bugs that tsc/jest/bundle all passed: (1) `loose:true` babel plugins crashed startup (`Cannot assign to read-only property 'NONE'`) — reverted; (2) Gemini `2.0-flash` model 404'd (dead) so daily content never loaded — updated to `3.6-flash` + raised token limits for the thinking model. Also fixed babel-preset-expo pinned to wrong v57. Verified working: onboarding→Home, AI quote+affirmation+challenges, gamification, 5 tabs. 102 tests / 11 suites. |
 | 2026-08-24 | P2 content-depth complete (v1.6) | Seasonal events banner, evening reflection journal, sound mixer (layers + volume sliders), 7-day micro-courses. All P2 items now done. 138 tests / 16 suites. |
+| 2026-08-24 | Share card + runtime verify (v1.6) | Shareable progress card (view-shot + expo-sharing). Runtime-verified on emulator: daily content (Gemini 3.6), sound mixer + native slider, mood suggestion banner, Profile rank card, share card modal all render correctly. Entire implementable roadmap (P0–P2 + P4 share) complete; remaining P3/P4 need external accounts/backend/dev-build. |
 | 2026-06-27 | Deploy prep + Clara (v1.4) | Real branded icon/splash/favicon (sharp generator); privacy policy + terms + store listing copy; Home loading skeleton; "Clara" AI companion chat with safety guardrail + daily cap |
 | 2026-06-27 | Build integrity + full test suite | Headless `expo export` caught & fixed: missing babel-preset-expo, private-field lowering for Hermes, removed unused AI SDKs; bundled real ambient audio (soundscape URLs were 403). Added AsyncStorage-mocked integration tests for storage + gamification + Clara. 84 tests / 9 suites green |
 
