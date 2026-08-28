@@ -141,6 +141,15 @@ export const en = {
   tabs: {
     home: 'Home', breathe: 'Breathe', sky: 'Sky', top: 'Top', profile: 'Profile',
   },
+  seasonal: {
+    fullMoon: { title: 'Full Moon Tonight 🌕', message: 'The moon is full — a perfect night to release what no longer serves you.' },
+    newYear: { title: 'New Year, Clear Mind ✨', message: 'A fresh beginning. Set one calm intention for the year ahead.' },
+    newYearEve: { title: "New Year's Eve 🎆", message: 'Close the year with a few mindful breaths. You made it here.' },
+    winterSolstice: { title: 'Winter Solstice ❄️', message: 'The longest night. Turn inward, rest, and let stillness restore you.' },
+    summerSolstice: { title: 'Summer Solstice ☀️', message: 'The longest day. Breathe in the light and let your energy rise.' },
+    springEquinox: { title: 'Spring Equinox 🌸', message: 'Balance returns. Plant a small intention and watch it grow.' },
+    autumnEquinox: { title: 'Autumn Equinox 🍂', message: 'A time of balance. Let go gently, like leaves in the wind.' },
+  },
   elements: { Fire: 'Fire', Earth: 'Earth', Air: 'Air', Water: 'Water' },
   patterns: {
     box: { name: 'Box Breathing', description: '4-4-4-4 · For focus and calm' },

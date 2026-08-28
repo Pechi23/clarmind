@@ -143,6 +143,15 @@ export const ro: TranslationShape = {
   tabs: {
     home: 'Acasă', breathe: 'Respiră', sky: 'Cer', top: 'Top', profile: 'Profil',
   },
+  seasonal: {
+    fullMoon: { title: 'Lună Plină în Seara Asta 🌕', message: 'Luna este plină — o noapte perfectă pentru a lăsa în urmă ce nu îți mai folosește.' },
+    newYear: { title: 'An Nou, Minte Limpede ✨', message: 'Un nou început. Stabilește o intenție calmă pentru anul ce vine.' },
+    newYearEve: { title: 'Revelion 🎆', message: 'Încheie anul cu câteva respirații mindful. Ai ajuns până aici.' },
+    winterSolstice: { title: 'Solstițiul de Iarnă ❄️', message: 'Cea mai lungă noapte. Întoarce-te spre interior, odihnește-te și lasă liniștea să te refacă.' },
+    summerSolstice: { title: 'Solstițiul de Vară ☀️', message: 'Cea mai lungă zi. Inspiră lumina și lasă-ți energia să crească.' },
+    springEquinox: { title: 'Echinocțiul de Primăvară 🌸', message: 'Echilibrul revine. Sădește o mică intenție și privește-o cum crește.' },
+    autumnEquinox: { title: 'Echinocțiul de Toamnă 🍂', message: 'Un timp al echilibrului. Lasă lucrurile să plece ușor, ca frunzele în vânt.' },
+  },
   elements: { Fire: 'Foc', Earth: 'Pământ', Air: 'Aer', Water: 'Apă' },
   patterns: {
     box: { name: 'Respirație în Cutie', description: '4-4-4-4 · Pentru concentrare și calm' },

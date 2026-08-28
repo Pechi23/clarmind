@@ -28,6 +28,7 @@ import {
 } from '../services/weeklyRecapLogic';
 import { useI18n } from '../i18n';
 import { signName, elementName, challengeText } from '../constants/localize';
+import { getSeasonalEvent } from '../services/seasonalEvents';
 
 interface Props {
   profile: UserProfile;
@@ -85,6 +86,7 @@ export default function HomeScreen({ profile }: Props) {
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
   const today = new Date().toISOString().split('T')[0];
+  const seasonalEvent = getSeasonalEvent();
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -250,6 +252,22 @@ export default function HomeScreen({ profile }: Props) {
           {new Date().toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
         </Text>
 
+        {/* Seasonal event banner */}
+        {seasonalEvent && (
+          <LinearGradient
+            colors={['rgba(167,139,250,0.22)', 'rgba(125,211,252,0.1)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.seasonalBanner}
+          >
+            <Text style={styles.seasonalEmoji}>{seasonalEvent.emoji}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.seasonalTitle}>{t(seasonalEvent.titleKey)}</Text>
+              <Text style={styles.seasonalMessage}>{t(seasonalEvent.messageKey)}</Text>
+            </View>
+          </LinearGradient>
+        )}
+
         {error ? (
           <View style={styles.errorBox}>
             <Text style={styles.errorText}>{t('home.errorLoad')}</Text>
@@ -368,6 +386,14 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   cardSpacing: { marginBottom: SPACING.md },
+  seasonalBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    borderRadius: RADIUS.md, padding: SPACING.md, marginBottom: SPACING.md,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)',
+  },
+  seasonalEmoji: { fontSize: 28 },
+  seasonalTitle: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
+  seasonalMessage: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textMuted, marginTop: 2, lineHeight: 18 },
   quoteIcon: {
     fontFamily: FONTS.bold,
     fontSize: 48,
