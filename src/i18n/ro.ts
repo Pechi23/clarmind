@@ -143,6 +143,27 @@ export const ro: TranslationShape = {
   tabs: {
     home: 'Acasă', breathe: 'Respiră', sky: 'Cer', top: 'Top', profile: 'Profil',
   },
+  courses: {
+    label: 'Programe',
+    homeCardTitle: 'Programe de 7 Zile',
+    homeCardSubtitle: 'Călătorii ghidate, câte o zi blândă pe rând',
+    choose: 'Alege un program',
+    day: 'Ziua {n}',
+    dayOf: 'Ziua {n} din 7',
+    locked: 'Se deblochează în {n} zi(le)',
+    todaysPractice: 'Practica de Azi',
+    reflectPrompt: 'Reflectează',
+    markComplete: 'Marchează ziua ca terminată',
+    completed: 'Terminată ✓',
+    start: 'Începe programul',
+    leave: 'Părăsește programul',
+    finished: 'Program terminat! 🎉',
+    items: {
+      'letting-go': { title: '7 Zile de Eliberare', description: 'Lasă în urmă stresul și nevoia de control' },
+      'better-sleep': { title: '7 Nopți spre un Somn Mai Bun', description: 'Relaxează-te și odihnește-te mai profund' },
+      'finding-focus': { title: '7 Zile de Concentrare', description: 'Construiește o minte mai limpede și mai calmă' },
+    },
+  },
   reflection: {
     label: 'Reflecția de Seară',
     placeholder: 'Scrie câteva cuvinte…',

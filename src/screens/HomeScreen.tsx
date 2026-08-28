@@ -31,6 +31,7 @@ import { signName, elementName, challengeText } from '../constants/localize';
 import { getSeasonalEvent } from '../services/seasonalEvents';
 import { isEvening } from '../services/reflectionLogic';
 import ReflectionCard from '../components/ReflectionCard';
+import CoursesScreen from './CoursesScreen';
 
 interface Props {
   profile: UserProfile;
@@ -51,6 +52,7 @@ export default function HomeScreen({ profile }: Props) {
   const [recapReflection, setRecapReflection] = useState('');
   const [recapVisible, setRecapVisible] = useState(false);
   const [claraOpen, setClaraOpen] = useState(false);
+  const [coursesOpen, setCoursesOpen] = useState(false);
   const guideAwarded = React.useRef(false);
 
   // Show the weekly recap once per ISO week, when there's recent activity.
@@ -206,6 +208,10 @@ export default function HomeScreen({ profile }: Props) {
       <Modal visible={claraOpen} animationType="slide" onRequestClose={() => setClaraOpen(false)}>
         <ClaraScreen profile={profile} onClose={() => setClaraOpen(false)} />
       </Modal>
+      {/* 7-day programs */}
+      <Modal visible={coursesOpen} animationType="slide" onRequestClose={() => setCoursesOpen(false)}>
+        <CoursesScreen onClose={() => setCoursesOpen(false)} />
+      </Modal>
       <TouchableOpacity
         style={styles.claraFab}
         onPress={() => setClaraOpen(true)}
@@ -351,6 +357,20 @@ export default function HomeScreen({ profile }: Props) {
               <Text style={styles.bodyText}>{content.mindfulnessTask}</Text>
             </GradientCard>
 
+            {/* 7-day programs entry */}
+            <TouchableOpacity onPress={() => setCoursesOpen(true)} activeOpacity={0.85} style={styles.cardSpacing}>
+              <GradientCard colors={['rgba(107,203,119,0.15)', 'rgba(107,203,119,0.04)']}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionEmoji}>📚</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sectionLabel}>{t('courses.homeCardTitle')}</Text>
+                    <Text style={styles.sectionSubLabel}>{t('courses.homeCardSubtitle')}</Text>
+                  </View>
+                  <Text style={styles.programsArrow}>→</Text>
+                </View>
+              </GradientCard>
+            </TouchableOpacity>
+
             {/* Evening reflection journal */}
             {isEvening() && <ReflectionCard />}
 
@@ -396,6 +416,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md, padding: SPACING.md, marginBottom: SPACING.md,
     borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)',
   },
+  programsArrow: { fontFamily: FONTS.bold, fontSize: 20, color: COLORS.success },
   seasonalEmoji: { fontSize: 28 },
   seasonalTitle: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
   seasonalMessage: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textMuted, marginTop: 2, lineHeight: 18 },

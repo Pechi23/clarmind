@@ -53,3 +53,9 @@ export interface ReflectionEntry {
   questionKey: string;     // i18n key of the prompt shown
   answer: string;
 }
+
+export interface CourseProgress {
+  courseId: string;
+  startDate: string;       // YYYY-MM-DD
+  completedDays: number[]; // 1..7
+}

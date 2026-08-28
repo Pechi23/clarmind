@@ -141,6 +141,27 @@ export const en = {
   tabs: {
     home: 'Home', breathe: 'Breathe', sky: 'Sky', top: 'Top', profile: 'Profile',
   },
+  courses: {
+    label: 'Programs',
+    homeCardTitle: '7-Day Programs',
+    homeCardSubtitle: 'Guided journeys, one gentle day at a time',
+    choose: 'Choose a program',
+    day: 'Day {n}',
+    dayOf: 'Day {n} of 7',
+    locked: 'Unlocks in {n} day(s)',
+    todaysPractice: "Today's Practice",
+    reflectPrompt: 'Reflect',
+    markComplete: 'Mark day complete',
+    completed: 'Completed ✓',
+    start: 'Start program',
+    leave: 'Leave program',
+    finished: 'Program complete! 🎉',
+    items: {
+      'letting-go': { title: '7 Days of Letting Go', description: 'Release stress and the need to control' },
+      'better-sleep': { title: '7 Nights to Better Sleep', description: 'Wind down and rest more deeply' },
+      'finding-focus': { title: '7 Days of Focus', description: 'Build a clearer, calmer mind' },
+    },
+  },
   reflection: {
     label: 'Evening Reflection',
     placeholder: 'Write a few words…',

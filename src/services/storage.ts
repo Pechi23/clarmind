@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage, ReflectionEntry,
+  UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage,
+  ReflectionEntry, CourseProgress,
 } from '../types';
 import { computeStreakUpdate } from './streakLogic';
 
@@ -19,6 +20,7 @@ const KEYS = {
   CLARA_COUNT: 'clarmind_clara_count', // { date, count }
   LANGUAGE: 'clarmind_language',
   REFLECTIONS: 'clarmind_reflections',
+  COURSE_PROGRESS: 'clarmind_course_progress',
 };
 
 const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
@@ -135,6 +137,34 @@ export const saveReflection = async (entry: ReflectionEntry): Promise<void> => {
   if (idx >= 0) all[idx] = entry;
   else all.push(entry);
   await AsyncStorage.setItem(KEYS.REFLECTIONS, JSON.stringify(all.slice(-120)));
+};
+
+// Micro-course progress (one active course at a time)
+export const getCourseProgress = async (): Promise<CourseProgress | null> => {
+  const data = await AsyncStorage.getItem(KEYS.COURSE_PROGRESS);
+  return data ? JSON.parse(data) : null;
+};
+
+export const startCourse = async (courseId: string): Promise<CourseProgress> => {
+  const progress: CourseProgress = {
+    courseId,
+    startDate: new Date().toISOString().split('T')[0],
+    completedDays: [],
+  };
+  await AsyncStorage.setItem(KEYS.COURSE_PROGRESS, JSON.stringify(progress));
+  return progress;
+};
+
+export const markCourseDayComplete = async (day: number): Promise<CourseProgress | null> => {
+  const progress = await getCourseProgress();
+  if (!progress) return null;
+  if (!progress.completedDays.includes(day)) progress.completedDays.push(day);
+  await AsyncStorage.setItem(KEYS.COURSE_PROGRESS, JSON.stringify(progress));
+  return progress;
+};
+
+export const leaveCourse = async (): Promise<void> => {
+  await AsyncStorage.removeItem(KEYS.COURSE_PROGRESS);
 };
 
 // Language preference
