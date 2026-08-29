@@ -216,10 +216,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
               <Text style={styles.detailText}>{pos.meaning}</Text>
               <Text style={styles.detailText}>{arcanaMeaning(selectedNode.value, language)}</Text>
               <Text style={styles.detailInfluence}>
-                {t('numerology.influence', {
-                  position: pos.title.toLowerCase(),
-                  arcana: arcanaName(selectedNode.value, language),
-                })}
+                {t('numerology.influence', { arcana: arcanaName(selectedNode.value, language) })}
               </Text>
             </GradientCard>
           );

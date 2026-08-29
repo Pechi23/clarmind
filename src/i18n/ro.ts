@@ -178,7 +178,7 @@ export const ro: TranslationShape = {
     matrixHint: 'Centrul = energia ta esențială · colțurile sunt cele 22 de arcane',
     matrixTapHint: 'Apasă pe orice număr ca să vezi ce înseamnă →',
     arcanaLabel: 'Arcana',
-    influence: 'Ca {position} al tău, {arcana} modelează felul în care trăiești această parte a vieții tale.',
+    influence: 'Aici, {arcana} influențează felul în care trăiești această parte a vieții tale.',
     disclaimer: 'Aceste informații sunt doar o estimare, oferite în scop de reflecție și divertisment. Nu ne asumăm răspunderea pentru eventuale greșeli.',
     incomplete: 'Te rugăm să completezi numele și o dată de naștere validă.',
   },
