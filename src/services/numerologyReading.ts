@@ -5,6 +5,7 @@ import { BirthDetails } from '../types';
 import { ZodiacSign } from '../constants/zodiac';
 import { parseDob, computeNumerology, personalDayNumber } from './numerology';
 import { computeDestinyMatrix } from './destinyMatrix';
+import { ascendantSign } from './ascendant';
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
@@ -59,7 +60,7 @@ Their numbers:
 - Life Path (destiny number): ${nums.lifePath}
 - Expression: ${nums.expression}, Soul Urge: ${nums.soulUrge}, Personality: ${nums.personality}
 - Personal Day today: ${personalDay}
-- Zodiac sign: ${zodiac}
+- Zodiac (Sun) sign: ${zodiac}, approximate Ascendant (rising) sign: ${ascendantSign(zodiac, birth.hour, birth.minute)}
 - Destiny Matrix core (center) arcana: ${matrix.center}, purpose arcana: ${matrix.purpose}
 - Born ${birth.dob} at ${String(birth.hour).padStart(2, '0')}:${String(birth.minute).padStart(2, '0')} in ${birth.place || 'unknown place'}.
 
