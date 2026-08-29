@@ -84,3 +84,64 @@ export const ARCANA_NAMES: Record<number, { en: string; ro: string }> = {
 
 export const arcanaName = (n: number, language: 'en' | 'ro'): string =>
   ARCANA_NAMES[n]?.[language] ?? String(n);
+
+/** One-line energy of each arcana (1–22), for the interactive detail view. */
+export const ARCANA_MEANINGS: Record<number, { en: string; ro: string }> = {
+  1: { en: 'Willpower, initiative and the power to manifest your ideas.', ro: 'Voință, inițiativă și puterea de a-ți manifesta ideile.' },
+  2: { en: 'Intuition, inner wisdom and quiet, patient knowing.', ro: 'Intuiție, înțelepciune interioară și cunoaștere răbdătoare.' },
+  3: { en: 'Creativity, abundance and a nurturing, warm heart.', ro: 'Creativitate, abundență și o inimă caldă, grijulie.' },
+  4: { en: 'Structure, discipline and steady, grounded authority.', ro: 'Structură, disciplină și o autoritate stabilă, ancorată.' },
+  5: { en: 'Tradition, learning and spiritual guidance.', ro: 'Tradiție, învățare și îndrumare spirituală.' },
+  6: { en: 'Love, meaningful choices and harmony in relationships.', ro: 'Iubire, alegeri importante și armonie în relații.' },
+  7: { en: 'Drive and victory that come through focus and will.', ro: 'Determinare și victorie prin focus și voință.' },
+  8: { en: 'Balance, fairness and the law of cause and effect.', ro: 'Echilibru, corectitudine și legea cauzei și efectului.' },
+  9: { en: 'Introspection, solitude and deep inner guidance.', ro: 'Introspecție, singurătate și ghidare interioară profundă.' },
+  10: { en: 'Cycles, destiny and the turning of fortune.', ro: 'Cicluri, destin și rotirea norocului.' },
+  11: { en: 'Courage, inner strength and gentle patience.', ro: 'Curaj, forță interioară și răbdare blândă.' },
+  12: { en: 'Surrender, a new perspective and the power of pause.', ro: 'Abandon, o perspectivă nouă și puterea pauzei.' },
+  13: { en: 'Transformation — endings that make room for rebirth.', ro: 'Transformare — sfârșituri care fac loc renașterii.' },
+  14: { en: 'Balance, moderation and gentle healing.', ro: 'Echilibru, moderație și vindecare blândă.' },
+  15: { en: 'Attachment and desire — an invitation to shadow work.', ro: 'Atașament și dorință — o invitație la lucrul cu umbra.' },
+  16: { en: 'Sudden change that breaks the old and awakens the new.', ro: 'Schimbare bruscă ce dărâmă vechiul și trezește noul.' },
+  17: { en: 'Hope, inspiration and serene renewal.', ro: 'Speranță, inspirație și reînnoire senină.' },
+  18: { en: 'Intuition, dreams and the depths of the subconscious.', ro: 'Intuiție, vise și adâncurile subconștientului.' },
+  19: { en: 'Joy, vitality, success and radiant clarity.', ro: 'Bucurie, vitalitate, succes și claritate strălucitoare.' },
+  20: { en: 'Awakening, honest reflection and a sense of calling.', ro: 'Trezire, reflecție sinceră și un sentiment al chemării.' },
+  21: { en: 'Completion, wholeness and fulfilled achievement.', ro: 'Împlinire, întregire și realizare desăvârșită.' },
+  22: { en: 'Freedom, fresh starts and trusting spontaneity.', ro: 'Libertate, începuturi noi și spontaneitate încrezătoare.' },
+};
+
+export const arcanaMeaning = (n: number, language: 'en' | 'ro'): string =>
+  ARCANA_MEANINGS[n]?.[language] ?? '';
+
+export type PositionKey = 'center' | 'character' | 'innerTalents' | 'outerTalents' | 'purpose' | 'energyLine';
+
+/** Which life area each matrix point speaks to. */
+export const POSITION_META: Record<PositionKey, { en: { title: string; meaning: string }; ro: { title: string; meaning: string } }> = {
+  center: {
+    en: { title: 'Core Energy', meaning: 'Your essence — the central energy that shapes who you truly are.' },
+    ro: { title: 'Energia Esențială', meaning: 'Esența ta — energia centrală care modelează cine ești cu adevărat.' },
+  },
+  character: {
+    en: { title: 'Character', meaning: 'How you meet the world and express your personality day to day.' },
+    ro: { title: 'Caracter', meaning: 'Cum întâmpini lumea și îți exprimi personalitatea zi de zi.' },
+  },
+  innerTalents: {
+    en: { title: 'Inner Talents', meaning: 'Gifts and influences that shape your inner world.' },
+    ro: { title: 'Talente Interioare', meaning: 'Daruri și influențe care îți modelează lumea interioară.' },
+  },
+  outerTalents: {
+    en: { title: 'Outer Talents', meaning: 'How your gifts show up socially and out in the world.' },
+    ro: { title: 'Talente Exterioare', meaning: 'Cum se manifestă darurile tale social și în lume.' },
+  },
+  purpose: {
+    en: { title: 'Life Purpose', meaning: 'The lesson and direction you are here to grow toward.' },
+    ro: { title: 'Scopul Vieții', meaning: 'Lecția și direcția spre care ești aici să crești.' },
+  },
+  energyLine: {
+    en: { title: 'Energy Line', meaning: 'A bridge between two forces in your chart, blending their influences.' },
+    ro: { title: 'Linie de Energie', meaning: 'O punte între două forțe din matriță, îmbinând influențele lor.' },
+  },
+};
+
+export const positionInfo = (key: PositionKey, language: 'en' | 'ro') => POSITION_META[key][language];

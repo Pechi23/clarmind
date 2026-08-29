@@ -9,9 +9,11 @@ import { useI18n } from '../i18n';
 import { UserProfile, BirthDetails, Gender } from '../types';
 import { saveBirthDetails } from '../services/storage';
 import { parseDob, computeNumerology } from '../services/numerology';
-import { computeDestinyMatrix } from '../services/destinyMatrix';
+import {
+  computeDestinyMatrix, arcanaName, arcanaMeaning, positionInfo, PositionKey,
+} from '../services/destinyMatrix';
 import { getNumerologyReading, NumerologyReading } from '../services/numerologyReading';
-import DestinyMatrixChart from '../components/DestinyMatrixChart';
+import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
 import GradientCard from '../components/GradientCard';
 
 interface Props {
@@ -39,6 +41,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
 
   const [reading, setReading] = useState<NumerologyReading | null>(null);
   const [loadingReading, setLoadingReading] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<MatrixNodeSelection | null>(null);
 
   useEffect(() => {
     if (birth) {
@@ -183,9 +186,44 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
         {/* Destiny Matrix */}
         <Text style={styles.sectionLabel}>{t('numerology.matrixTitle')}</Text>
         <GradientCard style={styles.cardSpacing}>
-          <DestinyMatrixChart matrix={matrix} />
-          <Text style={styles.matrixHint}>{t('numerology.matrixHint')}</Text>
+          <DestinyMatrixChart
+            matrix={matrix}
+            onNodePress={setSelectedNode}
+            selectedValue={selectedNode?.value ?? null}
+          />
+          <Text style={styles.matrixHint}>
+            {selectedNode ? t('numerology.matrixHint') : t('numerology.matrixTapHint')}
+          </Text>
         </GradientCard>
+
+        {/* Interactive node detail */}
+        {selectedNode && (() => {
+          const pos = positionInfo(selectedNode.position, language);
+          return (
+            <GradientCard colors={['rgba(252,211,77,0.14)', 'rgba(252,211,77,0.04)']} style={styles.cardSpacing}>
+              <View style={styles.detailHead}>
+                <View style={styles.detailNum}><Text style={styles.detailNumText}>{selectedNode.value}</Text></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.detailTitle}>{pos.title}</Text>
+                  <Text style={styles.detailArcana}>
+                    {t('numerology.arcanaLabel')} {selectedNode.value} · {arcanaName(selectedNode.value, language)}
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={() => setSelectedNode(null)} hitSlop={10}>
+                  <Text style={styles.detailClose}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.detailText}>{pos.meaning}</Text>
+              <Text style={styles.detailText}>{arcanaMeaning(selectedNode.value, language)}</Text>
+              <Text style={styles.detailInfluence}>
+                {t('numerology.influence', {
+                  position: pos.title.toLowerCase(),
+                  arcana: arcanaName(selectedNode.value, language),
+                })}
+              </Text>
+            </GradientCard>
+          );
+        })()}
 
         <TouchableOpacity onPress={() => setEditing(true)} style={styles.editBtn}>
           <Text style={styles.editText}>{t('numerology.edit')}</Text>
@@ -259,6 +297,17 @@ const styles = StyleSheet.create({
   tileRow: { flexDirection: 'row', gap: SPACING.sm },
   tileCol: { flex: 1 },
   matrixHint: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted, textAlign: 'center', marginTop: SPACING.sm },
+  detailHead: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md, marginBottom: SPACING.sm },
+  detailNum: {
+    width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(252,211,77,0.15)', borderWidth: 1, borderColor: 'rgba(252,211,77,0.4)',
+  },
+  detailNumText: { fontFamily: FONTS.bold, fontSize: 20, color: '#fcd34d' },
+  detailTitle: { fontFamily: FONTS.bold, fontSize: 17, color: COLORS.text },
+  detailArcana: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primaryLight, marginTop: 2 },
+  detailClose: { fontFamily: FONTS.medium, fontSize: 18, color: COLORS.textMuted },
+  detailText: { fontFamily: FONTS.regular, fontSize: 14, color: COLORS.textMuted, lineHeight: 21, marginTop: SPACING.sm },
+  detailInfluence: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.text, lineHeight: 21, marginTop: SPACING.md, fontStyle: 'italic' },
   editBtn: { alignItems: 'center', padding: SPACING.md, marginTop: SPACING.sm },
   editText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.primary },
 });
