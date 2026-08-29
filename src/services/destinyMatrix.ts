@@ -35,6 +35,8 @@ export interface DestinyMatrix {
   topRight: number;  // BC
   bottomRight: number; // CD
   bottomLeft: number;  // DA
+  relationships: number; // heart line
+  money: number;         // self-realization line
 }
 
 export const computeDestinyMatrix = (dob: BirthDate): DestinyMatrix => {
@@ -53,8 +55,55 @@ export const computeDestinyMatrix = (dob: BirthDate): DestinyMatrix => {
     topRight: reduceArcana(B + C),
     bottomRight: reduceArcana(C + D),
     bottomLeft: reduceArcana(D + A),
+    // Extra life-lines (documented as blends of core points):
+    relationships: reduceArcana(E + D), // heart — core energy blended with purpose
+    money: reduceArcana(E + C),         // self-realization — core blended with social/year
   };
 };
+
+// ---- Chakra (energy) map ----------------------------------------------------
+// A simplified, reproducible interpretation of the Matrix "health/energy map".
+// Each of the 7 chakras gets a Physical and an Emotional source value from key
+// matrix points; Energy is their blend. Offered for reflection only.
+
+export type ChakraKey =
+  | 'sahasrara' | 'ajna' | 'vishuddha' | 'anahata' | 'manipura' | 'svadhisthana' | 'muladhara';
+
+export const CHAKRAS: { key: ChakraKey; color: string; en: { name: string; theme: string }; ro: { name: string; theme: string } }[] = [
+  { key: 'sahasrara',   color: '#a78bfa', en: { name: 'Sahasrara', theme: 'Mission' },       ro: { name: 'Sahasrara', theme: 'Misiune' } },
+  { key: 'ajna',        color: '#7c3aed', en: { name: 'Ajna', theme: 'Destiny' },            ro: { name: 'Ajna', theme: 'Destin' } },
+  { key: 'vishuddha',   color: '#7dd3fc', en: { name: 'Vishuddha', theme: 'Fate & words' },  ro: { name: 'Vishuddha', theme: 'Soartă & cuvânt' } },
+  { key: 'anahata',     color: '#6BCB77', en: { name: 'Anahata', theme: 'Relationships' },   ro: { name: 'Anahata', theme: 'Relații' } },
+  { key: 'manipura',    color: '#FFD93D', en: { name: 'Manipura', theme: 'Status' },         ro: { name: 'Manipura', theme: 'Statut' } },
+  { key: 'svadhisthana',color: '#FF8787', en: { name: 'Svadhisthana', theme: 'Family & joy' },ro: { name: 'Svadhisthana', theme: 'Familie & bucurie' } },
+  { key: 'muladhara',   color: '#CC5DE8', en: { name: 'Muladhara', theme: 'Body & roots' },  ro: { name: 'Muladhara', theme: 'Corp & rădăcini' } },
+];
+
+export interface ChakraRow {
+  key: ChakraKey;
+  physical: number;
+  energy: number;
+  emotional: number;
+}
+
+export const computeChakras = (m: DestinyMatrix): ChakraRow[] => {
+  // Physical (material) line and Emotional (spiritual) line, top→bottom.
+  const phys = [m.month, m.topLeft, m.day, m.center, m.bottomLeft, m.purpose, m.center];
+  const emo = [m.month, m.topRight, m.year, m.center, m.bottomRight, m.purpose, m.center];
+  return CHAKRAS.map((c, i) => ({
+    key: c.key,
+    physical: phys[i],
+    emotional: emo[i],
+    energy: reduceArcana(phys[i] + emo[i]),
+  }));
+};
+
+/** Column totals (physical, energy, emotional) — a quick overall picture. */
+export const chakraTotals = (rows: ChakraRow[]) => ({
+  physical: rows.reduce((a, r) => a + r.physical, 0),
+  energy: rows.reduce((a, r) => a + r.energy, 0),
+  emotional: rows.reduce((a, r) => a + r.emotional, 0),
+});
 
 /** The 22 Major Arcana names, indexed 1–22 (English + Romanian). */
 export const ARCANA_NAMES: Record<number, { en: string; ro: string }> = {

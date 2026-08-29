@@ -80,6 +80,10 @@ export default function DestinyMatrixChart({ matrix, color = '#a78bfa', height =
       <Line x1={P.left.x} y1={P.left.y} x2={P.right.x} y2={P.right.y} stroke={color} strokeWidth={0.75} opacity={0.25} />
       <Line x1={P.top.x} y1={P.top.y} x2={P.bottom.x} y2={P.bottom.y} stroke={color} strokeWidth={0.75} opacity={0.25} />
 
+      {/* Generation lines through the center: male (violet), female (rose) */}
+      <Line x1={D.tl.x} y1={D.tl.y} x2={D.br.x} y2={D.br.y} stroke="#a78bfa" strokeWidth={1.5} opacity={0.6} />
+      <Line x1={D.tr.x} y1={D.tr.y} x2={D.bl.x} y2={D.bl.y} stroke="#fda4af" strokeWidth={1.5} opacity={0.6} />
+
       {/* Nodes */}
       {node(D.tl.x, D.tl.y, D.tl.v, D.tl.pos)}
       {node(D.tr.x, D.tr.y, D.tr.v, D.tr.pos)}

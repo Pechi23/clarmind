@@ -11,6 +11,7 @@ import { saveBirthDetails } from '../services/storage';
 import { parseDob, computeNumerology } from '../services/numerology';
 import {
   computeDestinyMatrix, arcanaName, arcanaMeaning, positionInfo, PositionKey,
+  CHAKRAS, computeChakras, chakraTotals,
 } from '../services/destinyMatrix';
 import { getNumerologyReading, NumerologyReading } from '../services/numerologyReading';
 import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
@@ -194,6 +195,10 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
           <Text style={styles.matrixHint}>
             {selectedNode ? t('numerology.matrixHint') : t('numerology.matrixTapHint')}
           </Text>
+          <View style={styles.legendRow}>
+            <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#a78bfa' }]} /><Text style={styles.legendText}>{t('numerology.genMale')}</Text></View>
+            <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#fda4af' }]} /><Text style={styles.legendText}>{t('numerology.genFemale')}</Text></View>
+          </View>
         </GradientCard>
 
         {/* Interactive node detail */}
@@ -221,6 +226,66 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
             </GradientCard>
           );
         })()}
+
+        {/* Life lines */}
+        <Text style={styles.sectionLabel}>{t('numerology.linesTitle')}</Text>
+        <View style={styles.tileRow}>
+          <View style={styles.tileCol}>
+            <GradientCard colors={['rgba(253,164,175,0.16)', 'rgba(253,164,175,0.04)']} style={styles.lineTile}>
+              <Text style={styles.tileValue}>{matrix.relationships}</Text>
+              <Text style={styles.tileLabel}>{t('numerology.relationships')}</Text>
+              <Text style={styles.tileHint}>{arcanaName(matrix.relationships, language)}</Text>
+            </GradientCard>
+          </View>
+          <View style={styles.tileCol}>
+            <GradientCard colors={['rgba(107,203,119,0.16)', 'rgba(107,203,119,0.04)']} style={styles.lineTile}>
+              <Text style={styles.tileValue}>{matrix.money}</Text>
+              <Text style={styles.tileLabel}>{t('numerology.money')}</Text>
+              <Text style={styles.tileHint}>{arcanaName(matrix.money, language)}</Text>
+            </GradientCard>
+          </View>
+        </View>
+
+        {/* Chakra energy map */}
+        <Text style={styles.sectionLabel}>{t('numerology.chakraTitle')}</Text>
+        <GradientCard style={styles.cardSpacing}>
+          <View style={styles.chakraHeader}>
+            <View style={styles.chakraName} />
+            <Text style={styles.chakraColHead}>{t('numerology.chakraPhysical')}</Text>
+            <Text style={styles.chakraColHead}>{t('numerology.chakraEnergy')}</Text>
+            <Text style={styles.chakraColHead}>{t('numerology.chakraEmotions')}</Text>
+          </View>
+          {computeChakras(matrix).map((row) => {
+            const meta = CHAKRAS.find((c) => c.key === row.key)![language];
+            const color = CHAKRAS.find((c) => c.key === row.key)!.color;
+            return (
+              <View key={row.key} style={styles.chakraRow}>
+                <View style={styles.chakraName}>
+                  <View style={[styles.chakraDot, { backgroundColor: color }]} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.chakraNameText}>{meta.name}</Text>
+                    <Text style={styles.chakraTheme}>{meta.theme}</Text>
+                  </View>
+                </View>
+                <Text style={styles.chakraNum}>{row.physical}</Text>
+                <Text style={[styles.chakraNum, { color: COLORS.primaryLight }]}>{row.energy}</Text>
+                <Text style={styles.chakraNum}>{row.emotional}</Text>
+              </View>
+            );
+          })}
+          {(() => {
+            const totals = chakraTotals(computeChakras(matrix));
+            return (
+              <View style={[styles.chakraRow, styles.chakraTotalRow]}>
+                <Text style={[styles.chakraNameTotal, styles.chakraTotalLabel]}>{t('numerology.chakraTotal')}</Text>
+                <Text style={[styles.chakraNum, styles.chakraTotalLabel]}>{totals.physical}</Text>
+                <Text style={[styles.chakraNum, styles.chakraTotalLabel]}>{totals.energy}</Text>
+                <Text style={[styles.chakraNum, styles.chakraTotalLabel]}>{totals.emotional}</Text>
+              </View>
+            );
+          })()}
+          <Text style={styles.chakraNote}>{t('numerology.chakraNote')}</Text>
+        </GradientCard>
 
         <TouchableOpacity onPress={() => setEditing(true)} style={styles.editBtn}>
           <Text style={styles.editText}>{t('numerology.edit')}</Text>
@@ -305,6 +370,23 @@ const styles = StyleSheet.create({
   detailClose: { fontFamily: FONTS.medium, fontSize: 18, color: COLORS.textMuted },
   detailText: { fontFamily: FONTS.regular, fontSize: 14, color: COLORS.textMuted, lineHeight: 21, marginTop: SPACING.sm },
   detailInfluence: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.text, lineHeight: 21, marginTop: SPACING.md, fontStyle: 'italic' },
+  legendRow: { flexDirection: 'row', justifyContent: 'center', gap: SPACING.md, marginTop: SPACING.sm, flexWrap: 'wrap' },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendDot: { width: 10, height: 10, borderRadius: 5 },
+  legendText: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textMuted },
+  lineTile: { alignItems: 'center' },
+  chakraHeader: { flexDirection: 'row', alignItems: 'center', paddingBottom: SPACING.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
+  chakraRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+  chakraName: { flex: 2.4, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  chakraNameTotal: { flex: 2.4 },
+  chakraColHead: { flex: 1, textAlign: 'center', fontFamily: FONTS.medium, fontSize: 11, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 0.5 },
+  chakraNum: { flex: 1, textAlign: 'center', fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
+  chakraDot: { width: 10, height: 10, borderRadius: 5 },
+  chakraNameText: { fontFamily: FONTS.semiBold, fontSize: 13, color: COLORS.text },
+  chakraTheme: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim },
+  chakraTotalRow: { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)', marginTop: 4 },
+  chakraTotalLabel: { fontFamily: FONTS.bold, color: COLORS.text },
+  chakraNote: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim, marginTop: SPACING.md, lineHeight: 16 },
   editBtn: { alignItems: 'center', padding: SPACING.md, marginTop: SPACING.sm },
   editText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.primary },
 });

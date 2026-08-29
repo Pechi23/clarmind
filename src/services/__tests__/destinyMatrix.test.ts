@@ -1,4 +1,6 @@
-import { computeDestinyMatrix, reduceArcana, arcanaName } from '../destinyMatrix';
+import {
+  computeDestinyMatrix, reduceArcana, arcanaName, computeChakras, chakraTotals, CHAKRAS,
+} from '../destinyMatrix';
 import { parseDob } from '../numerology';
 
 describe('reduceArcana', () => {
@@ -47,5 +49,39 @@ describe('arcanaName', () => {
     expect(arcanaName(19, 'en')).toBe('The Sun');
     expect(arcanaName(19, 'ro')).toBe('Soarele');
     expect(arcanaName(22, 'ro')).toBe('Nebunul');
+  });
+});
+
+describe('life lines', () => {
+  it('relationships and money are within 1-22', () => {
+    const m = computeDestinyMatrix(parseDob('1995-12-25'));
+    expect(m.relationships).toBeGreaterThanOrEqual(1);
+    expect(m.relationships).toBeLessThanOrEqual(22);
+    expect(m.money).toBeGreaterThanOrEqual(1);
+    expect(m.money).toBeLessThanOrEqual(22);
+  });
+});
+
+describe('computeChakras', () => {
+  const rows = computeChakras(computeDestinyMatrix(parseDob('1995-12-25')));
+  it('returns all 7 chakras with valid values', () => {
+    expect(rows).toHaveLength(7);
+    expect(rows.map((r) => r.key)).toEqual(CHAKRAS.map((c) => c.key));
+    rows.forEach((r) => {
+      [r.physical, r.energy, r.emotional].forEach((v) => {
+        expect(v).toBeGreaterThanOrEqual(1);
+        expect(v).toBeLessThanOrEqual(22);
+      });
+    });
+  });
+  it('energy is the arcana-reduced blend of physical + emotional', () => {
+    rows.forEach((r) => {
+      expect(r.energy).toBe(reduceArcana(r.physical + r.emotional));
+    });
+  });
+  it('totals sum the columns', () => {
+    const t = chakraTotals(rows);
+    expect(t.physical).toBe(rows.reduce((a, r) => a + r.physical, 0));
+    expect(t.energy).toBe(rows.reduce((a, r) => a + r.energy, 0));
   });
 });
