@@ -32,6 +32,7 @@ import { getSeasonalEvent } from '../services/seasonalEvents';
 import { isEvening } from '../services/reflectionLogic';
 import ReflectionCard from '../components/ReflectionCard';
 import CoursesScreen from './CoursesScreen';
+import NumerologyScreen from './NumerologyScreen';
 
 interface Props {
   profile: UserProfile;
@@ -53,6 +54,7 @@ export default function HomeScreen({ profile }: Props) {
   const [recapVisible, setRecapVisible] = useState(false);
   const [claraOpen, setClaraOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
+  const [numerologyOpen, setNumerologyOpen] = useState(false);
   const guideAwarded = React.useRef(false);
 
   // Show the weekly recap once per ISO week, when there's recent activity.
@@ -212,6 +214,10 @@ export default function HomeScreen({ profile }: Props) {
       <Modal visible={coursesOpen} animationType="slide" onRequestClose={() => setCoursesOpen(false)}>
         <CoursesScreen onClose={() => setCoursesOpen(false)} />
       </Modal>
+      {/* Daily numerology */}
+      <Modal visible={numerologyOpen} animationType="slide" onRequestClose={() => setNumerologyOpen(false)}>
+        <NumerologyScreen profile={profile} onClose={() => setNumerologyOpen(false)} onUpdated={() => {}} />
+      </Modal>
       <TouchableOpacity
         style={styles.claraFab}
         onPress={() => setClaraOpen(true)}
@@ -365,6 +371,20 @@ export default function HomeScreen({ profile }: Props) {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.sectionLabel}>{t('courses.homeCardTitle')}</Text>
                     <Text style={styles.sectionSubLabel}>{t('courses.homeCardSubtitle')}</Text>
+                  </View>
+                  <Text style={styles.programsArrow}>→</Text>
+                </View>
+              </GradientCard>
+            </TouchableOpacity>
+
+            {/* Daily numerology entry */}
+            <TouchableOpacity onPress={() => setNumerologyOpen(true)} activeOpacity={0.85} style={styles.cardSpacing}>
+              <GradientCard colors={['rgba(167,139,250,0.18)', 'rgba(124,58,237,0.05)']}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionEmoji}>🔢</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sectionLabel}>{t('numerology.homeCardTitle')}</Text>
+                    <Text style={styles.sectionSubLabel}>{t('numerology.homeCardSubtitle')}</Text>
                   </View>
                   <Text style={styles.programsArrow}>→</Text>
                 </View>

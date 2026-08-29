@@ -2,10 +2,24 @@ import { ZodiacSign } from '../constants/zodiac';
 
 export type UserGoal = 'sleep' | 'stress' | 'focus' | 'curiosity';
 
+export type Gender = 'female' | 'male' | 'other';
+
+/** Birth details used for numerology + the Destiny Matrix (and an astrological touch). */
+export interface BirthDetails {
+  firstName: string;
+  lastName: string;
+  gender: Gender;
+  dob: string;       // YYYY-MM-DD (used by numerology + matrix)
+  hour: number;      // 0-23 (astrological flavor only)
+  minute: number;    // 0-59
+  place: string;     // free text, astrological flavor only
+}
+
 export interface UserProfile {
   name: string;
   zodiacSign: ZodiacSign;
   goal?: UserGoal;
+  birth?: BirthDetails;
   onboardingComplete: boolean;
 }
 

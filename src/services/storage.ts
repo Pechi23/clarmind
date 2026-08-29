@@ -34,6 +34,15 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
   return data ? JSON.parse(data) : null;
 };
 
+/** Merge birth details into the saved profile (for numerology). */
+export const saveBirthDetails = async (birth: UserProfile['birth']): Promise<UserProfile | null> => {
+  const profile = await getUserProfile();
+  if (!profile) return null;
+  const updated = { ...profile, birth };
+  await AsyncStorage.setItem(KEYS.USER_PROFILE, JSON.stringify(updated));
+  return updated;
+};
+
 export const clearUserProfile = async (): Promise<void> => {
   // Wipe everything ClarMind stored, including gamification keys owned by other modules
   const allKeys = await AsyncStorage.getAllKeys();
