@@ -227,25 +227,6 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
           );
         })()}
 
-        {/* Life lines */}
-        <Text style={styles.sectionLabel}>{t('numerology.linesTitle')}</Text>
-        <View style={styles.tileRow}>
-          <View style={styles.tileCol}>
-            <GradientCard colors={['rgba(253,164,175,0.16)', 'rgba(253,164,175,0.04)']} style={styles.lineTile}>
-              <Text style={styles.tileValue}>{matrix.relationships}</Text>
-              <Text style={styles.tileLabel}>{t('numerology.relationships')}</Text>
-              <Text style={styles.tileHint}>{arcanaName(matrix.relationships, language)}</Text>
-            </GradientCard>
-          </View>
-          <View style={styles.tileCol}>
-            <GradientCard colors={['rgba(107,203,119,0.16)', 'rgba(107,203,119,0.04)']} style={styles.lineTile}>
-              <Text style={styles.tileValue}>{matrix.money}</Text>
-              <Text style={styles.tileLabel}>{t('numerology.money')}</Text>
-              <Text style={styles.tileHint}>{arcanaName(matrix.money, language)}</Text>
-            </GradientCard>
-          </View>
-        </View>
-
         {/* Chakra energy map */}
         <Text style={styles.sectionLabel}>{t('numerology.chakraTitle')}</Text>
         <GradientCard style={styles.cardSpacing}>

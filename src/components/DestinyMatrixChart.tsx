@@ -2,10 +2,11 @@ import React from 'react';
 import Svg, { Line, Circle, Text as SvgText, Defs, RadialGradient, Stop, G } from 'react-native-svg';
 import { DestinyMatrix, PositionKey } from '../services/destinyMatrix';
 
-const S = 300; // viewBox size
+const S = 360; // viewBox
 const C = S / 2;
-const R = 118;  // outer radius (straight square points)
-const RD = R;   // diagonal points radius
+const ROUT = 132; // outer octagram points
+const RIN = 68;   // inner points
+const AGE_R = ROUT + 20;
 
 export interface MatrixNodeSelection {
   value: number;
@@ -15,85 +16,120 @@ export interface MatrixNodeSelection {
 
 interface Props {
   matrix: DestinyMatrix;
-  color?: string;
   height?: number;
   onNodePress?: (sel: MatrixNodeSelection) => void;
   selectedValue?: number | null;
 }
 
-/** Renders the Destiny Matrix as a glowing octagram with tappable arcana nodes. */
-export default function DestinyMatrixChart({ matrix, color = '#a78bfa', height = 300, onNodePress, selectedValue }: Props) {
-  // Straight square: left, top, right, bottom.
-  const P = {
-    left: { x: C - R, y: C, v: matrix.day, pos: 'character' as PositionKey },
-    top: { x: C, y: C - R, v: matrix.month, pos: 'innerTalents' as PositionKey },
-    right: { x: C + R, y: C, v: matrix.year, pos: 'outerTalents' as PositionKey },
-    bottom: { x: C, y: C + R, v: matrix.purpose, pos: 'purpose' as PositionKey },
-  };
-  // Diagonal square corners (offset 45°) — the energy lines.
-  const d = RD * Math.SQRT1_2;
-  const D = {
-    tl: { x: C - d, y: C - d, v: matrix.topLeft, pos: 'energyLine' as PositionKey },
-    tr: { x: C + d, y: C - d, v: matrix.topRight, pos: 'energyLine' as PositionKey },
-    br: { x: C + d, y: C + d, v: matrix.bottomRight, pos: 'energyLine' as PositionKey },
-    bl: { x: C - d, y: C + d, v: matrix.bottomLeft, pos: 'energyLine' as PositionKey },
+// Direction (degrees, math convention CCW from +x) -> point at radius R.
+const at = (deg: number, r: number) => {
+  const rad = (deg * Math.PI) / 180;
+  return { x: C + r * Math.cos(rad), y: C - r * Math.sin(rad) };
+};
+
+const VIOLET = '#a78bfa';
+const ROSE = '#fda4af';
+const BLUE = '#7dd3fc';
+const GREEN = '#6BCB77';
+const GOLD = '#fcd34d';
+
+/** Rich, interactive Destiny Matrix octagram with inner nodes, edges and ages. */
+export default function DestinyMatrixChart({ matrix, height = 360, onNodePress, selectedValue }: Props) {
+  const m = matrix;
+
+  // Outer octagram points (with the age each corner represents).
+  const outer = {
+    left:        { ...at(180, ROUT), v: m.day,        pos: 'character' as PositionKey,  age: 0,  ageDeg: 180 },
+    topLeft:     { ...at(135, ROUT), v: m.topLeft,    pos: 'energyLine' as PositionKey, age: 10, ageDeg: 135 },
+    top:         { ...at(90, ROUT),  v: m.month,      pos: 'innerTalents' as PositionKey, age: 20, ageDeg: 90 },
+    topRight:    { ...at(45, ROUT),  v: m.topRight,   pos: 'energyLine' as PositionKey, age: 30, ageDeg: 45 },
+    right:       { ...at(0, ROUT),   v: m.year,       pos: 'outerTalents' as PositionKey, age: 40, ageDeg: 0 },
+    bottomRight: { ...at(315, ROUT), v: m.bottomRight,pos: 'energyLine' as PositionKey, age: 50, ageDeg: 315 },
+    bottom:      { ...at(270, ROUT), v: m.purpose,    pos: 'purpose' as PositionKey,    age: 60, ageDeg: 270 },
+    bottomLeft:  { ...at(225, ROUT), v: m.bottomLeft, pos: 'energyLine' as PositionKey, age: 70, ageDeg: 225 },
   };
 
-  const node = (x: number, y: number, v: number, pos: PositionKey, big = false) => {
-    const selected = selectedValue === v;
-    const ring = selected ? '#fcd34d' : color;
+  // Inner points on the axes (balance) and diagonals (ancestral).
+  const inner = {
+    left:   { ...at(180, RIN), v: m.innerLeft,      pos: 'balance' as PositionKey },
+    top:    { ...at(90, RIN),  v: m.innerTop,       pos: 'balance' as PositionKey },
+    right:  { ...at(0, RIN),   v: m.innerRight,     pos: 'balance' as PositionKey },
+    bottom: { ...at(270, RIN), v: m.innerBottom,    pos: 'balance' as PositionKey },
+    tl:     { ...at(135, RIN), v: m.genTopLeft,     pos: 'ancestral' as PositionKey },
+    tr:     { ...at(45, RIN),  v: m.genTopRight,    pos: 'ancestral' as PositionKey },
+    br:     { ...at(315, RIN), v: m.genBottomRight, pos: 'ancestral' as PositionKey },
+    bl:     { ...at(225, RIN), v: m.genBottomLeft,  pos: 'ancestral' as PositionKey },
+  };
+
+  // Heart & money nodes near the center.
+  const heart = { ...at(238, 40), v: m.relationships, pos: 'relationships' as PositionKey };
+  const money = { ...at(-15, 46), v: m.money, pos: 'money' as PositionKey };
+
+  const edge = (a: { x: number; y: number }, b: { x: number; y: number }, stroke = VIOLET, w = 1, o = 0.4) => (
+    <Line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={stroke} strokeWidth={w} opacity={o} />
+  );
+
+  const node = (
+    p: { x: number; y: number; v: number; pos: PositionKey },
+    ring: string,
+    size: 'sm' | 'md' | 'lg' = 'md',
+    emoji?: string,
+  ) => {
+    const r = size === 'lg' ? 22 : size === 'sm' ? 13 : 17;
+    const fs = size === 'lg' ? 20 : size === 'sm' ? 12 : 15;
+    const selected = selectedValue === p.v;
     return (
-      <G key={`${x}-${y}`} onPress={() => onNodePress?.({ value: v, position: pos, active: true })}>
-        <Circle cx={x} cy={y} r={big ? 26 : 20} fill="url(#nodeGlow)" opacity={0.9} />
-        <Circle cx={x} cy={y} r={big ? 20 : 16} fill="#1a1a3e" stroke={ring} strokeWidth={selected ? 3 : big ? 2.5 : 1.5} />
-        <SvgText x={x} y={y + (big ? 6 : 5)} fontSize={big ? 20 : 16} fontWeight="bold" fill="#f1f5f9" textAnchor="middle">
-          {v}
-        </SvgText>
-        {/* Larger invisible hit area for easy tapping */}
-        <Circle cx={x} cy={y} r={26} fill="transparent" />
+      <G key={`${p.x.toFixed(1)}-${p.y.toFixed(1)}`} onPress={() => onNodePress?.({ value: p.v, position: p.pos, active: true })}>
+        <Circle cx={p.x} cy={p.y} r={r + 6} fill="url(#g)" opacity={0.8} />
+        <Circle cx={p.x} cy={p.y} r={r} fill="#1a1a3e" stroke={selected ? GOLD : ring} strokeWidth={selected ? 3 : 1.6} />
+        <SvgText x={p.x} y={p.y + fs * 0.34} fontSize={fs} fontWeight="bold" fill="#f1f5f9" textAnchor="middle">{p.v}</SvgText>
+        {emoji ? <SvgText x={p.x} y={p.y - r - 3} fontSize={12} textAnchor="middle">{emoji}</SvgText> : null}
+        <Circle cx={p.x} cy={p.y} r={r + 8} fill="transparent" />
       </G>
     );
   };
 
+  const O = outer;
   return (
     <Svg width="100%" height={height} viewBox={`0 0 ${S} ${S}`}>
       <Defs>
-        <RadialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-          <Stop offset="0%" stopColor={color} stopOpacity="0.5" />
-          <Stop offset="100%" stopColor={color} stopOpacity="0" />
+        <RadialGradient id="g" cx="50%" cy="50%" r="50%">
+          <Stop offset="0%" stopColor={VIOLET} stopOpacity="0.45" />
+          <Stop offset="100%" stopColor={VIOLET} stopOpacity="0" />
         </RadialGradient>
       </Defs>
 
-      {/* Straight square */}
-      <Line x1={P.left.x} y1={P.left.y} x2={P.top.x} y2={P.top.y} stroke={color} strokeWidth={1} opacity={0.45} />
-      <Line x1={P.top.x} y1={P.top.y} x2={P.right.x} y2={P.right.y} stroke={color} strokeWidth={1} opacity={0.45} />
-      <Line x1={P.right.x} y1={P.right.y} x2={P.bottom.x} y2={P.bottom.y} stroke={color} strokeWidth={1} opacity={0.45} />
-      <Line x1={P.bottom.x} y1={P.bottom.y} x2={P.left.x} y2={P.left.y} stroke={color} strokeWidth={1} opacity={0.45} />
-
+      {/* Cardinal diamond */}
+      {edge(O.left, O.top)}{edge(O.top, O.right)}{edge(O.right, O.bottom)}{edge(O.bottom, O.left)}
       {/* Diagonal square */}
-      <Line x1={D.tl.x} y1={D.tl.y} x2={D.tr.x} y2={D.tr.y} stroke="#7dd3fc" strokeWidth={1} opacity={0.35} />
-      <Line x1={D.tr.x} y1={D.tr.y} x2={D.br.x} y2={D.br.y} stroke="#7dd3fc" strokeWidth={1} opacity={0.35} />
-      <Line x1={D.br.x} y1={D.br.y} x2={D.bl.x} y2={D.bl.y} stroke="#7dd3fc" strokeWidth={1} opacity={0.35} />
-      <Line x1={D.bl.x} y1={D.bl.y} x2={D.tl.x} y2={D.tl.y} stroke="#7dd3fc" strokeWidth={1} opacity={0.35} />
-
+      {edge(O.topLeft, O.topRight, BLUE, 1, 0.35)}{edge(O.topRight, O.bottomRight, BLUE, 1, 0.35)}
+      {edge(O.bottomRight, O.bottomLeft, BLUE, 1, 0.35)}{edge(O.bottomLeft, O.topLeft, BLUE, 1, 0.35)}
       {/* Axes through center */}
-      <Line x1={P.left.x} y1={P.left.y} x2={P.right.x} y2={P.right.y} stroke={color} strokeWidth={0.75} opacity={0.25} />
-      <Line x1={P.top.x} y1={P.top.y} x2={P.bottom.x} y2={P.bottom.y} stroke={color} strokeWidth={0.75} opacity={0.25} />
+      {edge(O.left, O.right, VIOLET, 0.75, 0.22)}{edge(O.top, O.bottom, VIOLET, 0.75, 0.22)}
+      {/* Generation lines: male (violet) TL-BR, female (rose) TR-BL */}
+      {edge(O.topLeft, O.bottomRight, VIOLET, 1.5, 0.6)}
+      {edge(O.topRight, O.bottomLeft, ROSE, 1.5, 0.6)}
 
-      {/* Generation lines through the center: male (violet), female (rose) */}
-      <Line x1={D.tl.x} y1={D.tl.y} x2={D.br.x} y2={D.br.y} stroke="#a78bfa" strokeWidth={1.5} opacity={0.6} />
-      <Line x1={D.tr.x} y1={D.tr.y} x2={D.bl.x} y2={D.bl.y} stroke="#fda4af" strokeWidth={1.5} opacity={0.6} />
+      {/* Age labels on the perimeter */}
+      {Object.values(O).map((p) => {
+        const a = at(p.ageDeg, AGE_R);
+        return (
+          <SvgText key={`age-${p.age}`} x={a.x} y={a.y + 3} fontSize={9} fill="#64748b" textAnchor="middle">{p.age}</SvgText>
+        );
+      })}
 
-      {/* Nodes */}
-      {node(D.tl.x, D.tl.y, D.tl.v, D.tl.pos)}
-      {node(D.tr.x, D.tr.y, D.tr.v, D.tr.pos)}
-      {node(D.br.x, D.br.y, D.br.v, D.br.pos)}
-      {node(D.bl.x, D.bl.y, D.bl.v, D.bl.pos)}
-      {node(P.left.x, P.left.y, P.left.v, P.left.pos)}
-      {node(P.top.x, P.top.y, P.top.v, P.top.pos)}
-      {node(P.right.x, P.right.y, P.right.v, P.right.pos)}
-      {node(P.bottom.x, P.bottom.y, P.bottom.v, P.bottom.pos)}
-      {node(C, C, matrix.center, 'center', true)}
+      {/* Inner nodes */}
+      {node(inner.left, BLUE, 'sm')}{node(inner.top, BLUE, 'sm')}{node(inner.right, BLUE, 'sm')}{node(inner.bottom, BLUE, 'sm')}
+      {node(inner.tl, GREEN, 'sm')}{node(inner.tr, GREEN, 'sm')}{node(inner.br, GREEN, 'sm')}{node(inner.bl, GREEN, 'sm')}
+      {/* Heart & money */}
+      {node(heart, ROSE, 'sm', '❤️')}
+      {node(money, GOLD, 'sm', '💰')}
+
+      {/* Outer nodes */}
+      {Object.values(O).map((p) => node(p, VIOLET, 'md'))}
+
+      {/* Center */}
+      {node({ x: C, y: C, v: m.center, pos: 'center' }, GOLD, 'lg')}
     </Svg>
   );
 }

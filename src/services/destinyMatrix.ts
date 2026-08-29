@@ -37,6 +37,16 @@ export interface DestinyMatrix {
   bottomLeft: number;  // DA
   relationships: number; // heart line
   money: number;         // self-realization line
+  // Inner cross points (between center and each cardinal point)
+  innerLeft: number;
+  innerTop: number;
+  innerRight: number;
+  innerBottom: number;
+  // Generation points (between center and each diagonal corner)
+  genTopLeft: number;
+  genTopRight: number;
+  genBottomRight: number;
+  genBottomLeft: number;
 }
 
 export const computeDestinyMatrix = (dob: BirthDate): DestinyMatrix => {
@@ -58,6 +68,16 @@ export const computeDestinyMatrix = (dob: BirthDate): DestinyMatrix => {
     // Extra life-lines (documented as blends of core points):
     relationships: reduceArcana(E + D), // heart — core energy blended with purpose
     money: reduceArcana(E + C),         // self-realization — core blended with social/year
+    // Inner cross points (center blended with each cardinal)
+    innerLeft: reduceArcana(E + A),
+    innerTop: reduceArcana(E + B),
+    innerRight: reduceArcana(E + C),
+    innerBottom: reduceArcana(E + D),
+    // Generation points (center blended with each diagonal corner)
+    genTopLeft: reduceArcana(E + reduceArcana(A + B)),
+    genTopRight: reduceArcana(E + reduceArcana(B + C)),
+    genBottomRight: reduceArcana(E + reduceArcana(C + D)),
+    genBottomLeft: reduceArcana(E + reduceArcana(D + A)),
   };
 };
 
@@ -163,7 +183,9 @@ export const ARCANA_MEANINGS: Record<number, { en: string; ro: string }> = {
 export const arcanaMeaning = (n: number, language: 'en' | 'ro'): string =>
   ARCANA_MEANINGS[n]?.[language] ?? '';
 
-export type PositionKey = 'center' | 'character' | 'innerTalents' | 'outerTalents' | 'purpose' | 'energyLine';
+export type PositionKey =
+  | 'center' | 'character' | 'innerTalents' | 'outerTalents' | 'purpose' | 'energyLine'
+  | 'balance' | 'ancestral' | 'relationships' | 'money';
 
 /** Which life area each matrix point speaks to. */
 export const POSITION_META: Record<PositionKey, { en: { title: string; meaning: string }; ro: { title: string; meaning: string } }> = {
@@ -190,6 +212,22 @@ export const POSITION_META: Record<PositionKey, { en: { title: string; meaning: 
   energyLine: {
     en: { title: 'Energy Line', meaning: 'A bridge between two forces in your chart, blending their influences.' },
     ro: { title: 'Linie de Energie', meaning: 'O punte între două forțe din matriță, îmbinând influențele lor.' },
+  },
+  balance: {
+    en: { title: 'Inner Balance', meaning: 'A point on your central cross, balancing your core with an outer energy.' },
+    ro: { title: 'Echilibru Interior', meaning: 'Un punct pe crucea ta centrală, care echilibrează esența cu o energie exterioară.' },
+  },
+  ancestral: {
+    en: { title: 'Ancestral Energy', meaning: 'Gifts and lessons carried down your family line (maternal or paternal).' },
+    ro: { title: 'Energie Ancestrală', meaning: 'Daruri și lecții transmise pe linia familiei (maternă sau paternă).' },
+  },
+  relationships: {
+    en: { title: 'Relationships ❤️', meaning: 'Your heart line — how you love, bond and relate to others.' },
+    ro: { title: 'Relații ❤️', meaning: 'Linia inimii — cum iubești, te atașezi și te raportezi la ceilalți.' },
+  },
+  money: {
+    en: { title: 'Self-realization 💰', meaning: 'Your money and success line — how you create value and abundance.' },
+    ro: { title: 'Împlinire 💰', meaning: 'Linia banilor și a succesului — cum creezi valoare și abundență.' },
   },
 };
 
