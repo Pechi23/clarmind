@@ -492,7 +492,10 @@ const styles = StyleSheet.create({
   },
   sectionSubLabel: {
     fontFamily: FONTS.regular,
-    fontSize: 12,
+    fontSize: 14,
+    color: COLORS.textMuted,
+    lineHeight: 20,
+    marginTop: 2,
   },
   bodyText: {
     fontFamily: FONTS.regular,
