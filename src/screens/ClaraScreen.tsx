@@ -100,7 +100,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
             <Text style={styles.headerSub}>{t('clara.subtitle')}</Text>
           </View>
           <TouchableOpacity onPress={resetChat} hitSlop={12}>
-            <Text style={styles.reset}>{t('clara.clear')}</Text>
+            <Text style={styles.reset} numberOfLines={1}>{t('clara.clear')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -174,11 +174,11 @@ const styles = StyleSheet.create({
     paddingTop: 60, paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md,
     borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)',
   },
-  close: { fontFamily: FONTS.medium, fontSize: 20, color: COLORS.textMuted, width: 40 },
-  headerCenter: { alignItems: 'center' },
+  close: { fontFamily: FONTS.medium, fontSize: 20, color: COLORS.textMuted, width: 64 },
+  headerCenter: { flex: 1, alignItems: 'center' },
   headerTitle: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.text },
   headerSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted },
-  reset: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primary, width: 40, textAlign: 'right' },
+  reset: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primary, width: 64, textAlign: 'right' },
   messages: { padding: SPACING.lg, gap: SPACING.sm },
   bubbleRow: { flexDirection: 'row' },
   rowUser: { justifyContent: 'flex-end' },

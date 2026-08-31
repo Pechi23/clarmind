@@ -76,10 +76,13 @@ export default function FloatingClara({ profile }: Props) {
           setOpen(true);
           return;
         }
+        // Keep the vertical drop position, but snap horizontally to the nearest edge.
         const c = clamp(posRef.current.x, posRef.current.y);
-        Animated.spring(pan, { toValue: c, useNativeDriver: false, friction: 6 }).start();
-        posRef.current = c;
-        setClaraFabPos(c).catch(() => {});
+        const snapX = c.x + SIZE / 2 < width / 2 ? minX : maxX;
+        const snapped = { x: snapX, y: c.y };
+        Animated.spring(pan, { toValue: snapped, useNativeDriver: false, friction: 6 }).start();
+        posRef.current = snapped;
+        setClaraFabPos(snapped).catch(() => {});
       },
     })
   ).current;
