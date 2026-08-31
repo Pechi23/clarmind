@@ -21,6 +21,8 @@ const KEYS = {
   LANGUAGE: 'clarmind_language',
   REFLECTIONS: 'clarmind_reflections',
   COURSE_PROGRESS: 'clarmind_course_progress',
+  GUIDE_SEEN: 'clarmind_guide_seen',
+  CLARA_FAB_POS: 'clarmind_clara_fab_pos',
 };
 
 const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
@@ -183,6 +185,26 @@ export const getLanguage = async (): Promise<string | null> => {
 
 export const setLanguage = async (lang: string): Promise<void> => {
   await AsyncStorage.setItem(KEYS.LANGUAGE, lang);
+};
+
+// First-run guide / tour
+export const getGuideSeen = async (): Promise<boolean> => {
+  return (await AsyncStorage.getItem(KEYS.GUIDE_SEEN)) === 'true';
+};
+
+export const setGuideSeen = async (seen: boolean): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.GUIDE_SEEN, String(seen));
+};
+
+// Draggable Clara button position (persisted so it stays where the user put it)
+export const getClaraFabPos = async (): Promise<{ x: number; y: number } | null> => {
+  const raw = await AsyncStorage.getItem(KEYS.CLARA_FAB_POS);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+};
+
+export const setClaraFabPos = async (pos: { x: number; y: number }): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.CLARA_FAB_POS, JSON.stringify(pos));
 };
 
 export const setNotificationsEnabled = async (enabled: boolean): Promise<void> => {

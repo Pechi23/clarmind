@@ -26,7 +26,7 @@ const GOAL_META: { id: UserGoal; emoji: string }[] = [
 
 export default function OnboardingScreen({ onComplete }: Props) {
   const { t, language, setLanguage } = useI18n();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [name, setName] = useState('');
   const [selectedZodiac, setSelectedZodiac] = useState<ZodiacInfo | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<UserGoal | null>(null);
@@ -53,7 +53,29 @@ export default function OnboardingScreen({ onComplete }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
       >
-        {step === 3 ? (
+        {step === 0 ? (
+          <View style={styles.stepContainer}>
+            <Text style={styles.logo}>✦ ClarMind</Text>
+            <Text style={styles.headline}>{t('onboarding.langTitle')}</Text>
+            <Text style={styles.subtext}>{t('onboarding.langSubtitle')}</Text>
+            <View style={styles.langCards}>
+              {([
+                { code: 'en' as const, flag: '🇬🇧', label: 'English' },
+                { code: 'ro' as const, flag: '🇷🇴', label: 'Română' },
+              ]).map((l) => (
+                <TouchableOpacity
+                  key={l.code}
+                  style={[styles.langCard, language === l.code && styles.langCardSelected]}
+                  onPress={() => { setLanguage(l.code); setStep(1); }}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.langFlag}>{l.flag}</Text>
+                  <Text style={[styles.langLabel, language === l.code && { color: '#c4b5fd' }]}>{l.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : step === 3 ? (
           <View style={styles.flex}>
             <View style={styles.stepHeader}>
               <TouchableOpacity onPress={() => setStep(2)}>
@@ -335,6 +357,17 @@ const styles = StyleSheet.create({
     color: COLORS.textDim,
     textAlign: 'center',
   },
+  langCards: { gap: SPACING.md, marginTop: SPACING.md },
+  langCard: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.md, borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    paddingVertical: SPACING.lg, paddingHorizontal: SPACING.lg,
+  },
+  langCardSelected: { borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.15)' },
+  langFlag: { fontSize: 32 },
+  langLabel: { fontFamily: FONTS.semiBold, fontSize: 20, color: COLORS.text },
   goalList: { paddingHorizontal: SPACING.lg, gap: SPACING.sm, marginTop: SPACING.md },
   goalCard: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,

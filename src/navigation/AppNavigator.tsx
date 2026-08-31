@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {
@@ -15,6 +15,9 @@ import BreatheScreen from '../screens/BreatheScreen';
 import SkyScreen from '../screens/SkyScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import FloatingClara from '../components/FloatingClara';
+import GuideOverlay from '../components/GuideOverlay';
+import { getGuideSeen } from '../services/storage';
 
 const Tab = createBottomTabNavigator();
 
@@ -82,27 +85,41 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 }
 
 export default function AppNavigator({ profile, onReset }: Props) {
+  const [showGuide, setShowGuide] = useState(false);
+
+  useEffect(() => {
+    getGuideSeen().then((seen) => setShowGuide(!seen));
+  }, []);
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{ headerShown: false }}
-        tabBar={(props) => <CustomTabBar {...props} />}
-      >
-        <Tab.Screen name="Home">
-          {() => <HomeScreen profile={profile} />}
-        </Tab.Screen>
-        <Tab.Screen name="Breathe" component={BreatheScreen} />
-        <Tab.Screen name="Sky">
-          {() => <SkyScreen profile={profile} />}
-        </Tab.Screen>
-        <Tab.Screen name="Top">
-          {() => <LeaderboardScreen profile={profile} />}
-        </Tab.Screen>
-        <Tab.Screen name="Profile">
-          {() => <ProfileScreen profile={profile} onReset={onReset} />}
-        </Tab.Screen>
-      </Tab.Navigator>
-    </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{ headerShown: false }}
+          tabBar={(props) => <CustomTabBar {...props} />}
+        >
+          <Tab.Screen name="Home">
+            {() => <HomeScreen profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Breathe" component={BreatheScreen} />
+          <Tab.Screen name="Sky">
+            {() => <SkyScreen profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Top">
+            {() => <LeaderboardScreen profile={profile} />}
+          </Tab.Screen>
+          <Tab.Screen name="Profile">
+            {() => <ProfileScreen profile={profile} onReset={onReset} />}
+          </Tab.Screen>
+        </Tab.Navigator>
+      </NavigationContainer>
+
+      {/* Draggable Clara — floats over every main screen */}
+      <FloatingClara profile={profile} />
+
+      {/* First-run guide */}
+      {showGuide && <GuideOverlay onDone={() => setShowGuide(false)} />}
+    </View>
   );
 }
 
