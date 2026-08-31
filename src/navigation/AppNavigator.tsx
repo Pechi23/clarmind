@@ -5,6 +5,7 @@ import {
   createBottomTabNavigator, BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS } from '../constants/theme';
 import { UserProfile } from '../types';
@@ -36,8 +37,10 @@ const TAB_KEYS: Record<string, string> = {
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
+  // Float above the OS navigation bar / home indicator on every device.
   return (
-    <View style={styles.tabBarWrap}>
+    <View style={[styles.tabBarWrap, { bottom: insets.bottom + 12 }]}>
       <LinearGradient
         colors={['rgba(15,12,41,0.85)', 'rgba(15,12,41,0.98)']}
         style={styles.tabBar}
@@ -106,7 +109,6 @@ export default function AppNavigator({ profile, onReset }: Props) {
 const styles = StyleSheet.create({
   tabBarWrap: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 24 : 16,
     left: 16, right: 16,
     borderRadius: 32,
     overflow: 'hidden',
