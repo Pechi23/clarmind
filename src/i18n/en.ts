@@ -177,6 +177,8 @@ export const en = {
     birthTime: 'Time of birth',
     hour: 'Hour',
     minute: 'Min',
+    selectDate: 'Tap to choose a date',
+    selectTime: 'Tap to choose a time',
     place: 'Place of birth',
     placePlaceholder: 'City, country',
     save: 'Calculate',

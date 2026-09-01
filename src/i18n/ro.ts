@@ -179,6 +179,8 @@ export const ro: TranslationShape = {
     birthTime: 'Ora nașterii',
     hour: 'Oră',
     minute: 'Min',
+    selectDate: 'Apasă pentru a alege data',
+    selectTime: 'Apasă pentru a alege ora',
     place: 'Locul nașterii',
     placePlaceholder: 'Oraș, țară',
     save: 'Calculează',

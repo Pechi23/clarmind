@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, ActivityIndicator,
+  KeyboardAvoidingView, ActivityIndicator, Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { useI18n } from '../i18n';
@@ -34,13 +35,22 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const [firstName, setFirstName] = useState(profile.birth?.firstName ?? profile.name ?? '');
   const [lastName, setLastName] = useState(profile.birth?.lastName ?? '');
   const [gender, setGender] = useState<Gender>(profile.birth?.gender ?? 'other');
-  const [day, setDay] = useState(profile.birth ? String(parseDob(profile.birth.dob).day) : '');
-  const [month, setMonth] = useState(profile.birth ? String(parseDob(profile.birth.dob).month) : '');
-  const [year, setYear] = useState(profile.birth ? String(parseDob(profile.birth.dob).year) : '');
-  const [hour, setHour] = useState(profile.birth ? String(profile.birth.hour) : '');
-  const [minute, setMinute] = useState(profile.birth ? String(profile.birth.minute) : '');
+  const initialDate = profile.birth
+    ? (() => { const p = parseDob(profile.birth.dob); return new Date(p.year, p.month - 1, p.day); })()
+    : null;
+  const initialTime = profile.birth
+    ? (() => { const d = new Date(); d.setHours(profile.birth.hour, profile.birth.minute, 0, 0); return d; })()
+    : null;
+  const [dateVal, setDateVal] = useState<Date | null>(initialDate);
+  const [timeVal, setTimeVal] = useState<Date | null>(initialTime);
+  const [showDate, setShowDate] = useState(false);
+  const [showTime, setShowTime] = useState(false);
   const [place, setPlace] = useState(profile.birth?.place ?? '');
   const [error, setError] = useState('');
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const dateLabel = dateVal ? `${pad(dateVal.getDate())}.${pad(dateVal.getMonth() + 1)}.${dateVal.getFullYear()}` : '';
+  const timeLabel = timeVal ? `${pad(timeVal.getHours())}:${pad(timeVal.getMinutes())}` : '';
 
   const [reading, setReading] = useState<NumerologyReading | null>(null);
   const [loadingReading, setLoadingReading] = useState(false);
@@ -56,20 +66,16 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   }, [birth, language, profile.zodiacSign]);
 
   const onSave = async () => {
-    const d = parseInt(day, 10), m = parseInt(month, 10), y = parseInt(year, 10);
-    const h = parseInt(hour || '0', 10), min = parseInt(minute || '0', 10);
-    const valid =
-      firstName.trim() && lastName.trim() &&
-      d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 1900 && y <= new Date().getFullYear();
+    const valid = firstName.trim() && lastName.trim() && dateVal && timeVal;
     if (!valid) { setError(t('numerology.incomplete')); return; }
 
     const details: BirthDetails = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       gender,
-      dob: `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
-      hour: Math.min(23, Math.max(0, h || 0)),
-      minute: Math.min(59, Math.max(0, min || 0)),
+      dob: `${dateVal.getFullYear()}-${pad(dateVal.getMonth() + 1)}-${pad(dateVal.getDate())}`,
+      hour: timeVal.getHours(),
+      minute: timeVal.getMinutes(),
       place: place.trim(),
     };
     const updated = await saveBirthDetails(details);
@@ -114,18 +120,55 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
             </View>
 
             <Text style={styles.label}>{t('numerology.dob')}</Text>
-            <View style={styles.row3}>
-              <TextInput style={styles.smallInput} value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} placeholder={t('numerology.day')} placeholderTextColor={COLORS.textDim} />
-              <TextInput style={styles.smallInput} value={month} onChangeText={setMonth} keyboardType="number-pad" maxLength={2} placeholder={t('numerology.month')} placeholderTextColor={COLORS.textDim} />
-              <TextInput style={[styles.smallInput, { flex: 1.4 }]} value={year} onChangeText={setYear} keyboardType="number-pad" maxLength={4} placeholder={t('numerology.year')} placeholderTextColor={COLORS.textDim} />
-            </View>
+            <TouchableOpacity style={styles.pickerField} onPress={() => { setShowTime(false); setShowDate(true); }} activeOpacity={0.8}>
+              <Text style={[styles.pickerText, !dateVal && styles.pickerPlaceholder]}>
+                {dateVal ? dateLabel : t('numerology.selectDate')}
+              </Text>
+              <Text style={styles.pickerIcon}>📅</Text>
+            </TouchableOpacity>
+            {showDate && (
+              <DateTimePicker
+                value={dateVal ?? new Date(2000, 0, 1)}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                maximumDate={new Date()}
+                minimumDate={new Date(1900, 0, 1)}
+                onChange={(e, d) => {
+                  if (Platform.OS === 'android') setShowDate(false);
+                  if (e.type === 'set' && d) setDateVal(d);
+                }}
+              />
+            )}
+            {Platform.OS === 'ios' && showDate && (
+              <TouchableOpacity onPress={() => setShowDate(false)} style={styles.pickerDone}>
+                <Text style={styles.pickerDoneText}>{t('common.done')}</Text>
+              </TouchableOpacity>
+            )}
 
             <Text style={styles.label}>{t('numerology.birthTime')}</Text>
-            <View style={styles.row3}>
-              <TextInput style={styles.smallInput} value={hour} onChangeText={setHour} keyboardType="number-pad" maxLength={2} placeholder={t('numerology.hour')} placeholderTextColor={COLORS.textDim} />
-              <TextInput style={styles.smallInput} value={minute} onChangeText={setMinute} keyboardType="number-pad" maxLength={2} placeholder={t('numerology.minute')} placeholderTextColor={COLORS.textDim} />
-              <View style={{ flex: 1.4 }} />
-            </View>
+            <TouchableOpacity style={styles.pickerField} onPress={() => { setShowDate(false); setShowTime(true); }} activeOpacity={0.8}>
+              <Text style={[styles.pickerText, !timeVal && styles.pickerPlaceholder]}>
+                {timeVal ? timeLabel : t('numerology.selectTime')}
+              </Text>
+              <Text style={styles.pickerIcon}>🕐</Text>
+            </TouchableOpacity>
+            {showTime && (
+              <DateTimePicker
+                value={timeVal ?? new Date(2000, 0, 1, 12, 0)}
+                mode="time"
+                is24Hour
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={(e, d) => {
+                  if (Platform.OS === 'android') setShowTime(false);
+                  if (e.type === 'set' && d) setTimeVal(d);
+                }}
+              />
+            )}
+            {Platform.OS === 'ios' && showTime && (
+              <TouchableOpacity onPress={() => setShowTime(false)} style={styles.pickerDone}>
+                <Text style={styles.pickerDoneText}>{t('common.done')}</Text>
+              </TouchableOpacity>
+            )}
 
             <Text style={styles.label}>{t('numerology.place')}</Text>
             <TextInput style={styles.input} value={place} onChangeText={setPlace} placeholder={t('numerology.placePlaceholder')} placeholderTextColor={COLORS.textDim} />
@@ -339,6 +382,16 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
     borderRadius: RADIUS.md, padding: SPACING.md, fontFamily: FONTS.medium, fontSize: 16, color: COLORS.text, textAlign: 'center',
   },
+  pickerField: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    borderRadius: RADIUS.md, paddingVertical: SPACING.md, paddingHorizontal: SPACING.md,
+  },
+  pickerText: { fontFamily: FONTS.medium, fontSize: 16, color: COLORS.text },
+  pickerPlaceholder: { color: COLORS.textDim },
+  pickerIcon: { fontSize: 18 },
+  pickerDone: { alignSelf: 'flex-end', paddingVertical: 8, paddingHorizontal: 16, marginTop: 4 },
+  pickerDoneText: { fontFamily: FONTS.semiBold, fontSize: 14, color: COLORS.primaryLight },
   error: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.accentWarm, marginTop: SPACING.md, textAlign: 'center' },
   button: { paddingVertical: 16, borderRadius: RADIUS.full, alignItems: 'center' },
   buttonText: { fontFamily: FONTS.semiBold, fontSize: 16, color: COLORS.white },
