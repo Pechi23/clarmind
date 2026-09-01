@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
@@ -19,7 +19,7 @@ import {
 import ActivityHeatmap from '../components/ActivityHeatmap';
 import { MeditationSession } from '../types';
 import { getXp, getUnlockedAchievements } from '../services/gamification';
-import { ACHIEVEMENTS, getLevelForXp } from '../constants/achievements';
+import { ACHIEVEMENTS, getLevelForXp, AchievementDef } from '../constants/achievements';
 import { useI18n } from '../i18n';
 import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
 import { useContentBottomPadding } from '../constants/layout';
@@ -42,6 +42,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
   const [shareOpen, setShareOpen] = useState(false);
+  const [selectedAch, setSelectedAch] = useState<AchievementDef | null>(null);
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -198,7 +199,12 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           {ACHIEVEMENTS.map((a) => {
             const unlocked = unlockedIds.includes(a.id);
             return (
-              <View key={a.id} style={[styles.badgeCell, !unlocked && styles.badgeCellLocked]}>
+              <TouchableOpacity
+                key={a.id}
+                onPress={() => setSelectedAch(a)}
+                activeOpacity={0.8}
+                style={[styles.badgeCell, !unlocked && styles.badgeCellLocked]}
+              >
                 <Text style={[styles.badgeEmoji, !unlocked && styles.badgeEmojiLocked]}>
                   {unlocked ? a.emoji : '🔒'}
                 </Text>
@@ -208,7 +214,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
                 <Text style={styles.badgeDesc} numberOfLines={2}>
                   {achievementDesc(a.id, t)}
                 </Text>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
@@ -295,6 +301,35 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         minutes={totalMin}
         stars={sessions}
       />
+
+      {/* Achievement detail */}
+      <Modal visible={!!selectedAch} transparent animationType="fade" onRequestClose={() => setSelectedAch(null)}>
+        <TouchableOpacity style={styles.achOverlay} activeOpacity={1} onPress={() => setSelectedAch(null)}>
+          <TouchableOpacity activeOpacity={1} style={styles.achCard} onPress={() => {}}>
+            {selectedAch && (() => {
+              const unlocked = unlockedIds.includes(selectedAch.id);
+              return (
+                <>
+                  <View style={[styles.achEmojiRing, !unlocked && styles.achEmojiRingLocked]}>
+                    <Text style={styles.achEmoji}>{unlocked ? selectedAch.emoji : '🔒'}</Text>
+                  </View>
+                  <View style={[styles.achStatus, unlocked ? styles.achStatusOn : styles.achStatusOff]}>
+                    <Text style={[styles.achStatusText, unlocked ? styles.achStatusTextOn : styles.achStatusTextOff]}>
+                      {unlocked ? t('profile.badgeUnlocked') : t('profile.badgeLocked')}
+                    </Text>
+                  </View>
+                  <Text style={styles.achName}>{achievementName(selectedAch.id, t)}</Text>
+                  <Text style={styles.achDesc}>{achievementDesc(selectedAch.id, t)}</Text>
+                  {!unlocked && <Text style={styles.achHint}>{t('profile.badgeLockedHint')}</Text>}
+                  <TouchableOpacity onPress={() => setSelectedAch(null)} activeOpacity={0.85} style={styles.achClose}>
+                    <Text style={styles.achCloseText}>{t('common.done')}</Text>
+                  </TouchableOpacity>
+                </>
+              );
+            })()}
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -425,4 +460,31 @@ const styles = StyleSheet.create({
     textAlign: 'center', fontFamily: FONTS.regular, fontSize: 11,
     color: COLORS.textDim, marginTop: SPACING.xl,
   },
+  achOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center', alignItems: 'center', padding: SPACING.lg,
+  },
+  achCard: {
+    width: '100%', backgroundColor: COLORS.backgroundLight,
+    borderRadius: RADIUS.lg, padding: SPACING.xl, alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(252,211,77,0.3)',
+  },
+  achEmojiRing: {
+    width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(252,211,77,0.12)', borderWidth: 2, borderColor: 'rgba(252,211,77,0.4)',
+    marginBottom: SPACING.md,
+  },
+  achEmojiRingLocked: { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)' },
+  achEmoji: { fontSize: 48 },
+  achStatus: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: RADIUS.full, marginBottom: SPACING.md },
+  achStatusOn: { backgroundColor: 'rgba(252,211,77,0.18)' },
+  achStatusOff: { backgroundColor: 'rgba(255,255,255,0.08)' },
+  achStatusText: { fontFamily: FONTS.semiBold, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' },
+  achStatusTextOn: { color: '#fcd34d' },
+  achStatusTextOff: { color: COLORS.textMuted },
+  achName: { fontFamily: FONTS.bold, fontSize: 24, color: COLORS.text, textAlign: 'center', marginBottom: SPACING.sm },
+  achDesc: { fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted, textAlign: 'center', lineHeight: 22 },
+  achHint: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textDim, textAlign: 'center', marginTop: SPACING.md, fontStyle: 'italic' },
+  achClose: { marginTop: SPACING.lg, paddingVertical: 12, paddingHorizontal: 40, borderRadius: RADIUS.full, backgroundColor: 'rgba(167,139,250,0.2)' },
+  achCloseText: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.primaryLight },
 });
