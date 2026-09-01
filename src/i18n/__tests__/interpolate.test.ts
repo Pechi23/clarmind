@@ -4,7 +4,7 @@ import { ro } from '../ro';
 
 describe('lookup', () => {
   it('resolves a nested dot path', () => {
-    expect(lookup(en, 'home.affirmationLabel')).toBe("Today's Affirmation");
+    expect(lookup(en, 'home.affirmationLabel')).toBe("Today's Objective");
   });
   it('returns undefined for a missing path', () => {
     expect(lookup(en, 'home.nope.deep')).toBeUndefined();
