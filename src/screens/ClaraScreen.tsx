@@ -8,9 +8,9 @@ import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
 import {
   getChatHistory, saveChatHistory, clearChatHistory,
-  getClaraCount, incrementClaraCount,
 } from '../services/storage';
-import { askClara, CLARA_DAILY_LIMIT } from '../services/clara';
+import { askClara } from '../services/clara';
+import { getUsageInfo, recordAiUse, UsageInfo } from '../services/entitlements';
 import { useI18n } from '../i18n';
 
 interface Props {
@@ -23,13 +23,13 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [count, setCount] = useState(0);
+  const [usage, setUsage] = useState<UsageInfo | null>(null);
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     (async () => {
-      const [history, c] = await Promise.all([getChatHistory(), getClaraCount()]);
-      setCount(c);
+      const [history, u] = await Promise.all([getChatHistory(), getUsageInfo()]);
+      setUsage(u);
       if (history.length === 0) {
         const opener: ChatMessage = {
           role: 'assistant',
@@ -51,7 +51,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const send = async () => {
     const text = input.trim();
     if (!text || sending) return;
-    if (count >= CLARA_DAILY_LIMIT) return;
+    if (usage && usage.remaining <= 0) return;
 
     const userMsg: ChatMessage = { role: 'user', text, at: new Date().toISOString() };
     const next = [...messages, userMsg];
@@ -65,8 +65,8 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     const withReply = [...next, claraMsg];
     setMessages(withReply);
     await saveChatHistory(withReply);
-    const newCount = await incrementClaraCount();
-    setCount(newCount);
+    await recordAiUse();
+    setUsage(await getUsageInfo());
     setSending(false);
     scrollToEnd();
   };
@@ -82,7 +82,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     await saveChatHistory([opener]);
   };
 
-  const atLimit = count >= CLARA_DAILY_LIMIT;
+  const atLimit = !!usage && usage.remaining <= 0;
 
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
@@ -133,7 +133,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
         {/* Input */}
         {atLimit ? (
           <View style={styles.limitBox}>
-            <Text style={styles.limitText}>{t('clara.limit')}</Text>
+            <Text style={styles.limitText}>{usage && !usage.premium ? t('clara.limitUpgrade') : t('clara.limit')}</Text>
           </View>
         ) : (
           <View style={styles.inputBar}>
@@ -159,6 +159,9 @@ export default function ClaraScreen({ profile, onClose }: Props) {
               </LinearGradient>
             </TouchableOpacity>
           </View>
+        )}
+        {usage && !atLimit && (
+          <Text style={styles.remaining}>{t('clara.remaining', { n: usage.remaining })}</Text>
         )}
         <Text style={styles.disclaimer}>{t('clara.disclaimer')}</Text>
       </KeyboardAvoidingView>
@@ -217,6 +220,10 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(125,211,252,0.25)',
   },
   limitText: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.accent, textAlign: 'center', lineHeight: 20 },
+  remaining: {
+    fontFamily: FONTS.medium, fontSize: 11, color: COLORS.textMuted,
+    textAlign: 'center', paddingTop: 6,
+  },
   disclaimer: {
     fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim,
     textAlign: 'center', paddingVertical: 10, paddingHorizontal: SPACING.lg,

@@ -20,6 +20,7 @@ import {
 import ActivityHeatmap from '../components/ActivityHeatmap';
 import { MeditationSession } from '../types';
 import { getXp, getUnlockedAchievements } from '../services/gamification';
+import { getUsageInfo, getPremiumOverride, setPremiumOverride, UsageInfo } from '../services/entitlements';
 import { ACHIEVEMENTS, getLevelForXp, AchievementDef } from '../constants/achievements';
 import { useI18n } from '../i18n';
 import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
@@ -45,6 +46,8 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [shareOpen, setShareOpen] = useState(false);
   const [selectedAch, setSelectedAch] = useState<AchievementDef | null>(null);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [premium, setPremium] = useState(false);
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -77,7 +80,15 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     setXp(totalXp);
     setUnlockedIds(unlocked);
     setReminderTimeState(rTime);
+    setUsage(await getUsageInfo());
+    setPremium(await getPremiumOverride());
   }, []);
+
+  const togglePremium = async (v: boolean) => {
+    await setPremiumOverride(v);
+    setPremium(v);
+    setUsage(await getUsageInfo());
+  };
 
   useEffect(() => { load(); }, [load]);
 
@@ -193,6 +204,27 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </LinearGradient>
         </TouchableOpacity>
 
+        {/* AI usage */}
+        {usage && (
+          <>
+            <Text style={styles.sectionLabel}>{t('profile.usageTitle')}</Text>
+            <GradientCard colors={['rgba(125,211,252,0.14)', 'rgba(59,130,246,0.05)']} style={{ marginBottom: SPACING.lg }}>
+              <View style={styles.usageRow}>
+                <Text style={styles.usageValue}>{usage.used}<Text style={styles.usageLimit}> / {usage.limit}</Text></Text>
+                <View style={[styles.planPill, usage.premium ? styles.planPremium : styles.planFree]}>
+                  <Text style={[styles.planText, usage.premium && { color: '#fcd34d' }]}>
+                    {usage.premium ? t('profile.planPremium') : t('profile.planFree')}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.usageTrack}>
+                <View style={[styles.usageFill, { width: `${Math.min(100, Math.round((usage.used / usage.limit) * 100))}%` }]} />
+              </View>
+              <Text style={styles.usageSub}>{t('profile.usageRemaining', { n: usage.remaining })}</Text>
+            </GradientCard>
+          </>
+        )}
+
         {/* Achievements */}
         <Text style={styles.sectionLabel}>
           {t('profile.achievements')} · {unlockedIds.length}/{ACHIEVEMENTS.length}
@@ -259,6 +291,20 @@ export default function ProfileScreen({ profile, onReset }: Props) {
             value={notifs}
             onValueChange={toggleNotifs}
             trackColor={{ false: '#3a3a5e', true: COLORS.primary }}
+            thumbColor="#fff"
+          />
+        </View>
+
+        {/* Premium testing unlock */}
+        <View style={styles.settingRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.settingTitle}>{t('profile.premiumTest')}</Text>
+            <Text style={styles.settingSub}>{t('profile.premiumTestSub')}</Text>
+          </View>
+          <Switch
+            value={premium}
+            onValueChange={togglePremium}
+            trackColor={{ false: '#3a3a5e', true: '#fcd34d' }}
             thumbColor="#fff"
           />
         </View>
@@ -484,6 +530,16 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular, fontSize: 9, color: COLORS.textDim,
     textAlign: 'center', lineHeight: 12,
   },
+  usageRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SPACING.sm },
+  usageValue: { fontFamily: FONTS.bold, fontSize: 26, color: COLORS.text },
+  usageLimit: { fontFamily: FONTS.medium, fontSize: 18, color: COLORS.textMuted },
+  planPill: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: RADIUS.full },
+  planFree: { backgroundColor: 'rgba(255,255,255,0.08)' },
+  planPremium: { backgroundColor: 'rgba(252,211,77,0.18)' },
+  planText: { fontFamily: FONTS.semiBold, fontSize: 11, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
+  usageTrack: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: SPACING.sm },
+  usageFill: { height: '100%', borderRadius: 4, backgroundColor: COLORS.accent },
+  usageSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted },
   heatmapWrap: {
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: RADIUS.md,

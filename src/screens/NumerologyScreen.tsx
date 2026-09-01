@@ -15,6 +15,7 @@ import {
   CHAKRAS, computeChakras, chakraTotals,
 } from '../services/destinyMatrix';
 import { getNumerologyReading, NumerologyReading } from '../services/numerologyReading';
+import { isFeatureLocked } from '../services/entitlements';
 import { ascendantSign } from '../services/ascendant';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
@@ -59,6 +60,9 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const [reading, setReading] = useState<NumerologyReading | null>(null);
   const [loadingReading, setLoadingReading] = useState(false);
   const [selectedNode, setSelectedNode] = useState<MatrixNodeSelection | null>(null);
+  const [locked, setLocked] = useState<boolean | null>(null);
+
+  useEffect(() => { isFeatureLocked('numerology').then(setLocked); }, []);
 
   useEffect(() => {
     if (birth) {
@@ -95,6 +99,21 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
       <View style={{ width: 40 }} />
     </View>
   );
+
+  // ---------- PAYWALL ----------
+  if (locked) {
+    return (
+      <LinearGradient colors={GRADIENTS.background} style={styles.container}>
+        {Header}
+        <View style={styles.paywallWrap}>
+          <Text style={styles.paywallEmoji}>🔢✨</Text>
+          <Text style={styles.paywallTitle}>{t('numerology.lockedTitle')}</Text>
+          <Text style={styles.paywallBody}>{t('numerology.lockedBody')}</Text>
+          <Text style={styles.paywallHint}>{t('numerology.lockedHint')}</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   // ---------- FORM ----------
   if (editing || !birth) {
@@ -416,6 +435,11 @@ const styles = StyleSheet.create({
   pickerIcon: { fontSize: 18 },
   pickerDone: { alignSelf: 'flex-end', paddingVertical: 8, paddingHorizontal: 16, marginTop: 4 },
   pickerDoneText: { fontFamily: FONTS.semiBold, fontSize: 14, color: COLORS.primaryLight },
+  paywallWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.xl },
+  paywallEmoji: { fontSize: 48, marginBottom: SPACING.lg },
+  paywallTitle: { fontFamily: FONTS.bold, fontSize: 26, color: COLORS.text, textAlign: 'center', marginBottom: SPACING.md },
+  paywallBody: { fontFamily: FONTS.regular, fontSize: 16, color: COLORS.textMuted, textAlign: 'center', lineHeight: 24, marginBottom: SPACING.lg },
+  paywallHint: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textDim, textAlign: 'center', fontStyle: 'italic' },
   error: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.accentWarm, marginTop: SPACING.md, textAlign: 'center' },
   button: { paddingVertical: 16, borderRadius: RADIUS.full, alignItems: 'center' },
   buttonText: { fontFamily: FONTS.semiBold, fontSize: 16, color: COLORS.white },
