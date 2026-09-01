@@ -141,6 +141,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
             </View>
             <Text style={styles.headline}>{t('onboarding.headline')}</Text>
             <Text style={styles.subtext}>{t('onboarding.subtext')}</Text>
+            <View style={{ flex: 1 }} />
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>{t('onboarding.namePrompt')}</Text>
               <TextInput
