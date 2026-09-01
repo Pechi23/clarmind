@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
@@ -43,6 +44,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
   const [shareOpen, setShareOpen] = useState(false);
   const [selectedAch, setSelectedAch] = useState<AchievementDef | null>(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -280,7 +282,38 @@ export default function ProfileScreen({ profile, onReset }: Props) {
                   </TouchableOpacity>
                 );
               })}
+              {(() => {
+                const isCustom = !REMINDER_PRESETS.some((rt) => rt.hour === reminderTime.hour && rt.minute === reminderTime.minute);
+                return (
+                  <TouchableOpacity
+                    onPress={() => setShowTimePicker(true)}
+                    activeOpacity={0.85}
+                    style={[styles.timeChip, isCustom && styles.timeChipSelected]}
+                  >
+                    <Text style={[styles.timeChipText, isCustom && styles.timeChipTextSelected]}>
+                      🕐 {isCustom ? formatTime(reminderTime) : t('profile.customTime')}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })()}
             </View>
+            {showTimePicker && (
+              <DateTimePicker
+                value={(() => { const d = new Date(); d.setHours(reminderTime.hour, reminderTime.minute, 0, 0); return d; })()}
+                mode="time"
+                is24Hour
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={(e, d) => {
+                  if (Platform.OS === 'android') setShowTimePicker(false);
+                  if (e.type === 'set' && d) pickReminderTime({ hour: d.getHours(), minute: d.getMinutes() });
+                }}
+              />
+            )}
+            {Platform.OS === 'ios' && showTimePicker && (
+              <TouchableOpacity onPress={() => setShowTimePicker(false)} style={styles.pickerDoneBtn}>
+                <Text style={styles.pickerDoneText}>{t('common.done')}</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
 
@@ -403,6 +436,8 @@ const styles = StyleSheet.create({
   },
   timeChipText: { fontFamily: FONTS.semiBold, fontSize: 13, color: COLORS.textMuted },
   timeChipTextSelected: { color: COLORS.primaryLight },
+  pickerDoneBtn: { alignSelf: 'flex-end', paddingVertical: 8, paddingHorizontal: 16, marginTop: 4 },
+  pickerDoneText: { fontFamily: FONTS.semiBold, fontSize: 14, color: COLORS.primaryLight },
   resetButton: {
     backgroundColor: 'rgba(253,164,175,0.1)', borderRadius: RADIUS.md,
     padding: SPACING.md, alignItems: 'center', marginTop: SPACING.md,

@@ -17,7 +17,10 @@ import LeaderboardScreen from '../screens/LeaderboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import FloatingClara from '../components/FloatingClara';
 import GuideOverlay from '../components/GuideOverlay';
-import { getGuideSeen } from '../services/storage';
+import {
+  getGuideSeen, getNotifAsked, setNotifAsked, setNotificationsEnabled, getReminderTime,
+} from '../services/storage';
+import { requestNotificationPermissions, scheduleDailyReminder } from '../services/notifications';
 
 const Tab = createBottomTabNavigator();
 
@@ -89,6 +92,20 @@ export default function AppNavigator({ profile, onReset }: Props) {
 
   useEffect(() => {
     getGuideSeen().then((seen) => setShowGuide(!seen));
+  }, []);
+
+  // Ask for notification permission once, on first entry into the app.
+  useEffect(() => {
+    (async () => {
+      if (await getNotifAsked()) return;
+      await setNotifAsked(true);
+      const granted = await requestNotificationPermissions();
+      if (granted) {
+        await setNotificationsEnabled(true);
+        const { hour, minute } = await getReminderTime();
+        await scheduleDailyReminder(hour, minute);
+      }
+    })();
   }, []);
 
   return (

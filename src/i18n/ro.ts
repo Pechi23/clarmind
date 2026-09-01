@@ -136,6 +136,7 @@ export const ro: TranslationShape = {
     dailyReminder: 'Memento zilnic',
     reminderSub: 'Anunță-mă să iau un moment de mindfulness',
     remindAt: 'Amintește-mi la',
+    customTime: 'Personalizat',
     reset: 'Resetează configurarea',
     resetTitle: 'Resetezi tot?',
     resetMessage: 'Acest lucru va șterge profilul, seria și tot istoricul de meditație.',

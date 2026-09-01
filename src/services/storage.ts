@@ -23,6 +23,7 @@ const KEYS = {
   COURSE_PROGRESS: 'clarmind_course_progress',
   GUIDE_SEEN: 'clarmind_guide_seen',
   CLARA_FAB_POS: 'clarmind_clara_fab_pos',
+  NOTIF_ASKED: 'clarmind_notif_asked',
 };
 
 const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
@@ -185,6 +186,15 @@ export const getLanguage = async (): Promise<string | null> => {
 
 export const setLanguage = async (lang: string): Promise<void> => {
   await AsyncStorage.setItem(KEYS.LANGUAGE, lang);
+};
+
+// Whether we've already asked for notification permission once
+export const getNotifAsked = async (): Promise<boolean> => {
+  return (await AsyncStorage.getItem(KEYS.NOTIF_ASKED)) === 'true';
+};
+
+export const setNotifAsked = async (asked: boolean): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.NOTIF_ASKED, String(asked));
 };
 
 // First-run guide / tour

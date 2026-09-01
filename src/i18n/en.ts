@@ -134,6 +134,7 @@ export const en = {
     dailyReminder: 'Daily reminder',
     reminderSub: 'Notify me to take a mindful moment',
     remindAt: 'Remind me at',
+    customTime: 'Custom',
     reset: 'Reset onboarding',
     resetTitle: 'Reset everything?',
     resetMessage: 'This will erase your profile, streak and all meditation history.',
