@@ -96,7 +96,7 @@ export default function FloatingClara({ profile }: Props) {
         <LinearGradient colors={GRADIENTS.button} style={styles.gradient}>
           <Text style={styles.icon}>🌙</Text>
         </LinearGradient>
-        <View style={styles.badge}><Text style={styles.badgeText}>AI</Text></View>
+        <View style={styles.badge}><Text style={styles.badgeText}>Clara</Text></View>
       </Animated.View>
 
       <Modal visible={open} animationType="slide" onRequestClose={() => setOpen(false)}>

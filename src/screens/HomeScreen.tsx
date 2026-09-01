@@ -55,6 +55,7 @@ export default function HomeScreen({ profile }: Props) {
   const [recapVisible, setRecapVisible] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
   const [numerologyOpen, setNumerologyOpen] = useState(false);
+  const [challengeInfoOpen, setChallengeInfoOpen] = useState(false);
   const guideAwarded = React.useRef(false);
 
   // Show the weekly recap once per ISO week, when there's recent activity.
@@ -214,6 +215,19 @@ export default function HomeScreen({ profile }: Props) {
       <Modal visible={numerologyOpen} animationType="slide" onRequestClose={() => setNumerologyOpen(false)}>
         <NumerologyScreen profile={profile} onClose={() => setNumerologyOpen(false)} onUpdated={() => {}} />
       </Modal>
+      {/* Challenges info */}
+      <Modal visible={challengeInfoOpen} transparent animationType="fade" onRequestClose={() => setChallengeInfoOpen(false)}>
+        <TouchableOpacity style={styles.infoOverlay} activeOpacity={1} onPress={() => setChallengeInfoOpen(false)}>
+          <TouchableOpacity activeOpacity={1} style={styles.infoCard} onPress={() => {}}>
+            <Text style={styles.infoEmoji}>🎯</Text>
+            <Text style={styles.infoTitle}>{t('home.challengesInfoTitle')}</Text>
+            <Text style={styles.infoBody}>{t('home.challengesInfoBody')}</Text>
+            <TouchableOpacity onPress={() => setChallengeInfoOpen(false)} style={styles.infoClose}>
+              <Text style={styles.infoCloseText}>{t('common.done')}</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
@@ -277,11 +291,31 @@ export default function HomeScreen({ profile }: Props) {
           </View>
         ) : content ? (
           <>
-            {/* Quote */}
+            {/* Quote of the Day */}
             <GradientCard colors={['rgba(167,139,250,0.2)', 'rgba(124,58,237,0.08)']} style={styles.cardSpacing}>
+              <Text style={styles.miniLabel}>{t('home.quoteLabel')}</Text>
               <Text style={styles.quoteIcon}>"</Text>
               <Text style={styles.quoteText}>{content.quote}</Text>
               <Text style={styles.quoteAuthor}>— {content.quoteAuthor}</Text>
+            </GradientCard>
+
+            {/* Daily Horoscope (moved to top) */}
+            <GradientCard style={styles.cardSpacing}>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionEmoji]}>{zodiacInfo.emoji}</Text>
+                <View>
+                  <Text style={styles.sectionLabel}>{t('home.zodiacToday')}</Text>
+                  <Text style={[styles.sectionSubLabel, { color: zodiacInfo.color }]}>
+                    {signName(zodiacInfo, language)} · {elementName(zodiacInfo.element, t)}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.bodyText}>{content.zodiacMessage}</Text>
+              {!profile.birth && (
+                <TouchableOpacity onPress={() => setNumerologyOpen(true)} activeOpacity={0.7}>
+                  <Text style={styles.horoscopeHint}>{t('home.horoscopePersonalize')}</Text>
+                </TouchableOpacity>
+              )}
             </GradientCard>
 
             {/* Affirmation */}
@@ -298,6 +332,9 @@ export default function HomeScreen({ profile }: Props) {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionEmoji}>🎯</Text>
                 <Text style={styles.sectionLabel}>{t('home.challenges')}</Text>
+                <TouchableOpacity onPress={() => setChallengeInfoOpen(true)} hitSlop={10} style={styles.infoButton}>
+                  <Text style={styles.infoButtonText}>i</Text>
+                </TouchableOpacity>
                 <Text style={styles.challengeCount}>
                   {challenges.filter((c) => c.done).length}/{challenges.length}
                 </Text>
@@ -315,20 +352,6 @@ export default function HomeScreen({ profile }: Props) {
                 </View>
               ))}
               <Text style={styles.challengeBonus}>{t('home.challengeBonus')}</Text>
-            </GradientCard>
-
-            {/* Zodiac */}
-            <GradientCard style={styles.cardSpacing}>
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionEmoji]}>{zodiacInfo.emoji}</Text>
-                <View>
-                  <Text style={styles.sectionLabel}>{t('home.zodiacToday')}</Text>
-                  <Text style={[styles.sectionSubLabel, { color: zodiacInfo.color }]}>
-                    {signName(zodiacInfo, language)} · {elementName(zodiacInfo.element, t)}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.bodyText}>{content.zodiacMessage}</Text>
             </GradientCard>
 
             {/* Stress Tip */}
@@ -446,6 +469,32 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textMuted,
   },
+  miniLabel: {
+    fontFamily: FONTS.medium, fontSize: 11, color: COLORS.textMuted,
+    letterSpacing: 1, textTransform: 'uppercase', marginBottom: SPACING.sm,
+  },
+  horoscopeHint: {
+    fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primaryLight,
+    marginTop: SPACING.md,
+  },
+  infoButton: {
+    width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)', marginLeft: SPACING.sm,
+  },
+  infoButtonText: { fontFamily: FONTS.bold, fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' },
+  infoOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center', justifyContent: 'center', padding: SPACING.lg,
+  },
+  infoCard: {
+    width: '100%', backgroundColor: COLORS.backgroundLight, borderRadius: RADIUS.lg,
+    padding: SPACING.xl, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(252,211,77,0.3)',
+  },
+  infoEmoji: { fontSize: 40, marginBottom: SPACING.md },
+  infoTitle: { fontFamily: FONTS.bold, fontSize: 20, color: COLORS.text, textAlign: 'center', marginBottom: SPACING.sm },
+  infoBody: { fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted, textAlign: 'center', lineHeight: 22 },
+  infoClose: { marginTop: SPACING.lg, paddingVertical: 12, paddingHorizontal: 40, borderRadius: RADIUS.full, backgroundColor: 'rgba(167,139,250,0.2)' },
+  infoCloseText: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.primaryLight },
   affirmationCard: {
     borderRadius: RADIUS.lg,
     padding: 20,

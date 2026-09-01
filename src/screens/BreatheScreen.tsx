@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { BREATHING_PATTERNS, PRESET_DURATIONS, BreathingPattern } from '../constants/breathing';
@@ -36,6 +37,8 @@ type Mode = 'select' | 'session' | 'complete';
 export default function BreatheScreen() {
   const { t } = useI18n();
   const bottomPad = useContentBottomPadding();
+  const insets = useSafeAreaInsets();
+  const [paused, setPaused] = useState(false);
   const phaseLabel = (label: string) =>
     label === 'Hold' ? t('breathe.hold')
       : label === 'Breathe in' ? t('breathe.breatheIn')
@@ -85,15 +88,8 @@ export default function BreatheScreen() {
     setDurationMin(suggestion.minutes);
   };
 
-  const startSession = () => {
-    setMode('session');
-    setPhaseIndex(0);
-    setSecondsLeft(durationMin * 60);
-    setPhaseSecondsLeft(pattern.phases[0].duration);
-    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
-    playChime('start').catch(() => {});
-    syncMix(mix).catch(() => {});
-
+  // Start (or restart, on resume) the countdown + phase intervals.
+  const startTimers = () => {
     sessionTimer.current = setInterval(() => {
       setSecondsLeft((s) => {
         if (s <= 1) {
@@ -118,6 +114,32 @@ export default function BreatheScreen() {
         return p - 1;
       });
     }, 1000);
+  };
+
+  const startSession = () => {
+    setMode('session');
+    setPaused(false);
+    setPhaseIndex(0);
+    setSecondsLeft(durationMin * 60);
+    setPhaseSecondsLeft(pattern.phases[0].duration);
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
+    playChime('start').catch(() => {});
+    syncMix(mix).catch(() => {});
+    startTimers();
+  };
+
+  const pauseSession = () => {
+    cleanup();
+    stopMix();
+    setPaused(true);
+    if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
+  };
+
+  const resumeSession = () => {
+    setPaused(false);
+    syncMix(mix).catch(() => {});
+    startTimers();
+    if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
   };
 
   // when phase index changes, refresh phase counter
@@ -160,6 +182,7 @@ export default function BreatheScreen() {
   const cancelSession = () => {
     cleanup();
     stopMix();
+    setPaused(false);
     setMode('select');
   };
 
@@ -191,7 +214,8 @@ export default function BreatheScreen() {
       <LinearGradient colors={GRADIENTS.background} style={styles.container}>
         <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]} showsVerticalScrollIndicator={false}>
           <Text style={styles.kicker}>{t('breathe.kicker')}</Text>
-          <Text style={styles.title}>{t('breathe.title')}</Text>
+          <Text style={styles.title}>{patternName(pattern.id, t)}</Text>
+          <Text style={styles.titleSub}>{patternDesc(pattern.id, t)}</Text>
           {suggestion && (
             <TouchableOpacity style={styles.windDownBanner} onPress={applySuggestion} activeOpacity={0.85}>
               <Text style={styles.windDownText}>{t(suggestion.reasonKey)}</Text>
@@ -339,9 +363,16 @@ export default function BreatheScreen() {
             <Text style={styles.phaseSeconds}>{phaseSecondsLeft}</Text>
           </View>
 
-          <TouchableOpacity onPress={cancelSession} style={styles.endButton} activeOpacity={0.8}>
-            <Text style={styles.endText}>{t('breathe.end')}</Text>
-          </TouchableOpacity>
+          <View style={[styles.sessionControls, { marginBottom: 24 + insets.bottom }]}>
+            <TouchableOpacity onPress={paused ? resumeSession : pauseSession} style={styles.pauseButton} activeOpacity={0.85}>
+              <LinearGradient colors={GRADIENTS.button} style={styles.pauseGradient}>
+                <Text style={styles.pauseText}>{paused ? `▶  ${t('breathe.resume')}` : `❚❚  ${t('breathe.pause')}`}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={cancelSession} style={styles.endButton} activeOpacity={0.8}>
+              <Text style={styles.endText}>{t('breathe.end')}</Text>
+            </TouchableOpacity>
+          </View>
         </LinearGradient>
       </Modal>
     );
@@ -417,8 +448,12 @@ const styles = StyleSheet.create({
     letterSpacing: 3, marginBottom: SPACING.sm,
   },
   title: {
-    fontFamily: FONTS.bold, fontSize: 38, color: COLORS.text,
-    lineHeight: 44, marginBottom: SPACING.lg,
+    fontFamily: FONTS.bold, fontSize: 34, color: COLORS.text,
+    lineHeight: 40, marginBottom: SPACING.xs,
+  },
+  titleSub: {
+    fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted,
+    marginBottom: SPACING.lg,
   },
   windDownBanner: {
     backgroundColor: 'rgba(125,211,252,0.12)',
@@ -499,8 +534,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
   },
   sessionCloseText: { fontFamily: FONTS.medium, fontSize: 18, color: COLORS.text },
+  sessionControls: { alignItems: 'center', gap: SPACING.md, paddingHorizontal: SPACING.lg },
+  pauseButton: { width: '100%', borderRadius: RADIUS.full, overflow: 'hidden' },
+  pauseGradient: { paddingVertical: 16, alignItems: 'center', borderRadius: RADIUS.full },
+  pauseText: { fontFamily: FONTS.semiBold, fontSize: 16, color: COLORS.white, letterSpacing: 0.5 },
   endButton: {
-    alignSelf: 'center', marginBottom: 50, paddingVertical: 12, paddingHorizontal: 32,
+    alignSelf: 'center', paddingVertical: 12, paddingHorizontal: 32,
     borderRadius: RADIUS.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
