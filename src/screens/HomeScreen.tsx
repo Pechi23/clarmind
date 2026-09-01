@@ -26,6 +26,7 @@ import {
   computeWeeklyRecap, getMondayKey, buildFallbackReflection, WeeklyRecap,
 } from '../services/weeklyRecapLogic';
 import { useI18n } from '../i18n';
+import { useContentBottomPadding } from '../constants/layout';
 import { signName, elementName, challengeText } from '../constants/localize';
 import { getSeasonalEvent } from '../services/seasonalEvents';
 import { isEvening } from '../services/reflectionLogic';
@@ -39,6 +40,7 @@ interface Props {
 
 export default function HomeScreen({ profile }: Props) {
   const { t, language } = useI18n();
+  const bottomPad = useContentBottomPadding();
   const [content, setContent] = useState<DailyContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -213,7 +215,7 @@ export default function HomeScreen({ profile }: Props) {
         <NumerologyScreen profile={profile} onClose={() => setNumerologyOpen(false)} onUpdated={() => {}} />
       </Modal>
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
         onMomentumScrollEnd={handleScrollEnd}
         onScrollEndDrag={handleScrollEnd}

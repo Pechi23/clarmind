@@ -8,6 +8,7 @@ import { UserProfile, MeditationSession } from '../types';
 import { getMeditationSessions } from '../services/storage';
 import ConstellationSky, { getRuns, countConstellations } from '../components/ConstellationSky';
 import { useI18n } from '../i18n';
+import { useContentBottomPadding } from '../constants/layout';
 import { signName } from '../constants/localize';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 
 export default function SkyScreen({ profile }: Props) {
   const { t, language } = useI18n();
+  const bottomPad = useContentBottomPadding();
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
 
   useFocusEffect(
@@ -38,7 +40,7 @@ export default function SkyScreen({ profile }: Props) {
 
   return (
     <LinearGradient colors={['#05030f', '#0f0c29', '#1a1a3e']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]} showsVerticalScrollIndicator={false}>
         <Text style={styles.kicker}>{t('sky.kicker')}</Text>
         <Text style={styles.title}>{t('sky.title')}</Text>
 

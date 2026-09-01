@@ -11,6 +11,7 @@ import { buildLeaderboard, LeaderboardUser } from '../services/leaderboard';
 import { getStreak, getTotalMeditationMinutes } from '../services/storage';
 import { useI18n } from '../i18n';
 import { signName } from '../constants/localize';
+import { useContentBottomPadding } from '../constants/layout';
 
 interface Props {
   profile: UserProfile;
@@ -20,6 +21,7 @@ type Tab = 'streak' | 'totalMinutes';
 
 export default function LeaderboardScreen({ profile }: Props) {
   const { t, language } = useI18n();
+  const bottomPad = useContentBottomPadding();
   const [tab, setTab] = useState<Tab>('streak');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,7 +55,7 @@ export default function LeaderboardScreen({ profile }: Props) {
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />

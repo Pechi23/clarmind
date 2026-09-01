@@ -22,6 +22,7 @@ import { getXp, getUnlockedAchievements } from '../services/gamification';
 import { ACHIEVEMENTS, getLevelForXp } from '../constants/achievements';
 import { useI18n } from '../i18n';
 import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
+import { useContentBottomPadding } from '../constants/layout';
 import ShareCardModal from '../components/ShareCardModal';
 
 interface Props {
@@ -31,6 +32,7 @@ interface Props {
 
 export default function ProfileScreen({ profile, onReset }: Props) {
   const { t, language, setLanguage } = useI18n();
+  const bottomPad = useContentBottomPadding();
   const [streak, setStreak] = useState(0);
   const [totalMin, setTotalMin] = useState(0);
   const [sessions, setSessions] = useState(0);
@@ -127,7 +129,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]} showsVerticalScrollIndicator={false}>
         <Text style={styles.kicker}>{t('profile.kicker')}</Text>
 
         {/* Header card */}

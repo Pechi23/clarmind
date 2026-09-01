@@ -25,6 +25,7 @@ import { XP } from '../constants/achievements';
 import { AchievementDef } from '../constants/achievements';
 import { useI18n } from '../i18n';
 import { patternName, patternDesc, soundscapeName } from '../constants/localize';
+import { useContentBottomPadding } from '../constants/layout';
 import { suggestSession } from '../services/sessionSuggestion';
 import { getMoodEntries } from '../services/storage';
 
@@ -34,6 +35,7 @@ type Mode = 'select' | 'session' | 'complete';
 
 export default function BreatheScreen() {
   const { t } = useI18n();
+  const bottomPad = useContentBottomPadding();
   const phaseLabel = (label: string) =>
     label === 'Hold' ? t('breathe.hold')
       : label === 'Breathe in' ? t('breathe.breatheIn')
@@ -187,7 +189,7 @@ export default function BreatheScreen() {
   if (mode === 'select') {
     return (
       <LinearGradient colors={GRADIENTS.background} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]} showsVerticalScrollIndicator={false}>
           <Text style={styles.kicker}>{t('breathe.kicker')}</Text>
           <Text style={styles.title}>{t('breathe.title')}</Text>
           {suggestion && (
@@ -310,33 +312,35 @@ export default function BreatheScreen() {
     const mins = Math.floor(secondsLeft / 60);
     const secs = secondsLeft % 60;
     return (
-      <LinearGradient
-        colors={isAfter9PM()
-          ? ['#000814', '#0a0e27', '#16213e']
-          : ['#0f0c29', '#1a1a3e', '#24243e']}
-        style={styles.container}
-      >
-        <View style={styles.sessionTop}>
-          <Text style={styles.timerText}>
-            {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
-          </Text>
-          <Text style={styles.patternBadge}>{patternName(pattern.id, t)}</Text>
-        </View>
+      <Modal visible animationType="fade" statusBarTranslucent onRequestClose={cancelSession}>
+        <LinearGradient
+          colors={isAfter9PM()
+            ? ['#000814', '#0a0e27', '#16213e']
+            : ['#0f0c29', '#1a1a3e', '#24243e']}
+          style={styles.container}
+        >
+          <View style={styles.sessionTop}>
+            <Text style={styles.timerText}>
+              {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
+            </Text>
+            <Text style={styles.patternBadge}>{patternName(pattern.id, t)}</Text>
+          </View>
 
-        <View style={styles.sessionMid}>
-          <BreathingCircle
-            scale={phase.scale}
-            duration={phase.duration * 1000}
-            color={pattern.color}
-          />
-          <Text style={[styles.phaseLabel, { color: pattern.color }]}>{phaseLabel(phase.label)}</Text>
-          <Text style={styles.phaseSeconds}>{phaseSecondsLeft}</Text>
-        </View>
+          <View style={styles.sessionMid}>
+            <BreathingCircle
+              scale={phase.scale}
+              duration={phase.duration * 1000}
+              color={pattern.color}
+            />
+            <Text style={[styles.phaseLabel, { color: pattern.color }]}>{phaseLabel(phase.label)}</Text>
+            <Text style={styles.phaseSeconds}>{phaseSecondsLeft}</Text>
+          </View>
 
-        <TouchableOpacity onPress={cancelSession} style={styles.endButton}>
-          <Text style={styles.endText}>{t('breathe.end')}</Text>
-        </TouchableOpacity>
-      </LinearGradient>
+          <TouchableOpacity onPress={cancelSession} style={styles.endButton} activeOpacity={0.8}>
+            <Text style={styles.endText}>{t('breathe.end')}</Text>
+          </TouchableOpacity>
+        </LinearGradient>
+      </Modal>
     );
   }
 
