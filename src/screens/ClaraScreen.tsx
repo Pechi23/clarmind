@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  KeyboardAvoidingView, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
@@ -88,7 +88,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
       >
         {/* Header */}
         <View style={styles.header}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  KeyboardAvoidingView, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
@@ -91,7 +91,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
     return (
       <LinearGradient colors={GRADIENTS.background} style={styles.container}>
         {Header}
-        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={styles.flex} behavior="padding">
           <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
             <Text style={styles.title}>{t('numerology.setupTitle')}</Text>
             <Text style={styles.subtitle}>{t('numerology.setupSubtitle')}</Text>

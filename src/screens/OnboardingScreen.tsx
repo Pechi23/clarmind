@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform, Dimensions,
+  ScrollView, KeyboardAvoidingView, Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
@@ -50,7 +50,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior="padding"
         style={styles.flex}
       >
         {step === 0 ? (
