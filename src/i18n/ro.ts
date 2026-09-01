@@ -216,7 +216,7 @@ export const ro: TranslationShape = {
     astroTitle: 'Soare & Ascendent',
     sunSign: 'Zodie (Soare)',
     ascendant: 'Ascendent',
-    ascendantHint: 'Ascendentul este o aproximare bazată pe ora nașterii (~o zodie la fiecare două ore de la răsărit). Un ascendent exact necesită coordonatele precise ale locului nașterii.',
+    ascendantHint: 'Ascendentul este estimat din ora nașterii. Harta natală completă (în curând) va folosi locul nașterii pentru un rezultat exact.',
     disclaimer: 'Aceste informații sunt doar o estimare, oferite în scop de reflecție și divertisment. Nu ne asumăm răspunderea pentru eventuale greșeli.',
     incomplete: 'Te rugăm să completezi numele și o dată de naștere validă.',
   },

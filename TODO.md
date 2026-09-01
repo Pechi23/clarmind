@@ -94,11 +94,31 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2.5 | ✅ **Sound mixer** | DONE v1.6 — multi-select soundscape layers with per-layer volume sliders; `soundscapeMixer.ts` (pure, 11 tests) + layered expo-av player (syncMix/stopMix/fadeOutMix) |
 | 2.6 | ✅ **Romanian localization** | DONE v1.5 — full en/ro i18n (`src/i18n/`), EN/RO switcher in onboarding + Profile, expo-localization default, every screen localized incl. content (patterns/soundscapes/challenges/achievements/ranks/elements), AI (daily content, Clara, weekly reflection) responds in the chosen language |
 | 2.7 | ✅ **Seasonal events** | DONE v1.6 — full moon (accurate lunar calc) + solstices/equinoxes + New Year themed banner on Home (`seasonalEvents.ts`, 10 tests) |
+| 2.8 | ✅ **Daily numerology + Destiny Matrix + Ascendant** | DONE 2026-09-01 — birth details (name, gender, date/time via native pickers, birth locality+country), Life Path/Expression/Soul Urge/Personality, interactive Destiny Matrix (octagram, 22 arcana, age timeline), 7-chakra energy map, approximate Ascendant from birth time, daily AI reading. `services/numerology.ts` + `destinyMatrix.ts` + `ascendant.ts` + `numerologyReading.ts`, `NumerologyScreen.tsx`. **→ becomes premium (see P3).** |
+| 2.9 | 🔭 **Birth chart (natal chart)** — NEW, premium | Full natal chart from birth date + **exact time + birth place**. Needs geocoding the birth city → lat/long (offline city dataset, or a one-time API result cached on the profile), then compute an **exact Ascendant** (replacing the current time-only approximation in `ascendant.ts`) + Sun/Moon/planet placements + houses. Render a wheel chart (react-native-svg, like `DestinyMatrixChart`). Pair with numerology under a combined "Cosmic"/astrology section. This is the "exact result" the ascendant hint now promises. |
 
-### P3 — Monetization (after ~1k installs)
-- Premium $3.99/mo or $24.99/yr via RevenueCat (`react-native-purchases`).
-- **Paywall depth, not access** — free forever: sessions, XP, streaks, daily content. Premium: all soundscapes + mixer, micro-courses, Clara unlimited, mood analytics charts, custom breathing patterns, extra streak shields, constellation skins.
-- Paywall moments: after first achievement unlock (high), 3rd session completion, locked soundscape tap.
+### P3 — Monetization (FREEMIUM model — decided 2026-09-01)
+
+**The app is freemium.** Free forever: meditations, XP, streaks, daily content, basic horoscope. Paid unlocks the AI-heavy + astrology-depth features and a higher usage quota.
+
+**Subscription: $5/month** (single tier for now; annual TBD).
+
+**Free-tier daily limits:**
+- **Clara chat: 3 messages/day** (currently `CLARA_DAILY_LIMIT` in `services/clara.ts` = 20 — lower to 3, gate the rest behind the paywall).
+- **Numerology + Birth chart: premium** (behind the paywall).
+
+**Paid tier:**
+- Clara + AI features: **daily request quota, Claude-style (~50 requests/day)**, surfaced as a **usage meter** (like Claude's usage screen) so the user sees requests used / remaining + reset time.
+- Full numerology + birth chart unlocked.
+
+**⚠️ Testing bypass — build this FIRST (needed now):** a single flag that unlocks everything and skips the paywall so we can keep testing without payments while the model is still being finalized. Suggest `clarmind_premium_override` in AsyncStorage (toggle in Profile dev section) **or** a build-time `EXPO_PUBLIC_PREMIUM_BYPASS=1`. `entitlements.ts` must treat this as "premium, unlimited".
+
+**Implementation sketch:**
+- RevenueCat (`react-native-purchases`) for the $5/mo subscription (needs a dev build — not in Expo Go).
+- `services/entitlements.ts` resolves the current tier (`free` / `premium` / `testing-override`) and exposes `canUseClara()`, `remainingRequests()`, `isPremiumFeature('numerology'|'birthchart')`.
+- Generalize the Clara daily counter into an AI-usage store `clarmind_ai_usage_{date}` covering ALL AI calls (daily content, Clara, numerology reading, courses, birth chart).
+- Paywall moments: tap a locked numerology/birth-chart card, Clara's 4th message of the day, usage-limit reached.
+- **Usage screen (like Claude):** a "Usage" card in Profile showing today's AI requests used / remaining + reset time.
 
 ### P4 — Social & platform
 - ✅ **Share cards** — DONE v1.6: `ShareCardModal` captures a branded rank/streak/minutes/stars card via `react-native-view-shot` and shares it through `expo-sharing`'s OS sheet. "Share my progress" button in Profile.
@@ -150,7 +170,9 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 2026-08-24 | Share card + runtime verify (v1.6) | Shareable progress card (view-shot + expo-sharing). Runtime-verified on emulator: daily content (Gemini 3.6), sound mixer + native slider, mood suggestion banner, Profile rank card, share card modal all render correctly. Entire implementable roadmap (P0–P2 + P4 share) complete; remaining P3/P4 need external accounts/backend/dev-build. |
 | 2026-06-27 | Deploy prep + Clara (v1.4) | Real branded icon/splash/favicon (sharp generator); privacy policy + terms + store listing copy; Home loading skeleton; "Clara" AI companion chat with safety guardrail + daily cap |
 | 2026-06-27 | Build integrity + full test suite | Headless `expo export` caught & fixed: missing babel-preset-expo, private-field lowering for Hermes, removed unused AI SDKs; bundled real ambient audio (soundscape URLs were 403). Added AsyncStorage-mocked integration tests for storage + gamification + Clara. 84 tests / 9 suites green |
+| 2026-09-01 | Numerology + Ascendant + Destiny Matrix | Daily numerology feature: birth details form, Life Path/Expression/Soul Urge/Personality, interactive Destiny Matrix octagram (22 arcana, age timeline, chakra map), approximate Ascendant from birth time, daily AI reading (Gemini). `numerology.ts`/`destinyMatrix.ts`/`ascendant.ts`/`numerologyReading.ts` + `NumerologyScreen`. |
+| 2026-09-01 | UX polish + native builds | Draggable global Clara button (snaps to nearest edge, on every tab); first-run guide with **spotlight ring on the real nav item**; language-first onboarding step; native date/time pickers for birth details; birthplace split into Localitate + Țară fields. Fixed: floating tab bar overlapping content (safe-area clearance + immersive breathe session), tappable achievement detail modal, clearer meditation cancel, and the **edge-to-edge keyboard bug** (RN KeyboardAvoidingView is broken under Expo SDK 54 edge-to-edge → switched Android to `softwareKeyboardLayoutMode: "pan"`). Built + installed the **standalone APK** locally (arm64 for phones, arm64+x86_64 for emulator testing) — verified it boots and all fixes work; the earlier "keeps stopping" was purely arm64-APK-on-x86_64-emulator ABI mismatch, not a bug. Local Gradle build works on Windows (JAVA_HOME = Android Studio JBR, bump `org.gradle.jvmargs` to `-Xmx4096m -XX:MaxMetaspaceSize=2048m` to avoid Kotlin OOM; `reactNativeArchitectures` controls APK size). Freemium model decided → see P3. |
 
 ---
 
-**Last updated:** 2026-08-24 (v1.6 — all P2 complete)
+**Last updated:** 2026-09-01 (numerology/ascendant/destiny-matrix + UX polish + freemium model decided)

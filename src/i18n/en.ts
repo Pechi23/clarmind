@@ -214,7 +214,7 @@ export const en = {
     astroTitle: 'Sun & Ascendant',
     sunSign: 'Sun sign',
     ascendant: 'Ascendant',
-    ascendantHint: 'Your rising sign is an approximation based on your birth time (~one sign every two hours from sunrise). A precise ascendant needs your exact birth place coordinates.',
+    ascendantHint: 'Your rising sign is estimated from your birth time. The full birth chart (coming soon) will use your birth place for an exact result.',
     disclaimer: 'These readings are an estimate offered for reflection and entertainment only. We do not take responsibility for any errors.',
     incomplete: 'Please fill in your name and a valid date of birth.',
   },
