@@ -9,6 +9,7 @@ import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile } from '../types';
 import { buildLeaderboard, LeaderboardUser } from '../services/leaderboard';
 import { getStreak, getTotalMeditationMinutes } from '../services/storage';
+import { getXp } from '../services/gamification';
 import { useI18n } from '../i18n';
 import { signName } from '../constants/localize';
 import { useContentBottomPadding } from '../constants/layout';
@@ -17,19 +18,20 @@ interface Props {
   profile: UserProfile;
 }
 
-type Tab = 'streak' | 'totalMinutes';
+type Tab = 'xp' | 'streak' | 'totalMinutes';
 
 export default function LeaderboardScreen({ profile }: Props) {
   const { t, language } = useI18n();
   const bottomPad = useContentBottomPadding();
-  const [tab, setTab] = useState<Tab>('streak');
+  const [tab, setTab] = useState<Tab>('xp');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const [streak, totalMinutes] = await Promise.all([
+    const [streak, totalMinutes, xp] = await Promise.all([
       getStreak(),
       getTotalMeditationMinutes(),
+      getXp(),
     ]);
     const me: LeaderboardUser = {
       id: 'me',
@@ -37,6 +39,7 @@ export default function LeaderboardScreen({ profile }: Props) {
       zodiac: profile.zodiacSign,
       streak,
       totalMinutes,
+      xp,
       isCurrentUser: true,
     };
     setUsers(buildLeaderboard(me, tab));
@@ -66,6 +69,13 @@ export default function LeaderboardScreen({ profile }: Props) {
 
         <View style={styles.tabs}>
           <TouchableOpacity
+            onPress={() => setTab('xp')}
+            style={[styles.tab, tab === 'xp' && styles.tabActive]}
+            activeOpacity={0.85}
+          >
+            <Text style={[styles.tabText, tab === 'xp' && styles.tabTextActive]}>{t('leaderboard.xp')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => setTab('streak')}
             style={[styles.tab, tab === 'streak' && styles.tabActive]}
             activeOpacity={0.85}
@@ -86,8 +96,10 @@ export default function LeaderboardScreen({ profile }: Props) {
         <View style={styles.list}>
           {users.map((u, idx) => {
             const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === u.zodiac)!;
-            const value = tab === 'streak' ? `${u.streak}` : `${u.totalMinutes}`;
-            const unit = tab === 'streak' ? (u.streak !== 1 ? t('common.days') : t('common.day')) : t('common.min');
+            const value = tab === 'streak' ? `${u.streak}` : tab === 'xp' ? `${u.xp}` : `${u.totalMinutes}`;
+            const unit = tab === 'streak'
+              ? (u.streak !== 1 ? t('common.days') : t('common.day'))
+              : tab === 'xp' ? 'XP' : t('common.min');
             const rankIcon = idx < 3 ? top3Icons[idx] : null;
 
             return (

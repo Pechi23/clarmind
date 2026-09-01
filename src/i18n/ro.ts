@@ -108,8 +108,9 @@ export const ro: TranslationShape = {
   leaderboard: {
     kicker: 'CLASAMENT',
     title: 'Cele mai calme minți.',
+    xp: '🏆 XP',
     streak: '🔥 Serie',
-    totalTime: '⏱️ Timp total',
+    totalTime: '⏱️ Timp',
     you: 'Tu',
     footnote: 'Se actualizează zilnic · Trage pentru reîmprospătare',
   },

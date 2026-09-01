@@ -106,8 +106,9 @@ export const en = {
   leaderboard: {
     kicker: 'LEADERBOARD',
     title: 'Top minds.',
+    xp: '🏆 XP',
     streak: '🔥 Streak',
-    totalTime: '⏱️ Total Time',
+    totalTime: '⏱️ Time',
     you: 'You',
     footnote: 'Updates daily · Pull to refresh',
   },

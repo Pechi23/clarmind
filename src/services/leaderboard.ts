@@ -6,6 +6,7 @@ export interface LeaderboardUser {
   zodiac: ZodiacSign;
   streak: number;
   totalMinutes: number;
+  xp: number;
   isCurrentUser?: boolean;
 }
 
@@ -39,13 +40,14 @@ export const generateFakeUsers = (count = 14): LeaderboardUser[] => {
       zodiac: ZODIAC_SIGNS[zodiacIdx].name,
       streak: Math.max(1, Math.floor(r1 * 80) + (i < 5 ? 30 : 0)),
       totalMinutes: Math.floor(r2 * 1500) + (i < 3 ? 800 : 100),
+      xp: Math.floor(r1 * 4000) + Math.floor(r2 * 2000) + (i < 4 ? 1500 : 200),
     };
   });
 };
 
 export const buildLeaderboard = (
   currentUser: LeaderboardUser,
-  sortBy: 'streak' | 'totalMinutes'
+  sortBy: 'streak' | 'totalMinutes' | 'xp'
 ): LeaderboardUser[] => {
   const fakes = generateFakeUsers();
   const all = [...fakes, currentUser];
