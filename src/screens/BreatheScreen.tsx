@@ -319,6 +319,9 @@ export default function BreatheScreen() {
             : ['#0f0c29', '#1a1a3e', '#24243e']}
           style={styles.container}
         >
+          <TouchableOpacity onPress={cancelSession} style={styles.sessionClose} hitSlop={12} activeOpacity={0.7}>
+            <Text style={styles.sessionCloseText}>✕</Text>
+          </TouchableOpacity>
           <View style={styles.sessionTop}>
             <Text style={styles.timerText}>
               {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
@@ -490,8 +493,18 @@ const styles = StyleSheet.create({
   sessionMid: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: SPACING.lg },
   phaseLabel: { fontFamily: FONTS.semiBold, fontSize: 26, letterSpacing: 1 },
   phaseSeconds: { fontFamily: FONTS.regular, fontSize: 16, color: COLORS.textMuted },
-  endButton: { alignSelf: 'center', marginBottom: 50, padding: 12 },
-  endText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.textMuted },
+  sessionClose: {
+    position: 'absolute', top: 60, left: SPACING.lg, zIndex: 10,
+    width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
+  },
+  sessionCloseText: { fontFamily: FONTS.medium, fontSize: 18, color: COLORS.text },
+  endButton: {
+    alignSelf: 'center', marginBottom: 50, paddingVertical: 12, paddingHorizontal: 32,
+    borderRadius: RADIUS.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  endText: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
   completeWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: SPACING.lg },
   completeEmoji: { fontSize: 56, marginBottom: SPACING.md },
   completeTitle: { fontFamily: FONTS.bold, fontSize: 36, color: COLORS.text, marginBottom: SPACING.sm },
