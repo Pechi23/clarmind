@@ -22,7 +22,8 @@
         "backgroundColor": "#0f0c29"
       },
       "package": "com.clarmind.app",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "favicon": "./assets/favicon.png"

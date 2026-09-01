@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Dimensions,
+  ScrollView, Dimensions,
 } from 'react-native';
+import { useKeyboardHeight } from '../hooks/useKeyboardHeight';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS, ZodiacInfo } from '../constants/zodiac';
@@ -26,6 +27,7 @@ const GOAL_META: { id: UserGoal; emoji: string }[] = [
 
 export default function OnboardingScreen({ onComplete }: Props) {
   const { t, language, setLanguage } = useI18n();
+  const kb = useKeyboardHeight();
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [name, setName] = useState('');
   const [selectedZodiac, setSelectedZodiac] = useState<ZodiacInfo | null>(null);
@@ -49,10 +51,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
 
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.flex}
-      >
+      <View style={[styles.flex, { paddingBottom: kb }]}>
         {step === 0 ? (
           <View style={styles.stepContainer}>
             <Text style={styles.logo}>✦ ClarMind</Text>
@@ -216,7 +215,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
             </View>
           </View>
         )}
-      </KeyboardAvoidingView>
+      </View>
     </LinearGradient>
   );
 }
