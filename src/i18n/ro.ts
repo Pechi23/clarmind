@@ -182,7 +182,7 @@ export const ro: TranslationShape = {
     selectDate: 'Apasă pentru a alege data',
     selectTime: 'Apasă pentru a alege ora',
     place: 'Locul nașterii',
-    placePlaceholder: 'Oraș, țară',
+    placePlaceholder: 'Localitate, țară',
     save: 'Calculează',
     edit: 'Editează datele nașterii',
     coreTitle: 'Numerele Tale Esențiale',

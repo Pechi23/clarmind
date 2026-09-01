@@ -180,7 +180,7 @@ export const en = {
     selectDate: 'Tap to choose a date',
     selectTime: 'Tap to choose a time',
     place: 'Place of birth',
-    placePlaceholder: 'City, country',
+    placePlaceholder: 'Town or village, country',
     save: 'Calculate',
     edit: 'Edit birth details',
     coreTitle: 'Your Core Numbers',
