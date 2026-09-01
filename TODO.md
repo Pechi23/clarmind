@@ -84,6 +84,27 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 | 1.4 | ✅ **Smarter notification copy** | DONE v1.2 — `buildPersonalizedMessage()` references streak + rank, mixed with generic pool |
 | 1.5 | ✅ **Onboarding goal quiz** | DONE v1.2 — step 3 Sleep/Stress/Focus/Curiosity, injected into Gemini prompt via `GOAL_CONTEXT` |
 
+### P1.6 — UX & wording backlog (George feedback, 2026-09-01)
+Small-to-medium polish + a few features. Faithful to how George wrote them, with impl pointers.
+
+| # | Item (as requested) | Notes / where |
+|---|---|---|
+| a | **App name international** | Make the name/branding read well internationally (confirm whether this means the app name or the user-name field — ask George). |
+| b | **Home: "Citatul zilei" (Quote of the day) = the FIRST card** | Reorder `HomeScreen.tsx` so the daily quote is card #1. |
+| c | **Rename "Afirmația de azi" → "Obiectivul de azi" / "Targetul de azi"** | i18n `home.*` (+ maybe reframe the affirmation as a daily objective). |
+| d | **Challenges info pop-up** | Add an (i) button on "Provocările de azi" opening a modal explaining challenges/XP. `HomeScreen.tsx`. |
+| e | **"Zodia ta azi" → "Horoscopul zilnic"; MOVE to the top of Home** | Make birth **date/time/place optional** with a note that it personalizes the horoscope, editable later. Reuses numerology/birth data. |
+| f | **Scroll past the bottom → jump to the next navbar tab** | When a screen is scrolled to its max, advance to the next bottom tab. Global scroll handler. |
+| g | **Breathe tab: show the meditation title** | Replace the fixed "Găsește-ți calmul" header with the selected pattern's title. `BreatheScreen.tsx`. |
+| h | **Leaderboard ranked by XP** | Add/switch an XP ranking (currently streak/minutes). `LeaderboardScreen.tsx` + `leaderboard.ts`. |
+| i | **Separate Profile from Settings** | Split the combined Profile+Settings screen into two distinct screens. `ProfileScreen.tsx`. |
+| j | **Share progress → include App Store / Play Store link** | Append the store link to the shared card/text. `ShareCardModal.tsx` (link TBD until published). |
+| k | **More languages** (English, Italian, French, Spanish, …) | Add dictionaries in `src/i18n/` beyond EN/RO; the i18n parity test enforces full key coverage. |
+| l | **Custom hour field** ("la moment" — pick your own hour) | Let the user type/pick an exact hour instead of only presets (reminder time → native time picker). `ProfileScreen.tsx`. |
+| m | **Session: fix the "Termină" (End) button layout** | `BreatheScreen.tsx` session mode. |
+| n | **Session: add a Pause / Resume button** | Pause the timers + soundscape and resume. `BreatheScreen.tsx`. |
+| o | **Resume an abandoned session** | If a session was left mid-way, offer to resume it — persist in-progress session state. |
+
 ### P2 — Content depth
 | # | Feature | Notes |
 |---|---|---|
@@ -175,4 +196,4 @@ Persisted XP economy (+10/min session, +10 daily open, +15 guide read, +25/chall
 
 ---
 
-**Last updated:** 2026-09-01 (numerology/ascendant/destiny-matrix + UX polish + freemium model decided)
+**Last updated:** 2026-09-01 (added P1.6 UX & wording backlog from George)
