@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
   KeyboardAvoidingView, ActivityIndicator, Platform,
@@ -45,7 +45,11 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const [timeVal, setTimeVal] = useState<Date | null>(initialTime);
   const [showDate, setShowDate] = useState(false);
   const [showTime, setShowTime] = useState(false);
-  const [place, setPlace] = useState(profile.birth?.place ?? '');
+  const initialPlace = profile.birth?.place ?? '';
+  const initialComma = initialPlace.indexOf(',');
+  const [locality, setLocality] = useState(initialComma >= 0 ? initialPlace.slice(0, initialComma).trim() : initialPlace.trim());
+  const [country, setCountry] = useState(initialComma >= 0 ? initialPlace.slice(initialComma + 1).trim() : '');
+  const countryRef = useRef<TextInput>(null);
   const [error, setError] = useState('');
 
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -76,7 +80,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
       dob: `${dateVal.getFullYear()}-${pad(dateVal.getMonth() + 1)}-${pad(dateVal.getDate())}`,
       hour: timeVal.getHours(),
       minute: timeVal.getMinutes(),
-      place: place.trim(),
+      place: [locality.trim(), country.trim()].filter(Boolean).join(', '),
     };
     const updated = await saveBirthDetails(details);
     if (updated) onUpdated(updated);
@@ -170,8 +174,28 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
               </TouchableOpacity>
             )}
 
-            <Text style={styles.label}>{t('numerology.place')}</Text>
-            <TextInput style={styles.input} value={place} onChangeText={setPlace} placeholder={t('numerology.placePlaceholder')} placeholderTextColor={COLORS.textDim} />
+            <Text style={styles.label}>{t('numerology.locality')}</Text>
+            <TextInput
+              style={styles.input}
+              value={locality}
+              onChangeText={setLocality}
+              placeholder={t('numerology.localityPlaceholder')}
+              placeholderTextColor={COLORS.textDim}
+              returnKeyType="next"
+              onSubmitEditing={() => countryRef.current?.focus()}
+              blurOnSubmit={false}
+            />
+
+            <Text style={styles.label}>{t('numerology.country')}</Text>
+            <TextInput
+              ref={countryRef}
+              style={styles.input}
+              value={country}
+              onChangeText={setCountry}
+              placeholder={t('numerology.countryPlaceholder')}
+              placeholderTextColor={COLORS.textDim}
+              returnKeyType="done"
+            />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
 
