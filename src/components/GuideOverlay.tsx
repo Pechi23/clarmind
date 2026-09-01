@@ -29,7 +29,7 @@ const RING = 68;
 export default function GuideOverlay({ onDone }: Props) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const { width, height } = Dimensions.get('window');
+  const { width } = Dimensions.get('window');
   const [i, setI] = useState(0);
   const last = i === STEPS.length - 1;
   const step = STEPS[i];
@@ -39,24 +39,26 @@ export default function GuideOverlay({ onDone }: Props) {
     onDone();
   };
 
-  // Geometry of the spotlighted tab item (mirrors CustomTabBar layout).
+  // Geometry of the spotlighted tab item (mirrors CustomTabBar layout, which is
+  // anchored by bottom: insets.bottom + 12). Anchor the ring the same way so it
+  // lands on the real tab, not above it.
   const hasTab = step.tab !== undefined;
   const innerW = width - BAR_MARGIN * 2;
   const itemW = innerW / 5;
   const cx = BAR_MARGIN + itemW * ((step.tab ?? 0) + 0.5);
-  const cy = height - (insets.bottom + 12) - BAR_HEIGHT / 2;
+  const centerFromBottom = insets.bottom + 12 + BAR_HEIGHT / 2;
 
   return (
-    <Modal visible animationType="fade" transparent onRequestClose={finish}>
+    <Modal visible animationType="fade" transparent statusBarTranslucent navigationBarTranslucent onRequestClose={finish}>
       <View style={styles.backdrop}>
         {/* Spotlight ring over the real tab-bar item */}
         {hasTab && (
           <>
             <View
               pointerEvents="none"
-              style={[styles.ring, { left: cx - RING / 2, top: cy - RING / 2, width: RING, height: RING }]}
+              style={[styles.ring, { left: cx - RING / 2, bottom: centerFromBottom - RING / 2, width: RING, height: RING }]}
             />
-            <Text style={[styles.pointer, { left: cx - 14, top: cy - RING / 2 - 34 }]}>▼</Text>
+            <Text style={[styles.pointer, { left: cx - 14, bottom: centerFromBottom + RING / 2 + 2 }]}>▼</Text>
           </>
         )}
 
