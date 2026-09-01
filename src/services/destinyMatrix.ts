@@ -151,8 +151,12 @@ export const ARCANA_NAMES: Record<number, { en: string; ro: string }> = {
   22: { en: 'The Fool', ro: 'Nebunul' },
 };
 
-export const arcanaName = (n: number, language: 'en' | 'ro'): string =>
-  ARCANA_NAMES[n]?.[language] ?? String(n);
+// Arcana/position text is authored in en/ro only; other locales fall back to en.
+type EnRo = 'en' | 'ro';
+const enRo = (language: string): EnRo => (language === 'ro' ? 'ro' : 'en');
+
+export const arcanaName = (n: number, language: string): string =>
+  ARCANA_NAMES[n]?.[enRo(language)] ?? String(n);
 
 /** One-line energy of each arcana (1–22), for the interactive detail view. */
 export const ARCANA_MEANINGS: Record<number, { en: string; ro: string }> = {
@@ -180,8 +184,8 @@ export const ARCANA_MEANINGS: Record<number, { en: string; ro: string }> = {
   22: { en: 'Freedom, fresh starts and trusting spontaneity.', ro: 'Libertate, începuturi noi și spontaneitate încrezătoare.' },
 };
 
-export const arcanaMeaning = (n: number, language: 'en' | 'ro'): string =>
-  ARCANA_MEANINGS[n]?.[language] ?? '';
+export const arcanaMeaning = (n: number, language: string): string =>
+  ARCANA_MEANINGS[n]?.[enRo(language)] ?? '';
 
 export type PositionKey =
   | 'center' | 'character' | 'innerTalents' | 'outerTalents' | 'purpose' | 'energyLine'
@@ -231,4 +235,4 @@ export const POSITION_META: Record<PositionKey, { en: { title: string; meaning: 
   },
 };
 
-export const positionInfo = (key: PositionKey, language: 'en' | 'ro') => POSITION_META[key][language];
+export const positionInfo = (key: PositionKey, language: string) => POSITION_META[key][enRo(language)];

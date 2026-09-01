@@ -9,7 +9,7 @@ import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS, ZodiacInfo } from '../constants/zodiac';
 import { saveUserProfile } from '../services/storage';
 import { UserProfile, UserGoal } from '../types';
-import { useI18n } from '../i18n';
+import { useI18n, LANGUAGES } from '../i18n';
 import { signName } from '../constants/localize';
 
 const { width } = Dimensions.get('window');
@@ -58,10 +58,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
             <Text style={styles.headline}>{t('onboarding.langTitle')}</Text>
             <Text style={styles.subtext}>{t('onboarding.langSubtitle')}</Text>
             <View style={styles.langCards}>
-              {([
-                { code: 'en' as const, flag: '🇬🇧', label: 'English' },
-                { code: 'ro' as const, flag: '🇷🇴', label: 'Română' },
-              ]).map((l) => (
+              {LANGUAGES.map((l) => (
                 <TouchableOpacity
                   key={l.code}
                   style={[styles.langCard, language === l.code && styles.langCardSelected]}
@@ -357,17 +354,17 @@ const styles = StyleSheet.create({
     color: COLORS.textDim,
     textAlign: 'center',
   },
-  langCards: { gap: SPACING.md, marginTop: SPACING.md },
+  langCards: { gap: SPACING.sm, marginTop: SPACING.sm },
   langCard: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: RADIUS.md, borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
-    paddingVertical: SPACING.lg, paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md, paddingHorizontal: SPACING.lg,
   },
   langCardSelected: { borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.15)' },
-  langFlag: { fontSize: 32 },
-  langLabel: { fontFamily: FONTS.semiBold, fontSize: 20, color: COLORS.text },
+  langFlag: { fontSize: 28 },
+  langLabel: { fontFamily: FONTS.semiBold, fontSize: 18, color: COLORS.text },
   goalList: { paddingHorizontal: SPACING.lg, gap: SPACING.sm, marginTop: SPACING.md },
   goalCard: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,

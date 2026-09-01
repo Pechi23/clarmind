@@ -22,7 +22,7 @@ import { MeditationSession } from '../types';
 import { getXp, getUnlockedAchievements } from '../services/gamification';
 import { getUsageInfo, getPremiumOverride, setPremiumOverride, UsageInfo } from '../services/entitlements';
 import { ACHIEVEMENTS, getLevelForXp, AchievementDef } from '../constants/achievements';
-import { useI18n } from '../i18n';
+import { useI18n, LANGUAGES } from '../i18n';
 import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
 import { useContentBottomPadding } from '../constants/layout';
 import ShareCardModal from '../components/ShareCardModal';
@@ -263,19 +263,18 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         <Text style={styles.sectionLabel}>{t('profile.settings')}</Text>
 
         {/* Language */}
-        <View style={styles.settingRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.settingTitle}>{t('profile.language')}</Text>
-          </View>
-          <View style={styles.langToggle}>
-            {(['en', 'ro'] as const).map((lng) => (
+        <View style={styles.langSettingWrap}>
+          <Text style={styles.settingTitle}>{t('profile.language')}</Text>
+          <View style={styles.langChipRow}>
+            {LANGUAGES.map((l) => (
               <TouchableOpacity
-                key={lng}
-                onPress={() => setLanguage(lng)}
-                style={[styles.langChip, language === lng && styles.langChipActive]}
+                key={l.code}
+                onPress={() => setLanguage(l.code)}
+                style={[styles.langChip2, language === l.code && styles.langChipActive]}
               >
-                <Text style={[styles.langChipText, language === lng && styles.langChipTextActive]}>
-                  {lng === 'en' ? 'EN' : 'RO'}
+                <Text style={styles.langChipFlag}>{l.flag}</Text>
+                <Text style={[styles.langChipText, language === l.code && styles.langChipTextActive]}>
+                  {l.label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -460,9 +459,21 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full, padding: 3, gap: 2,
   },
   langChip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: RADIUS.full },
-  langChipActive: { backgroundColor: 'rgba(167,139,250,0.25)' },
+  langChipActive: { backgroundColor: 'rgba(167,139,250,0.25)', borderColor: COLORS.primary },
   langChipText: { fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.textMuted },
   langChipTextActive: { color: COLORS.primaryLight },
+  langSettingWrap: {
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: RADIUS.md,
+    padding: SPACING.md, marginBottom: SPACING.lg,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+  },
+  langChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, marginTop: SPACING.sm },
+  langChip2: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+  },
+  langChipFlag: { fontSize: 15 },
   reminderTimeWrap: {
     backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: RADIUS.md,
     padding: SPACING.md, marginTop: -SPACING.sm, marginBottom: SPACING.lg,

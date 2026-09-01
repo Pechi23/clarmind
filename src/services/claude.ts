@@ -4,6 +4,11 @@
 import { ZodiacSign } from '../constants/zodiac';
 import { DailyContent, UserGoal } from '../types';
 import { WeeklyRecap, buildFallbackReflection } from './weeklyRecapLogic';
+import { Language, languageName } from '../i18n/languages';
+
+const LOCALE: Record<Language, string> = {
+  en: 'en-GB', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES',
+};
 
 const GOAL_CONTEXT: Record<UserGoal, string> = {
   sleep: 'Their main goal is sleeping better — lean toward rest, winding down, and releasing the day.',
@@ -19,11 +24,11 @@ export const generateDailyContent = async (
   name: string,
   zodiacSign: ZodiacSign,
   goal?: UserGoal,
-  language: 'en' | 'ro' = 'en'
+  language: Language = 'en'
 ): Promise<DailyContent> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
-  const today = new Date().toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-GB', {
+  const today = new Date().toLocaleDateString(LOCALE[language], {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -43,7 +48,7 @@ Return ONLY a valid JSON object with exactly these fields:
   "affirmation": "a short powerful personal affirmation (1 sentence, starting with 'I am' or 'I have' or 'I choose')"
 }
 
-Keep the tone warm, calm, and encouraging. ${language === 'ro' ? 'Write ALL field values in Romanian.' : 'Write all field values in English.'} No markdown, no extra text — just the JSON.`;
+Keep the tone warm, calm, and encouraging. Write ALL field values in ${languageName(language)}. No markdown, no extra text — just the JSON.`;
 
   const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
@@ -85,14 +90,14 @@ Keep the tone warm, calm, and encouraging. ${language === 'ro' ? 'Write ALL fiel
 export const generateWeeklyReflection = async (
   name: string,
   recap: WeeklyRecap,
-  language: 'en' | 'ro' = 'en'
+  language: Language = 'en'
 ): Promise<string> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
   const fallback = buildFallbackReflection(recap);
   if (!apiKey) return fallback;
 
   const { thisWeek, lastWeek, minutesDelta, moodDelta } = recap;
-  const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week, ${language === 'ro' ? 'in Romanian' : 'in English'}. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
+  const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week, in ${languageName(language)}. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
 
 This week: ${thisWeek.sessions} sessions, ${thisWeek.minutes} minutes, ${thisWeek.activeDays} active days${thisWeek.avgMood !== null ? `, average mood ${thisWeek.avgMood}/5` : ''}.
 Last week: ${lastWeek.sessions} sessions, ${lastWeek.minutes} minutes.

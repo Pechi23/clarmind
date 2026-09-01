@@ -2,12 +2,17 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import * as Localization from 'expo-localization';
 import { en } from './en';
 import { ro } from './ro';
+import { it } from './it';
+import { fr } from './fr';
+import { es } from './es';
 import { translateWith } from './interpolate';
 import { getLanguage as loadLanguage, setLanguage as persistLanguage } from '../services/storage';
+import { Language, LANGUAGES, languageName } from './languages';
 
-export type Language = 'en' | 'ro';
+export type { Language };
+export { LANGUAGES, languageName };
 
-const DICTS = { en, ro } as const;
+const DICTS = { en, ro, it, fr, es } as const;
 
 export type TFunc = (key: string, params?: Record<string, string | number>) => string;
 
@@ -28,7 +33,7 @@ const I18nContext = createContext<I18nContextValue>({
 const deviceDefault = (): Language => {
   try {
     const code = Localization.getLocales?.()[0]?.languageCode ?? 'en';
-    return code === 'ro' ? 'ro' : 'en';
+    return (['en', 'ro', 'it', 'fr', 'es'] as const).includes(code as Language) ? (code as Language) : 'en';
   } catch {
     return 'en';
   }

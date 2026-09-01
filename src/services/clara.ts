@@ -1,5 +1,6 @@
 // Clara — ClarMind's AI companion. A warm, brief mindfulness coach (Gemini).
 import { ChatMessage, UserProfile } from '../types';
+import { Language, languageName } from '../i18n/languages';
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
@@ -31,7 +32,7 @@ export const buildClaraContents = (
   ];
 };
 
-const systemPrompt = (profile: UserProfile, language: 'en' | 'ro'): string => `You are Clara, the gentle AI companion inside ClarMind, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}). ${language === 'ro' ? 'Reply ONLY in Romanian.' : 'Reply in English.'}
+const systemPrompt = (profile: UserProfile, language: Language): string => `You are Clara, the gentle AI companion inside ClarMind, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}). Reply ONLY in ${languageName(language)}.
 
 Your voice: warm, calm, encouraging, and human. Short replies — usually 2-4 sentences. You listen first, validate feelings, and offer one small, practical mindfulness suggestion when it helps (a breath, a grounding exercise, a reframe, a moment of self-kindness). You may gently reference their zodiac sign for warmth, never as fact.
 
@@ -56,7 +57,7 @@ export const askClara = async (
   history: ChatMessage[],
   userText: string,
   profile: UserProfile,
-  language: 'en' | 'ro' = 'en'
+  language: Language = 'en'
 ): Promise<string> => {
   const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
   const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];

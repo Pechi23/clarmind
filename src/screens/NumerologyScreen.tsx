@@ -357,7 +357,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
             <Text style={styles.chakraColHead}>{t('numerology.chakraEmotions')}</Text>
           </View>
           {computeChakras(matrix).map((row) => {
-            const meta = CHAKRAS.find((c) => c.key === row.key)![language];
+            const meta = CHAKRAS.find((c) => c.key === row.key)![language === 'ro' ? 'ro' : 'en'];
             const color = CHAKRAS.find((c) => c.key === row.key)!.color;
             return (
               <View key={row.key} style={styles.chakraRow}>

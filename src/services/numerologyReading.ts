@@ -6,6 +6,7 @@ import { ZodiacSign } from '../constants/zodiac';
 import { parseDob, computeNumerology, personalDayNumber } from './numerology';
 import { computeDestinyMatrix } from './destinyMatrix';
 import { ascendantSign } from './ascendant';
+import { Language, languageName } from '../i18n/languages';
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
@@ -20,7 +21,7 @@ export interface NumerologyReading {
 
 const cacheKey = (date: string, lang: string) => `clarmind_numerology_${date}_${lang}`;
 
-const fallback = (personalDay: number, lang: 'en' | 'ro'): NumerologyReading => ({
+const fallback = (personalDay: number, lang: Language): NumerologyReading => ({
   personalDay,
   headline: lang === 'ro' ? `Ziua ta personală ${personalDay}` : `Your Personal Day ${personalDay}`,
   message:
@@ -34,7 +35,7 @@ const fallback = (personalDay: number, lang: 'en' | 'ro'): NumerologyReading => 
 export const getNumerologyReading = async (
   birth: BirthDetails,
   zodiac: ZodiacSign,
-  language: 'en' | 'ro' = 'en'
+  language: Language = 'en'
 ): Promise<NumerologyReading> => {
   const today = new Date();
   const dateStr = today.toISOString().split('T')[0];
@@ -70,7 +71,7 @@ Blend numerology with a light astrological touch. Warm, encouraging, specific to
   "message": "2-4 warm sentences of daily guidance tied to Personal Day ${personalDay}",
   "focus": "one concrete, practical focus for today (one short sentence)"
 }
-${language === 'ro' ? 'Write ALL values in Romanian.' : 'Write all values in English.'} No markdown, just the JSON.`;
+Write ALL values in ${languageName(language)}. No markdown, just the JSON.`;
 
   try {
     const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {

@@ -2,6 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CourseDef, CourseDayContent, COURSES } from '../constants/courses';
 import { COURSE_LENGTH } from './courseLogic';
+import { Language, languageName } from '../i18n/languages';
 
 const GEMINI_API_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
@@ -9,7 +10,7 @@ const GEMINI_API_URL =
 const cacheKey = (courseId: string, day: number, lang: string) =>
   `clarmind_course_${courseId}_${day}_${lang}`;
 
-const fallback = (course: CourseDef, day: number, lang: 'en' | 'ro'): CourseDayContent =>
+const fallback = (course: CourseDef, day: number, lang: Language): CourseDayContent =>
   lang === 'ro'
     ? {
         title: `Ziua ${day}`,
@@ -31,7 +32,7 @@ const fallback = (course: CourseDef, day: number, lang: 'en' | 'ro'): CourseDayC
 export const getCourseDay = async (
   courseId: string,
   day: number,
-  language: 'en' | 'ro' = 'en'
+  language: Language = 'en'
 ): Promise<CourseDayContent> => {
   const course = COURSES.find((c) => c.id === courseId);
   if (!course) return fallback({ id: courseId } as CourseDef, day, language);
@@ -55,7 +56,7 @@ Return ONLY a valid JSON object with exactly these fields:
   "reflection": "one short reflective question to sit with today"
 }
 
-${language === 'ro' ? 'Write ALL field values in Romanian.' : 'Write all field values in English.'} No markdown, no extra text — just the JSON.`;
+Write ALL field values in ${languageName(language)}. No markdown, no extra text — just the JSON.`;
 
   try {
     const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
