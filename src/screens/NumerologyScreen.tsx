@@ -17,6 +17,7 @@ import {
 import { getNumerologyReading, NumerologyReading } from '../services/numerologyReading';
 import { isFeatureLocked } from '../services/entitlements';
 import { ascendantSign } from '../services/ascendant';
+import { moonSign } from '../services/birthChart';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
 import GradientCard from '../components/GradientCard';
@@ -239,6 +240,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const ascName = ascendantSign(profile.zodiacSign, birth.hour, birth.minute);
   const ascInfo = ZODIAC_SIGNS.find((z) => z.name === ascName)!;
   const sunInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
+  const moonInfo = ZODIAC_SIGNS.find((z) => z.name === moonSign(birth.dob, birth.hour, birth.minute))!;
   const signLabel = (z: typeof ascInfo) => (language === 'ro' ? z.romanian : z.name);
 
   const NumberTile = ({ label, value, hint, big }: { label: string; value: number; hint?: string; big?: boolean }) => (
@@ -277,23 +279,29 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
           <View style={styles.tileCol}><NumberTile label={t('numerology.personality')} value={nums.personality} /></View>
         </View>
 
-        {/* Ascendant (rising sign) */}
-        <Text style={styles.sectionLabel}>{t('numerology.astroTitle')}</Text>
+        {/* Birth chart — the big three (Sun / Moon / Rising) */}
+        <Text style={styles.sectionLabel}>{t('numerology.bigThreeTitle')}</Text>
         <GradientCard colors={['rgba(167,139,250,0.16)', 'rgba(124,58,237,0.04)']} style={styles.cardSpacing}>
           <View style={styles.astroRow}>
             <View style={styles.astroCol}>
               <Text style={styles.astroEmoji}>{sunInfo.emoji}</Text>
               <Text style={styles.astroValue}>{signLabel(sunInfo)}</Text>
-              <Text style={styles.astroLabel}>{t('numerology.sunSign')}</Text>
+              <Text style={styles.astroLabel}>☀️ {t('numerology.sunSign')}</Text>
+            </View>
+            <View style={styles.astroDivider} />
+            <View style={styles.astroCol}>
+              <Text style={styles.astroEmoji}>{moonInfo.emoji}</Text>
+              <Text style={styles.astroValue}>{signLabel(moonInfo)}</Text>
+              <Text style={styles.astroLabel}>🌙 {t('numerology.moonSign')}</Text>
             </View>
             <View style={styles.astroDivider} />
             <View style={styles.astroCol}>
               <Text style={styles.astroEmoji}>{ascInfo.emoji}</Text>
               <Text style={styles.astroValue}>{signLabel(ascInfo)}</Text>
-              <Text style={styles.astroLabel}>{t('numerology.ascendant')}</Text>
+              <Text style={styles.astroLabel}>⬆️ {t('numerology.ascendant')}</Text>
             </View>
           </View>
-          <Text style={styles.astroHint}>{t('numerology.ascendantHint')}</Text>
+          <Text style={styles.astroHint}>{t('numerology.bigThreeHint')}</Text>
         </GradientCard>
 
         {/* Destiny Matrix */}
@@ -486,9 +494,9 @@ const styles = StyleSheet.create({
   astroRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
   astroCol: { flex: 1, alignItems: 'center' },
   astroDivider: { width: 1, alignSelf: 'stretch', backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: SPACING.xs },
-  astroEmoji: { fontSize: 30, color: COLORS.primaryLight, marginBottom: 2 },
-  astroValue: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.text },
-  astroLabel: { fontFamily: FONTS.medium, fontSize: 11, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 },
+  astroEmoji: { fontSize: 26, color: COLORS.primaryLight, marginBottom: 2 },
+  astroValue: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.text, textAlign: 'center' },
+  astroLabel: { fontFamily: FONTS.medium, fontSize: 10, color: COLORS.textMuted, letterSpacing: 0.3, marginTop: 2 },
   astroHint: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim, textAlign: 'center', marginTop: SPACING.md, lineHeight: 16 },
   chakraHeader: { flexDirection: 'row', alignItems: 'center', paddingBottom: SPACING.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
   chakraRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
