@@ -104,6 +104,11 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 | m | **Session: fix the "Termină" (End) button layout** | `BreatheScreen.tsx` session mode. |
 | n | **Session: add a Pause / Resume button** | Pause the timers + soundscape and resume. `BreatheScreen.tsx`. |
 | o | **Resume an abandoned session** | If a session was left mid-way, offer to resume it — persist in-progress session state. |
+| p | **Session End button — fix specifically on Android** | The "Termină" button placement/layout on Android session mode. `BreatheScreen.tsx`. |
+| q | **Rename the Clara "AI" badge → "AI assistant" (or similar)** | The floating Clara button shows an "AI" pill — change to "AI assistant"/clearer label. `FloatingClara.tsx`. |
+| r | **Microphone / voice input for Clara** | Add voice input (speech-to-text) to Clara chat. `ClaraScreen.tsx` — needs `expo-speech`/a STT module (dev build). |
+| s | **Notification permission on first entry** | On first launch ask for notification permission (or let the user enable it from settings). Ties into `notifications.ts` + onboarding. |
+| t | **Landing / presentation site + web app** | Marketing/presentation website and a web-app build (Expo web) for ClarMind. |
 
 ### P2 — Content depth
 | # | Feature | Notes |
@@ -116,7 +121,7 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 | 2.6 | ✅ **Romanian localization** | DONE v1.5 — full en/ro i18n (`src/i18n/`), EN/RO switcher in onboarding + Profile, expo-localization default, every screen localized incl. content (patterns/soundscapes/challenges/achievements/ranks/elements), AI (daily content, Clara, weekly reflection) responds in the chosen language |
 | 2.7 | ✅ **Seasonal events** | DONE v1.6 — full moon (accurate lunar calc) + solstices/equinoxes + New Year themed banner on Home (`seasonalEvents.ts`, 10 tests) |
 | 2.8 | ✅ **Daily numerology + Destiny Matrix + Ascendant** | DONE 2026-09-01 — birth details (name, gender, date/time via native pickers, birth locality+country), Life Path/Expression/Soul Urge/Personality, interactive Destiny Matrix (octagram, 22 arcana, age timeline), 7-chakra energy map, approximate Ascendant from birth time, daily AI reading. `services/numerology.ts` + `destinyMatrix.ts` + `ascendant.ts` + `numerologyReading.ts`, `NumerologyScreen.tsx`. **→ becomes premium (see P3).** |
-| 2.9 | 🔭 **Birth chart (natal chart)** — NEW, premium | Full natal chart from birth date + **exact time + birth place**. Needs geocoding the birth city → lat/long (offline city dataset, or a one-time API result cached on the profile), then compute an **exact Ascendant** (replacing the current time-only approximation in `ascendant.ts`) + Sun/Moon/planet placements + houses. Render a wheel chart (react-native-svg, like `DestinyMatrixChart`). Pair with numerology under a combined "Cosmic"/astrology section. This is the "exact result" the ascendant hint now promises. |
+| 2.9 | 🔭 **Birth chart (natal chart)** — NEW, premium | Full natal chart from birth date + **exact time + birth place**. Reference for scope/output: https://astro.cafeastrology.com/natal.php. Needs geocoding the birth city → lat/long (offline city dataset, or a one-time API result cached on the profile), then compute an **exact Ascendant** (replacing the current time-only approximation in `ascendant.ts`) + Sun/Moon/planet placements + houses. Render a wheel chart (react-native-svg, like `DestinyMatrixChart`). Pair with numerology under a combined "Cosmic"/astrology section. This is the "exact result" the ascendant hint now promises. |
 
 ### P3 — Monetization (FREEMIUM model — decided 2026-09-01)
 
