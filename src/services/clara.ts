@@ -1,9 +1,7 @@
 // Clara — ClarMind's AI companion. A warm, brief mindfulness coach (Gemini).
 import { ChatMessage, UserProfile } from '../types';
 import { Language, languageName } from '../i18n/languages';
-
-const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
+import { callGemini, hasAi } from './ai';
 
 export const CLARA_DAILY_LIMIT = 20;
 export const CLARA_CONTEXT_TURNS = 16;
@@ -59,25 +57,17 @@ export const askClara = async (
   profile: UserProfile,
   language: Language = 'en'
 ): Promise<string> => {
-  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
   const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
-  if (!apiKey) return fallback;
+  if (!hasAi()) return fallback;
 
   const contents = buildClaraContents(history, userText);
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt(profile, language) }] },
-        contents,
-        generationConfig: { maxOutputTokens: 1024, temperature: 0.85 },
-      }),
+    const text = await callGemini({
+      systemInstruction: { parts: [{ text: systemPrompt(profile, language) }] },
+      contents,
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.85 },
     });
-    if (!response.ok) return fallback;
-    const data = await response.json();
-    const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
     const clean = text.trim();
     return clean.length > 0 ? clean : fallback;
   } catch {

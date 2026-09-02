@@ -5,6 +5,7 @@ import { ZodiacSign } from '../constants/zodiac';
 import { DailyContent, UserGoal } from '../types';
 import { WeeklyRecap, buildFallbackReflection } from './weeklyRecapLogic';
 import { Language, languageName } from '../i18n/languages';
+import { callGemini, hasAi } from './ai';
 
 const LOCALE: Record<Language, string> = {
   en: 'en-GB', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES',
@@ -17,17 +18,12 @@ const GOAL_CONTEXT: Record<UserGoal, string> = {
   curiosity: 'They are exploring mindfulness out of curiosity — keep it inviting, varied, and light.',
 };
 
-const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
-
 export const generateDailyContent = async (
   name: string,
   zodiacSign: ZodiacSign,
   goal?: UserGoal,
   language: Language = 'en'
 ): Promise<DailyContent> => {
-  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
-
   const today = new Date().toLocaleDateString(LOCALE[language], {
     weekday: 'long',
     year: 'numeric',
@@ -50,27 +46,12 @@ Return ONLY a valid JSON object with exactly these fields:
 
 Keep the tone warm, calm, and encouraging. Write ALL field values in ${languageName(language)}. No markdown, no extra text — just the JSON.`;
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      // gemini-3.x flash spends tokens on internal "thinking" too, so give the
-      // JSON output generous headroom or it truncates to invalid JSON.
-      generationConfig: { maxOutputTokens: 2048, temperature: 0.8 },
-    }),
+  // gemini-3.x flash spends tokens on internal "thinking" too, so give the
+  // JSON output generous headroom or it truncates to invalid JSON.
+  const text = await callGemini({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { maxOutputTokens: 2048, temperature: 0.8 },
   });
-
-  if (!response.ok) {
-    if (response.status === 429) {
-      throw new Error('Rate limit reached (429). Wait 1 minute and try again.');
-    }
-    const err = await response.text();
-    throw new Error(`Gemini API error ${response.status}: ${err}`);
-  }
-
-  const data = await response.json();
-  const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
   // Strip markdown code fences if present
   const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
@@ -92,9 +73,8 @@ export const generateWeeklyReflection = async (
   recap: WeeklyRecap,
   language: Language = 'en'
 ): Promise<string> => {
-  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
   const fallback = buildFallbackReflection(recap);
-  if (!apiKey) return fallback;
+  if (!hasAi()) return fallback;
 
   const { thisWeek, lastWeek, minutesDelta, moodDelta } = recap;
   const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week, in ${languageName(language)}. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
@@ -104,17 +84,10 @@ Last week: ${lastWeek.sessions} sessions, ${lastWeek.minutes} minutes.
 Change in minutes: ${minutesDelta >= 0 ? '+' : ''}${minutesDelta}${moodDelta !== null ? `. Mood change: ${moodDelta >= 0 ? '+' : ''}${moodDelta}` : ''}.`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 512, temperature: 0.9 },
-      }),
+    const text = await callGemini({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 512, temperature: 0.9 },
     });
-    if (!response.ok) return fallback;
-    const data = await response.json();
-    const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
     const clean = text.replace(/^["'\s]+|["'\s]+$/g, '').trim();
     return clean.length > 0 ? clean : fallback;
   } catch {

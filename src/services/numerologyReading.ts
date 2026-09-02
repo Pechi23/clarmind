@@ -7,9 +7,7 @@ import { parseDob, computeNumerology, personalDayNumber } from './numerology';
 import { computeDestinyMatrix } from './destinyMatrix';
 import { ascendantSign } from './ascendant';
 import { Language, languageName } from '../i18n/languages';
-
-const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
+import { callGemini, hasAi } from './ai';
 
 export interface NumerologyReading {
   personalDay: number;
@@ -52,8 +50,7 @@ export const getNumerologyReading = async (
     try { return JSON.parse(cached); } catch {}
   }
 
-  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
-  if (!apiKey) return fallback(personalDay, language);
+  if (!hasAi()) return fallback(personalDay, language);
 
   const prompt = `You are ClarMind, a warm numerology + wellness guide. Write today's personal numerology reading for ${birth.firstName}.
 
@@ -74,17 +71,10 @@ Blend numerology with a light astrological touch. Warm, encouraging, specific to
 Write ALL values in ${languageName(language)}. No markdown, just the JSON.`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 1200, temperature: 0.85 },
-      }),
+    const text = await callGemini({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 1200, temperature: 0.85 },
     });
-    if (!response.ok) return fallback(personalDay, language);
-    const data = await response.json();
-    const text: string = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
     const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
     const parsed = JSON.parse(clean);
     const reading: NumerologyReading = { personalDay, generatedAt: dateStr, ...parsed };
