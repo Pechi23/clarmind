@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
-  KeyboardAvoidingView, ActivityIndicator,
+  KeyboardAvoidingView, ActivityIndicator, Platform, PermissionsAndroid,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
+import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
 import {
@@ -26,6 +27,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const [sending, setSending] = useState(false);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [autoSpeak, setAutoSpeak] = useState(false);
+  const [recording, setRecording] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES' };
@@ -34,8 +36,31 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     Speech.speak(text, { language: TTS_LOCALE[language] ?? 'en-US', rate: 0.95, pitch: 1.05 });
   };
 
-  // Stop any speech when the screen closes.
-  useEffect(() => () => { Speech.stop(); }, []);
+  // Voice input (speech-to-text). Needs a device with a speech engine (real phone).
+  useEffect(() => {
+    Voice.onSpeechResults = (e: SpeechResultsEvent) => { if (e.value?.[0]) setInput(e.value[0]); };
+    Voice.onSpeechEnd = () => setRecording(false);
+    Voice.onSpeechError = () => setRecording(false);
+    return () => { Voice.destroy().then(() => Voice.removeAllListeners()).catch(() => {}); };
+  }, []);
+
+  const ensureMic = async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') return true;
+    try {
+      const g = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
+      return g === PermissionsAndroid.RESULTS.GRANTED;
+    } catch { return false; }
+  };
+
+  const toggleMic = async () => {
+    if (recording) { try { await Voice.stop(); } catch {} setRecording(false); return; }
+    if (!(await ensureMic())) return;
+    try { Speech.stop(); setRecording(true); await Voice.start(TTS_LOCALE[language] ?? 'en-US'); }
+    catch { setRecording(false); }
+  };
+
+  // Stop any speech/recording when the screen closes.
+  useEffect(() => () => { Speech.stop(); Voice.stop().catch(() => {}); }, []);
 
   useEffect(() => {
     (async () => {
@@ -162,9 +187,12 @@ export default function ClaraScreen({ profile, onClose }: Props) {
           </View>
         ) : (
           <View style={styles.inputBar}>
+            <TouchableOpacity onPress={toggleMic} activeOpacity={0.8} style={[styles.micButton, recording && styles.micButtonOn]}>
+              <Text style={styles.micIcon}>{recording ? '⏺' : '🎤'}</Text>
+            </TouchableOpacity>
             <TextInput
               style={styles.input}
-              placeholder={t('clara.inputPlaceholder')}
+              placeholder={recording ? t('clara.listening') : t('clara.inputPlaceholder')}
               placeholderTextColor={COLORS.textDim}
               value={input}
               onChangeText={setInput}
@@ -240,6 +268,12 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg, paddingHorizontal: SPACING.md, paddingVertical: 12,
     fontFamily: FONTS.regular, fontSize: 15, color: COLORS.text,
   },
+  micButton: {
+    width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+  },
+  micButtonOn: { backgroundColor: 'rgba(248,113,113,0.25)', borderColor: '#f87171' },
+  micIcon: { fontSize: 20 },
   sendButton: { borderRadius: RADIUS.full, overflow: 'hidden' },
   sendDisabled: { opacity: 0.4 },
   sendGradient: { width: 46, height: 46, alignItems: 'center', justifyContent: 'center' },

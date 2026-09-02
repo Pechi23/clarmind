@@ -152,6 +152,7 @@ export const en = {
     subtitle: 'your mindful companion',
     clear: 'Clear',
     inputPlaceholder: "Tell Clara what's on your mind…",
+    listening: 'Listening… speak now',
     limit: "You've reached today's gentle limit with Clara. She'll be here again tomorrow. 🌙",
     limitUpgrade: "You've used your 3 free messages today. Upgrade to Premium for up to 50 AI requests a day. 🌙",
     remaining: '{n} messages left today',
