@@ -24,7 +24,17 @@ const KEYS = {
   GUIDE_SEEN: 'clarmind_guide_seen',
   CLARA_FAB_POS: 'clarmind_clara_fab_pos',
   NOTIF_ASKED: 'clarmind_notif_asked',
+  ACTIVE_SESSION: 'clarmind_active_session',
 };
+
+export interface InProgressSession {
+  patternId: string;
+  durationMin: number;
+  secondsLeft: number;
+  phaseIndex: number;
+  mix: Record<string, number>;
+  savedAt: number;
+}
 
 const CHAT_HISTORY_CAP = 40; // keep the most recent messages only
 
@@ -186,6 +196,21 @@ export const getLanguage = async (): Promise<string | null> => {
 
 export const setLanguage = async (lang: string): Promise<void> => {
   await AsyncStorage.setItem(KEYS.LANGUAGE, lang);
+};
+
+// In-progress meditation session (to resume if abandoned)
+export const setInProgressSession = async (s: InProgressSession): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.ACTIVE_SESSION, JSON.stringify(s));
+};
+
+export const getInProgressSession = async (): Promise<InProgressSession | null> => {
+  const raw = await AsyncStorage.getItem(KEYS.ACTIVE_SESSION);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+};
+
+export const clearInProgressSession = async (): Promise<void> => {
+  await AsyncStorage.removeItem(KEYS.ACTIVE_SESSION);
 };
 
 // Whether we've already asked for notification permission once

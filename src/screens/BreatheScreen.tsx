@@ -8,7 +8,10 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { BREATHING_PATTERNS, PRESET_DURATIONS, BreathingPattern } from '../constants/breathing';
 import BreathingCircle from '../components/BreathingCircle';
-import { saveMeditationSession, getTotalMeditationMinutes } from '../services/storage';
+import {
+  saveMeditationSession, getTotalMeditationMinutes,
+  setInProgressSession, getInProgressSession, clearInProgressSession, InProgressSession,
+} from '../services/storage';
 import { MoodEntry } from '../types';
 import { saveMoodEntry } from '../services/storage';
 import {
@@ -39,6 +42,7 @@ export default function BreatheScreen() {
   const bottomPad = useContentBottomPadding();
   const insets = useSafeAreaInsets();
   const [paused, setPaused] = useState(false);
+  const [resumable, setResumable] = useState<InProgressSession | null>(null);
   const phaseLabel = (label: string) =>
     label === 'Hold' ? t('breathe.hold')
       : label === 'Breathe in' ? t('breathe.breatheIn')
@@ -71,6 +75,22 @@ export default function BreatheScreen() {
 
   useEffect(() => () => { cleanup(); stopMix(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
+
+  // Offer to resume a session abandoned in the last 2 hours.
+  useEffect(() => {
+    getInProgressSession().then((s) => {
+      if (s && Date.now() - s.savedAt < 2 * 60 * 60 * 1000 && s.secondsLeft > 5) setResumable(s);
+    });
+  }, []);
+
+  // Snapshot the running session every few seconds so it can be resumed.
+  useEffect(() => {
+    if (mode === 'session' && !paused && secondsLeft > 0 && secondsLeft % 5 === 0) {
+      setInProgressSession({
+        patternId: pattern.id, durationMin, secondsLeft, phaseIndex, mix, savedAt: Date.now(),
+      });
+    }
+  }, [secondsLeft, mode, paused, phaseIndex, pattern.id, durationMin, mix]);
 
   // Compute a mood-aware suggestion whenever we return to the select screen.
   useEffect(() => {
@@ -142,6 +162,26 @@ export default function BreatheScreen() {
     if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
   };
 
+  // Resume a previously abandoned session from its saved snapshot.
+  const resumeAbandoned = () => {
+    if (!resumable) return;
+    const p = BREATHING_PATTERNS.find((bp) => bp.id === resumable.patternId) ?? pattern;
+    setPattern(p);
+    setDurationMin(resumable.durationMin);
+    setMix(resumable.mix);
+    setSecondsLeft(resumable.secondsLeft);
+    setPhaseIndex(resumable.phaseIndex);
+    setPhaseSecondsLeft(p.phases[resumable.phaseIndex]?.duration ?? p.phases[0].duration);
+    setPaused(false);
+    setMode('session');
+    playChime('start').catch(() => {});
+    syncMix(resumable.mix).catch(() => {});
+    startTimers();
+    setResumable(null);
+  };
+
+  const discardAbandoned = () => { clearInProgressSession(); setResumable(null); };
+
   // when phase index changes, refresh phase counter
   useEffect(() => {
     if (mode === 'session') {
@@ -151,6 +191,7 @@ export default function BreatheScreen() {
 
   const finishSession = async () => {
     cleanup();
+    clearInProgressSession();
     playChime('end').catch(() => {});
     fadeOutMix(mix, 4000).catch(() => {}); // gentle wind-down, esp. for sleep
     const today = new Date().toISOString().split('T')[0];
@@ -182,6 +223,7 @@ export default function BreatheScreen() {
   const cancelSession = () => {
     cleanup();
     stopMix();
+    clearInProgressSession();
     setPaused(false);
     setMode('select');
   };
@@ -216,6 +258,21 @@ export default function BreatheScreen() {
           <Text style={styles.kicker}>{t('breathe.kicker')}</Text>
           <Text style={styles.title}>{patternName(pattern.id, t)}</Text>
           <Text style={styles.titleSub}>{patternDesc(pattern.id, t)}</Text>
+
+          {resumable && (
+            <View style={styles.resumeBanner}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.resumeTitle}>{t('breathe.resumePrompt')}</Text>
+                <Text style={styles.resumeDetail}>{t('breathe.resumeDetail', { min: Math.ceil(resumable.secondsLeft / 60) })}</Text>
+              </View>
+              <TouchableOpacity onPress={resumeAbandoned} style={styles.resumeBtn} activeOpacity={0.85}>
+                <Text style={styles.resumeBtnText}>{t('breathe.resume')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={discardAbandoned} hitSlop={10} style={{ paddingLeft: 8 }}>
+                <Text style={styles.resumeDiscard}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           {suggestion && (
             <TouchableOpacity style={styles.windDownBanner} onPress={applySuggestion} activeOpacity={0.85}>
               <Text style={styles.windDownText}>{t(suggestion.reasonKey)}</Text>
@@ -455,6 +512,17 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted,
     marginBottom: SPACING.lg,
   },
+  resumeBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
+    backgroundColor: 'rgba(167,139,250,0.15)', borderRadius: RADIUS.md,
+    padding: SPACING.md, marginBottom: SPACING.lg,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.35)',
+  },
+  resumeTitle: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
+  resumeDetail: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
+  resumeBtn: { backgroundColor: 'rgba(167,139,250,0.3)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: RADIUS.full },
+  resumeBtnText: { fontFamily: FONTS.semiBold, fontSize: 13, color: COLORS.primaryLight },
+  resumeDiscard: { fontFamily: FONTS.medium, fontSize: 16, color: COLORS.textMuted },
   windDownBanner: {
     backgroundColor: 'rgba(125,211,252,0.12)',
     borderRadius: RADIUS.md,

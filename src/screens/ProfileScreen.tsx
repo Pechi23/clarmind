@@ -48,6 +48,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [premium, setPremium] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -144,7 +145,12 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   return (
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]} showsVerticalScrollIndicator={false}>
-        <Text style={styles.kicker}>{t('profile.kicker')}</Text>
+        <View style={styles.topBar}>
+          <Text style={styles.kicker}>{t('profile.kicker')}</Text>
+          <TouchableOpacity onPress={() => setSettingsOpen(true)} hitSlop={12} style={styles.gearBtn}>
+            <Text style={styles.gearIcon}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Header card */}
         <LinearGradient
@@ -259,8 +265,20 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           <ActivityHeatmap sessions={allSessions} />
         </View>
 
-        {/* Settings */}
-        <Text style={styles.sectionLabel}>{t('profile.settings')}</Text>
+        <Text style={styles.appVersion}>ClarMind · v1.6.0</Text>
+      </ScrollView>
+
+      {/* Settings — separate screen */}
+      <Modal visible={settingsOpen} animationType="slide" onRequestClose={() => setSettingsOpen(false)}>
+        <LinearGradient colors={GRADIENTS.background} style={styles.container}>
+          <View style={styles.settingsHeader}>
+            <TouchableOpacity onPress={() => setSettingsOpen(false)} hitSlop={12}>
+              <Text style={styles.settingsClose}>✕</Text>
+            </TouchableOpacity>
+            <Text style={styles.settingsTitle}>{t('profile.settings')}</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          <ScrollView contentContainerStyle={styles.settingsScroll} showsVerticalScrollIndicator={false}>
 
         {/* Language */}
         <View style={styles.langSettingWrap}>
@@ -366,9 +384,9 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         <TouchableOpacity onPress={handleReset} activeOpacity={0.85} style={styles.resetButton}>
           <Text style={styles.resetText}>{t('profile.reset')}</Text>
         </TouchableOpacity>
-
-        <Text style={styles.appVersion}>ClarMind · v1.6.0</Text>
-      </ScrollView>
+          </ScrollView>
+        </LinearGradient>
+      </Modal>
 
       <ShareCardModal
         visible={shareOpen}
@@ -422,6 +440,17 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold, fontSize: 12, color: COLORS.primary,
     letterSpacing: 3, marginBottom: SPACING.md,
   },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  gearBtn: { padding: 4, marginBottom: SPACING.md },
+  gearIcon: { fontSize: 22 },
+  settingsHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingTop: 60, paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)',
+  },
+  settingsClose: { fontFamily: FONTS.medium, fontSize: 20, color: COLORS.textMuted, width: 40 },
+  settingsTitle: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.text },
+  settingsScroll: { padding: SPACING.lg, paddingBottom: 60 },
   headerCard: {
     alignItems: 'center', borderRadius: RADIUS.lg,
     padding: SPACING.xl, marginBottom: SPACING.lg,
