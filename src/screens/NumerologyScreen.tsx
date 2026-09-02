@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, ActivityIndicator, Platform,
+  KeyboardAvoidingView, ActivityIndicator, Platform, Modal,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,6 +21,7 @@ import { moonSign } from '../services/birthChart';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
 import GradientCard from '../components/GradientCard';
+import NatalChartScreen from './NatalChartScreen';
 
 interface Props {
   profile: UserProfile;
@@ -62,6 +63,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const [loadingReading, setLoadingReading] = useState(false);
   const [selectedNode, setSelectedNode] = useState<MatrixNodeSelection | null>(null);
   const [locked, setLocked] = useState<boolean | null>(null);
+  const [natalOpen, setNatalOpen] = useState(false);
 
   useEffect(() => { isFeatureLocked('numerology').then(setLocked); }, []);
 
@@ -302,7 +304,14 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
             </View>
           </View>
           <Text style={styles.astroHint}>{t('numerology.bigThreeHint')}</Text>
+          <TouchableOpacity onPress={() => setNatalOpen(true)} activeOpacity={0.85} style={styles.natalBtn}>
+            <Text style={styles.natalBtnText}>{t('numerology.natalOpen')}</Text>
+          </TouchableOpacity>
         </GradientCard>
+
+        <Modal visible={natalOpen} animationType="slide" onRequestClose={() => setNatalOpen(false)}>
+          <NatalChartScreen profile={profile} onClose={() => setNatalOpen(false)} />
+        </Modal>
 
         {/* Destiny Matrix */}
         <Text style={styles.sectionLabel}>{t('numerology.matrixTitle')}</Text>
@@ -498,6 +507,8 @@ const styles = StyleSheet.create({
   astroValue: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.text, textAlign: 'center' },
   astroLabel: { fontFamily: FONTS.medium, fontSize: 10, color: COLORS.textMuted, letterSpacing: 0.3, marginTop: 2 },
   astroHint: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim, textAlign: 'center', marginTop: SPACING.md, lineHeight: 16 },
+  natalBtn: { marginTop: SPACING.md, alignSelf: 'center', paddingVertical: 10, paddingHorizontal: 20, borderRadius: RADIUS.full, backgroundColor: 'rgba(167,139,250,0.2)', borderWidth: 1, borderColor: 'rgba(167,139,250,0.4)' },
+  natalBtnText: { fontFamily: FONTS.semiBold, fontSize: 14, color: COLORS.primaryLight },
   chakraHeader: { flexDirection: 'row', alignItems: 'center', paddingBottom: SPACING.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)' },
   chakraRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   chakraName: { flex: 2.4, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
