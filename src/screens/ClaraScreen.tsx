@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Speech from 'expo-speech';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
 import {
@@ -24,7 +25,17 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+
+  const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES' };
+  const speak = (text: string) => {
+    Speech.stop();
+    Speech.speak(text, { language: TTS_LOCALE[language] ?? 'en-US', rate: 0.95, pitch: 1.05 });
+  };
+
+  // Stop any speech when the screen closes.
+  useEffect(() => () => { Speech.stop(); }, []);
 
   useEffect(() => {
     (async () => {
@@ -64,6 +75,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     const claraMsg: ChatMessage = { role: 'assistant', text: reply, at: new Date().toISOString() };
     const withReply = [...next, claraMsg];
     setMessages(withReply);
+    if (autoSpeak) speak(reply);
     await saveChatHistory(withReply);
     await recordAiUse();
     setUsage(await getUsageInfo());
@@ -99,9 +111,17 @@ export default function ClaraScreen({ profile, onClose }: Props) {
             <Text style={styles.headerTitle}>Clara 🌙</Text>
             <Text style={styles.headerSub}>{t('clara.subtitle')}</Text>
           </View>
-          <TouchableOpacity onPress={resetChat} hitSlop={12}>
-            <Text style={styles.reset} numberOfLines={1}>{t('clara.clear')}</Text>
-          </TouchableOpacity>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              onPress={() => { if (autoSpeak) Speech.stop(); setAutoSpeak((v) => !v); }}
+              hitSlop={10}
+            >
+              <Text style={[styles.voiceToggle, autoSpeak && styles.voiceToggleOn]}>{autoSpeak ? '🔊' : '🔈'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={resetChat} hitSlop={12}>
+              <Text style={styles.reset} numberOfLines={1}>{t('clara.clear')}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Messages */}
@@ -118,6 +138,11 @@ export default function ClaraScreen({ profile, onClose }: Props) {
             >
               <View style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleClara]}>
                 <Text style={m.role === 'user' ? styles.textUser : styles.textClara}>{m.text}</Text>
+                {m.role === 'assistant' && (
+                  <TouchableOpacity onPress={() => speak(m.text)} hitSlop={8} style={styles.bubbleSpeak}>
+                    <Text style={styles.bubbleSpeakIcon}>🔊</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           ))}
@@ -181,7 +206,12 @@ const styles = StyleSheet.create({
   headerCenter: { flex: 1, alignItems: 'center' },
   headerTitle: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.text },
   headerSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted },
-  reset: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primary, width: 64, textAlign: 'right' },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md, justifyContent: 'flex-end' },
+  voiceToggle: { fontSize: 18, opacity: 0.5 },
+  voiceToggleOn: { opacity: 1 },
+  reset: { fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primary, textAlign: 'right' },
+  bubbleSpeak: { alignSelf: 'flex-start', marginTop: 8 },
+  bubbleSpeakIcon: { fontSize: 14, opacity: 0.55 },
   messages: { padding: SPACING.lg, gap: SPACING.sm },
   bubbleRow: { flexDirection: 'row' },
   rowUser: { justifyContent: 'flex-end' },
