@@ -201,4 +201,8 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 
 ---
 
-**Last updated:** 2026-09-01 (added P1.6 UX & wording backlog from George)
+| 2026-09-02 | P1.6 + P2.9 + P3 + languages + AI security | Implemented most of P1.6 (quote/objective/horoscope rewording + reorder, challenges info popup, breathe meditation title, XP leaderboard, session pause/resume, safe-area End button, custom reminder time, first-run notification permission, Clara badge rename); P2.9 birth-chart "big three" (Sun/Moon/Rising, computed Moon via Schlyter, `birthChart.ts` + 4 tests); P3 freemium (`entitlements.ts`: testing bypass, 3 free/50 premium AI-per-day quota, Clara + numerology gated, usage card in Profile); IT/FR/ES languages (deep-partial dicts, English fallback; `i18n/languages.ts` extracted so services import it without JSX; AI prompts localized via `languageName`). **AI key security:** all Gemini calls go through `services/ai.ts` gateway → uses `EXPO_PUBLIC_AI_PROXY_URL` (server holds key) when set, direct key only for dev; deployable Cloudflare Worker in `proxy/`. 170 tests. Remaining P1.6: a (name — leaning keep ClarMind), f, i, o, j, r, t. |
+
+---
+
+**Last updated:** 2026-09-02 (P1.6/P2.9/P3/languages + AI-key gateway & proxy)
