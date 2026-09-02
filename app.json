@@ -35,7 +35,7 @@
       "expo-localization",
       "@react-native-community/datetimepicker",
       [
-        "@react-native-voice/voice",
+        "expo-speech-recognition",
         {
           "microphonePermission": "ClarMind uses the microphone so you can talk to Clara.",
           "speechRecognitionPermission": "ClarMind uses speech recognition to turn your voice into text for Clara."

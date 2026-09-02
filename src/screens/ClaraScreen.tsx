@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
-  KeyboardAvoidingView, ActivityIndicator, Platform, PermissionsAndroid,
+  KeyboardAvoidingView, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
-import Voice, { SpeechResultsEvent } from '@react-native-voice/voice';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
 import {
@@ -37,30 +37,26 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   };
 
   // Voice input (speech-to-text). Needs a device with a speech engine (real phone).
-  useEffect(() => {
-    Voice.onSpeechResults = (e: SpeechResultsEvent) => { if (e.value?.[0]) setInput(e.value[0]); };
-    Voice.onSpeechEnd = () => setRecording(false);
-    Voice.onSpeechError = () => setRecording(false);
-    return () => { Voice.destroy().then(() => Voice.removeAllListeners()).catch(() => {}); };
-  }, []);
-
-  const ensureMic = async (): Promise<boolean> => {
-    if (Platform.OS !== 'android') return true;
-    try {
-      const g = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
-      return g === PermissionsAndroid.RESULTS.GRANTED;
-    } catch { return false; }
-  };
+  useSpeechRecognitionEvent('result', (e) => {
+    const transcript = e.results?.[0]?.transcript;
+    if (transcript) setInput(transcript);
+  });
+  useSpeechRecognitionEvent('end', () => setRecording(false));
+  useSpeechRecognitionEvent('error', () => setRecording(false));
 
   const toggleMic = async () => {
-    if (recording) { try { await Voice.stop(); } catch {} setRecording(false); return; }
-    if (!(await ensureMic())) return;
-    try { Speech.stop(); setRecording(true); await Voice.start(TTS_LOCALE[language] ?? 'en-US'); }
-    catch { setRecording(false); }
+    if (recording) { try { ExpoSpeechRecognitionModule.stop(); } catch {} setRecording(false); return; }
+    try {
+      const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      if (!perm.granted) return;
+      Speech.stop();
+      setRecording(true);
+      ExpoSpeechRecognitionModule.start({ lang: TTS_LOCALE[language] ?? 'en-US', interimResults: true, continuous: false });
+    } catch { setRecording(false); }
   };
 
   // Stop any speech/recording when the screen closes.
-  useEffect(() => () => { Speech.stop(); Voice.stop().catch(() => {}); }, []);
+  useEffect(() => () => { Speech.stop(); try { ExpoSpeechRecognitionModule.stop(); } catch {} }, []);
 
   useEffect(() => {
     (async () => {
