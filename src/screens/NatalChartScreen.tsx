@@ -8,7 +8,7 @@ import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { signName } from '../constants/localize';
 import { isFeatureLocked } from '../services/entitlements';
 import { geocodePlace } from '../services/geocode';
-import { computeNatalChart, NatalChart, aspectGlyph } from '../services/birthChart';
+import { computeNatalChart, NatalChart, aspectGlyph, signFromLongitude } from '../services/birthChart';
 import { interpretPlacement, interpretAspect } from '../constants/astroText';
 import GradientCard from '../components/GradientCard';
 import NatalWheel from '../components/NatalWheel';
@@ -95,6 +95,29 @@ export default function NatalChartScreen({ profile, onClose }: Props) {
             <Text style={styles.sectionLabel}>{t('numerology.natalPlacements')}</Text>
             <Text style={styles.tapHint}>{t('numerology.natalTapHint')}</Text>
             <GradientCard style={styles.cardSpacing}>
+              {chart.hasHouses && ([
+                { name: 'Ascendant', symbol: '⬆️', lon: chart.ascendant! },
+                { name: 'Midheaven', symbol: '⬆', lon: chart.mc! },
+              ]).map((ang) => {
+                const s = signFromLongitude(ang.lon);
+                return (
+                  <TouchableOpacity
+                    key={ang.name}
+                    style={styles.row}
+                    activeOpacity={0.7}
+                    onPress={() => setDetail({
+                      title: `${ang.symbol} ${ang.name} ${t('numerology.natalIn')} ${signLabelOf(s)}`,
+                      text: interpretPlacement(ang.name, s, 0, language),
+                    })}
+                  >
+                    <Text style={styles.pSym}>{ang.symbol}</Text>
+                    <Text style={[styles.pName, { color: '#fcd34d' }]}>{ang.name === 'Ascendant' ? 'ASC' : 'MC'}</Text>
+                    <Text style={styles.pSign}>{SIGN_GLYPH[s]} {signLabelOf(s)}</Text>
+                    <Text style={styles.pDeg}>{Math.floor(ang.lon % 30)}°</Text>
+                    {chart.hasHouses && <Text style={styles.pHouse} />}
+                  </TouchableOpacity>
+                );
+              })}
               {chart.placements.map((p) => (
                 <TouchableOpacity
                   key={p.name}

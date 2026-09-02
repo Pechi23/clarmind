@@ -19,6 +19,8 @@ const PLANET: Record<string, EnRo> = {
   Uranus: { en: 'originality, freedom and sudden change', ro: 'originalitatea, libertatea și schimbarea bruscă' },
   Neptune: { en: 'dreams, intuition and imagination', ro: 'visele, intuiția și imaginația' },
   Pluto: { en: 'transformation, depth and personal power', ro: 'transformarea, profunzimea și puterea personală' },
+  Ascendant: { en: 'the way you meet the world and come across', ro: 'felul în care întâmpini lumea și te prezinți' },
+  Midheaven: { en: 'your public role, ambitions and direction', ro: 'rolul tău public, ambițiile și direcția' },
 };
 
 // The flavor each sign lends.
