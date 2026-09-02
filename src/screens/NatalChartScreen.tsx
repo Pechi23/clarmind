@@ -9,6 +9,7 @@ import { signName } from '../constants/localize';
 import { isFeatureLocked } from '../services/entitlements';
 import { geocodePlace } from '../services/geocode';
 import { computeNatalChart, NatalChart, aspectGlyph } from '../services/birthChart';
+import { interpretPlacement, interpretAspect } from '../constants/astroText';
 import GradientCard from '../components/GradientCard';
 import NatalWheel from '../components/NatalWheel';
 
@@ -24,6 +25,7 @@ export default function NatalChartScreen({ profile, onClose }: Props) {
   const [locked, setLocked] = useState<boolean | null>(null);
   const [chart, setChart] = useState<NatalChart | null>(null);
   const [loading, setLoading] = useState(true);
+  const [detail, setDetail] = useState<{ title: string; text: string } | null>(null);
 
   useEffect(() => { isFeatureLocked('birthchart').then(setLocked); }, []);
 
@@ -78,17 +80,37 @@ export default function NatalChartScreen({ profile, onClose }: Props) {
               {!chart.hasHouses && <Text style={styles.wheelNote}>{t('numerology.natalNoHouses')}</Text>}
             </GradientCard>
 
+            {/* Interpretation detail */}
+            {detail && (
+              <GradientCard colors={['rgba(252,211,77,0.14)', 'rgba(252,211,77,0.04)']} style={styles.cardSpacing}>
+                <View style={styles.detailHead}>
+                  <Text style={styles.detailTitle}>{detail.title}</Text>
+                  <TouchableOpacity onPress={() => setDetail(null)} hitSlop={10}><Text style={styles.detailClose}>✕</Text></TouchableOpacity>
+                </View>
+                <Text style={styles.detailText}>{detail.text}</Text>
+              </GradientCard>
+            )}
+
             {/* Placements */}
             <Text style={styles.sectionLabel}>{t('numerology.natalPlacements')}</Text>
+            <Text style={styles.tapHint}>{t('numerology.natalTapHint')}</Text>
             <GradientCard style={styles.cardSpacing}>
               {chart.placements.map((p) => (
-                <View key={p.name} style={styles.row}>
+                <TouchableOpacity
+                  key={p.name}
+                  style={styles.row}
+                  activeOpacity={0.7}
+                  onPress={() => setDetail({
+                    title: `${p.symbol} ${p.name} ${t('numerology.natalIn')} ${signLabelOf(p.sign)}`,
+                    text: interpretPlacement(p.name, p.sign, p.house, language),
+                  })}
+                >
                   <Text style={styles.pSym}>{p.symbol}</Text>
                   <Text style={styles.pName}>{p.name}{p.retro ? ' ℞' : ''}</Text>
                   <Text style={styles.pSign}>{SIGN_GLYPH[p.sign]} {signLabelOf(p.sign)}</Text>
                   <Text style={styles.pDeg}>{Math.floor(p.deg)}°</Text>
                   {chart.hasHouses && <Text style={styles.pHouse}>{t('numerology.natalHouse', { n: p.house })}</Text>}
-                </View>
+                </TouchableOpacity>
               ))}
             </GradientCard>
 
@@ -102,9 +124,17 @@ export default function NatalChartScreen({ profile, onClose }: Props) {
                       const sa = chart.placements.find((x) => x.name === a.a)!.symbol;
                       const sb = chart.placements.find((x) => x.name === a.b)!.symbol;
                       return (
-                        <View key={i} style={styles.aspChip}>
+                        <TouchableOpacity
+                          key={i}
+                          style={styles.aspChip}
+                          activeOpacity={0.7}
+                          onPress={() => setDetail({
+                            title: `${sa} ${aspectGlyph(a.type)} ${sb} · ${t('numerology.aspect_' + a.type)}`,
+                            text: interpretAspect(a.a, a.b, a.type, language),
+                          })}
+                        >
                           <Text style={styles.aspText}>{sa} {aspectGlyph(a.type)} {sb}</Text>
-                        </View>
+                        </TouchableOpacity>
                       );
                     })}
                   </View>
@@ -147,6 +177,11 @@ const styles = StyleSheet.create({
   aspWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
   aspChip: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: RADIUS.full, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   aspText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.text },
+  tapHint: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textDim, marginBottom: SPACING.sm },
+  detailHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SPACING.sm },
+  detailTitle: { fontFamily: FONTS.bold, fontSize: 16, color: COLORS.text, flex: 1 },
+  detailClose: { fontFamily: FONTS.medium, fontSize: 18, color: COLORS.textMuted },
+  detailText: { fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted, lineHeight: 22 },
   info: { fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted, textAlign: 'center', lineHeight: 22 },
   disclaimer: { fontFamily: FONTS.regular, fontSize: 11, color: COLORS.textDim, marginTop: SPACING.lg, lineHeight: 16, textAlign: 'center' },
   paywallEmoji: { fontSize: 48, marginBottom: SPACING.lg },
