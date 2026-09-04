@@ -14,6 +14,7 @@ import {
 } from '../services/storage';
 import { generateDailyContent, generateWeeklyReflection } from '../services/claude';
 import GradientCard from '../components/GradientCard';
+import CosmicEnergyCard from '../components/CosmicEnergyCard';
 import StreakBadge from '../components/StreakBadge';
 import WeeklyRecapModal from '../components/WeeklyRecapModal';
 import { HomeContentSkeleton } from '../components/Skeleton';
@@ -318,6 +319,9 @@ export default function HomeScreen({ profile, onProfileChange }: Props) {
                 </TouchableOpacity>
               )}
             </GradientCard>
+
+            {/* Cosmic Energy — daily seeded gauge for the user's sign */}
+            <CosmicEnergyCard sign={profile.zodiacSign} signLabel={signName(zodiacInfo, language)} />
 
             {/* Affirmation */}
             <LinearGradient
