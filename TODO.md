@@ -89,26 +89,26 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 
 | # | Item (as requested) | Notes / where |
 |---|---|---|
-| a | **App name international** | Make the name/branding read well internationally (confirm whether this means the app name or the user-name field — ask George). |
+| a | ✅ **App name international** | DECIDED — keep **ClarMind**. Verified AstroMind/ClearMind are heavily taken; the distinctive spelling reads as a coined brand internationally. |
 | b | **Home: "Citatul zilei" (Quote of the day) = the FIRST card** | Reorder `HomeScreen.tsx` so the daily quote is card #1. |
 | c | **Rename "Afirmația de azi" → "Obiectivul de azi" / "Targetul de azi"** | i18n `home.*` (+ maybe reframe the affirmation as a daily objective). |
 | d | **Challenges info pop-up** | Add an (i) button on "Provocările de azi" opening a modal explaining challenges/XP. `HomeScreen.tsx`. |
 | e | **"Zodia ta azi" → "Horoscopul zilnic"; MOVE to the top of Home** | Make birth **date/time/place optional** with a note that it personalizes the horoscope, editable later. Reuses numerology/birth data. |
-| f | **Scroll past the bottom → jump to the next navbar tab** | When a screen is scrolled to its max, advance to the next bottom tab. Global scroll handler. |
+| f | ⏸️ **Scroll past the bottom → jump to the next navbar tab** | DEFERRED (UX risk) — hijacking over-scroll to switch tabs fights the natural "I've hit the end" gesture and misfires on momentum scroll. Safer alternative if wanted: horizontal swipe between tabs (react-navigation material-top / gesture). Left as-is for now. |
 | g | **Breathe tab: show the meditation title** | Replace the fixed "Găsește-ți calmul" header with the selected pattern's title. `BreatheScreen.tsx`. |
 | h | **Leaderboard ranked by XP** | Add/switch an XP ranking (currently streak/minutes). `LeaderboardScreen.tsx` + `leaderboard.ts`. |
-| i | **Separate Profile from Settings** | Split the combined Profile+Settings screen into two distinct screens. `ProfileScreen.tsx`. |
+| i | ✅ **Separate Profile from Settings** | DONE — Settings live in a gear-opened modal (language, reminder, premium-testing toggle, reset); Profile shows identity/rank/stats. |
 | j | **Share progress → include App Store / Play Store link** | Append the store link to the shared card/text. `ShareCardModal.tsx` (link TBD until published). |
 | k | **More languages** (English, Italian, French, Spanish, …) | Add dictionaries in `src/i18n/` beyond EN/RO; the i18n parity test enforces full key coverage. |
 | l | **Custom hour field** ("la moment" — pick your own hour) | Let the user type/pick an exact hour instead of only presets (reminder time → native time picker). `ProfileScreen.tsx`. |
 | m | **Session: fix the "Termină" (End) button layout** | `BreatheScreen.tsx` session mode. |
 | n | **Session: add a Pause / Resume button** | Pause the timers + soundscape and resume. `BreatheScreen.tsx`. |
-| o | **Resume an abandoned session** | If a session was left mid-way, offer to resume it — persist in-progress session state. |
+| o | ✅ **Resume an abandoned session** | DONE — in-progress session state persists (`InProgressSession`); Breathe offers to resume a session left mid-way. |
 | p | **Session End button — fix specifically on Android** | The "Termină" button placement/layout on Android session mode. `BreatheScreen.tsx`. |
-| q | **Rename the Clara "AI" badge → "AI assistant" (or similar)** | The floating Clara button shows an "AI" pill — change to "AI assistant"/clearer label. `FloatingClara.tsx`. |
-| r | **Microphone / voice input for Clara** | Add voice input (speech-to-text) to Clara chat. `ClaraScreen.tsx` — needs `expo-speech`/a STT module (dev build). |
+| q | ✅ **Rename the Clara "AI" badge** | DONE — the floating button's pill now reads "Clara" instead of "AI". `FloatingClara.tsx`. |
+| r | ✅ **Microphone / voice input for Clara** | DONE — mic button in Clara's input bar. Native: `expo-speech-recognition@3.1.3`. Web: browser Web Speech API (`services/speechRecognition.web.ts`); button hides where unsupported. |
 | s | **Notification permission on first entry** | On first launch ask for notification permission (or let the user enable it from settings). Ties into `notifications.ts` + onboarding. |
-| t | **Landing / presentation site + web app** | Marketing/presentation website and a web-app build (Expo web) for ClarMind. |
+| t | ✅ **Landing / presentation site + web app** | DONE — `landing/index.html` marketing page; **web app** via React Native Web (`npm run build:web` → `dist/`), verified end-to-end in-browser. Deploy: `WEB.md` + `.github/workflows/deploy-web.yml` (GitHub Pages). Native-only modules degrade gracefully (see `WEB.md` matrix). |
 
 ### P2 — Content depth
 | # | Feature | Notes |
@@ -202,7 +202,8 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 ---
 
 | 2026-09-02 | P1.6 + P2.9 + P3 + languages + AI security | Implemented most of P1.6 (quote/objective/horoscope rewording + reorder, challenges info popup, breathe meditation title, XP leaderboard, session pause/resume, safe-area End button, custom reminder time, first-run notification permission, Clara badge rename); P2.9 birth-chart "big three" (Sun/Moon/Rising, computed Moon via Schlyter, `birthChart.ts` + 4 tests); P3 freemium (`entitlements.ts`: testing bypass, 3 free/50 premium AI-per-day quota, Clara + numerology gated, usage card in Profile); IT/FR/ES languages (deep-partial dicts, English fallback; `i18n/languages.ts` extracted so services import it without JSX; AI prompts localized via `languageName`). **AI key security:** all Gemini calls go through `services/ai.ts` gateway → uses `EXPO_PUBLIC_AI_PROXY_URL` (server holds key) when set, direct key only for dev; deployable Cloudflare Worker in `proxy/`. 170 tests. Remaining P1.6: a (name — leaning keep ClarMind), f, i, o, j, r, t. |
+| 2026-09-04 | Clara voice + web app | **Clara voice:** text-to-speech (expo-speech, per-message 🔊 + auto-speak toggle) and mic speech-to-text (`expo-speech-recognition@3.1.3` native; `@react-native-voice/voice` rejected — legacy support-lib build conflict). **Web app (P1.6 t):** ClarMind now runs in the browser via React Native Web. Platform-safe wrappers so native-only modules degrade gracefully: `DateTimePicker.web.tsx` (browser `<input type=date/time>`), `speechRecognition.web.ts` (Clara mic on the Web Speech API). `npm run build:web` → static `dist/`; `WEB.md` + GitHub Pages workflow (`app.config.js` bakes `experiments.baseUrl` for subpath hosting). **Verified live in-browser:** onboarding → tabs → Gemini daily content (no CORS) → Clara chat round-trip + freemium quota → premium-testing unlock → numerology date picker. 172 tests. Remaining P1.6: **f** (deferred, UX risk), **j** (store link — needs published store URL). |
 
 ---
 
-**Last updated:** 2026-09-02 (P1.6/P2.9/P3/languages + AI-key gateway & proxy)
+**Last updated:** 2026-09-04 (Clara voice + web app; nearly all of P1.6 done — only f deferred & j pending store URL)
