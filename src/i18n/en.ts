@@ -77,6 +77,20 @@ export const en = {
     tierModerate: 'Steady and balanced',
     tierHigh: 'Strong flow — use it',
     tierPeak: 'Peak energy ✨',
+    guide: {
+      vitality: {
+        0: 'Your drive runs high — start the thing you keep postponing.',
+        1: 'Move your body early; momentum will carry the rest of the day.',
+      },
+      clarity: {
+        0: 'A sharp mind today — tackle the decision you\'ve been circling.',
+        1: 'Write it down before you act; the clean thought is right there.',
+      },
+      harmony: {
+        0: 'Lead with the heart today — reach out to someone who matters.',
+        1: 'Protect your calm; say no to what would fray your peace.',
+      },
+    },
   },
   moon: {
     label: 'Moon Phase',

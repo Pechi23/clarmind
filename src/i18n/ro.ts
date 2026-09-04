@@ -79,6 +79,20 @@ export const ro: TranslationShape = {
     tierModerate: 'Echilibrat și stabil',
     tierHigh: 'Flux puternic — profită',
     tierPeak: 'Energie maximă ✨',
+    guide: {
+      vitality: {
+        0: 'Ai energie multă azi — începe lucrul pe care tot îl amâni.',
+        1: 'Mișcă-te dimineața; elanul te va purta tot restul zilei.',
+      },
+      clarity: {
+        0: 'Minte limpede azi — ia decizia în jurul căreia dai târcoale.',
+        1: 'Scrie înainte să acționezi; gândul clar e chiar acolo.',
+      },
+      harmony: {
+        0: 'Ascultă-ți inima azi — caută pe cineva care contează pentru tine.',
+        1: 'Păzește-ți liniștea; refuză ce ți-ar tulbura pacea.',
+      },
+    },
   },
   moon: {
     label: 'Faza Lunii',

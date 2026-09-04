@@ -36,6 +36,20 @@ const to1to10 = (r: number): number => 1 + Math.floor(r * 10); // maps [0,1) -> 
 const tierFor = (overall: number): EnergyTier =>
   overall >= 9 ? 'peak' : overall >= 7 ? 'high' : overall >= 4 ? 'moderate' : 'low';
 
+/** The highest-scoring facet (ties resolved by FACET_ORDER). */
+export const dominantFacet = (energy: CosmicEnergy): FacetKey =>
+  energy.facets.reduce((best, f) => (f.score > best.score ? f : best)).key;
+
+/**
+ * i18n key for a short daily guidance line, chosen from the dominant facet with a
+ * date-seeded variant so it changes day to day. Shape: `cosmic.guide.<facet>.<0|1>`.
+ */
+export const guidanceKey = (energy: CosmicEnergy, sign: string, date: Date = new Date()): string => {
+  const facet = dominantFacet(energy);
+  const variant = Math.floor(seedRandom(dateSeed(date) + signIndex(sign) * 31 + 5) * 2); // 0 or 1
+  return `cosmic.guide.${facet}.${variant}`;
+};
+
 /** The day's cosmic-energy reading for a zodiac sign. */
 export const getCosmicEnergy = (sign: string, date: Date = new Date()): CosmicEnergy => {
   const base = dateSeed(date) + signIndex(sign) * 97;

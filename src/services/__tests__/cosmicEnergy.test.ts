@@ -1,8 +1,8 @@
-import { getCosmicEnergy, dateSeed, FACET_ORDER } from '../cosmicEnergy';
+import { getCosmicEnergy, dateSeed, FACET_ORDER, dominantFacet, guidanceKey } from '../cosmicEnergy';
+
+const day = new Date(2026, 8, 5); // 2026-09-05
 
 describe('getCosmicEnergy', () => {
-  const day = new Date(2026, 8, 5); // 2026-09-05
-
   it('is deterministic for the same sign and date', () => {
     const a = getCosmicEnergy('Leo', day);
     const b = getCosmicEnergy('Leo', day);
@@ -62,6 +62,27 @@ describe('getCosmicEnergy', () => {
     const e = getCosmicEnergy('NotASign', day);
     expect(e.overall).toBeGreaterThanOrEqual(1);
     expect(e.overall).toBeLessThanOrEqual(10);
+  });
+});
+
+describe('dominantFacet', () => {
+  it('returns the highest-scoring facet key', () => {
+    const e = getCosmicEnergy('Leo', day);
+    const top = e.facets.reduce((a, b) => (b.score > a.score ? b : a));
+    expect(dominantFacet(e)).toBe(top.key);
+  });
+});
+
+describe('guidanceKey', () => {
+  it('points at the dominant facet with a 0/1 variant', () => {
+    const e = getCosmicEnergy('Leo', day);
+    const key = guidanceKey(e, 'Leo', day);
+    expect(key).toMatch(/^cosmic\.guide\.(vitality|clarity|harmony)\.[01]$/);
+    expect(key).toContain(`.${dominantFacet(e)}.`);
+  });
+  it('is deterministic for the same sign and date', () => {
+    const e = getCosmicEnergy('Virgo', day);
+    expect(guidanceKey(e, 'Virgo', day)).toBe(guidanceKey(e, 'Virgo', day));
   });
 });
 

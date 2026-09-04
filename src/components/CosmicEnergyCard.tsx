@@ -5,7 +5,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import GradientCard from './GradientCard';
 import { COLORS, FONTS, RADIUS, SPACING } from '../constants/theme';
 import { useI18n } from '../i18n';
-import { getCosmicEnergy, FacetKey } from '../services/cosmicEnergy';
+import { getCosmicEnergy, guidanceKey, FacetKey } from '../services/cosmicEnergy';
 
 interface Props {
   sign: string;      // zodiac sign name (e.g. "Leo")
@@ -57,6 +57,8 @@ export default function CosmicEnergyCard({ sign, signLabel }: Props) {
           );
         })}
       </View>
+
+      <Text style={styles.guidance}>{t(guidanceKey(energy, sign))}</Text>
     </GradientCard>
   );
 }
@@ -80,4 +82,10 @@ const styles = StyleSheet.create({
   },
   fill: { height: '100%', borderRadius: RADIUS.full },
   facetScore: { fontFamily: FONTS.semiBold, fontSize: 13, color: COLORS.textMuted, width: 18, textAlign: 'right' },
+  guidance: {
+    fontFamily: FONTS.regular, fontSize: 13, fontStyle: 'italic',
+    color: COLORS.textMuted, lineHeight: 19,
+    marginTop: SPACING.md, paddingTop: SPACING.md,
+    borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)',
+  },
 });
