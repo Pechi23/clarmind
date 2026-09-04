@@ -158,8 +158,8 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 ## 4. Idea bank (unprioritized, for inspiration)
 - **Haptic-only mode** — phone face down, breathing guided purely by vibration pattern. Accessibility + "screen-free meditation" marketing angle.
 - **Breath calibration** — user taps along their natural breath for 30s; app scales pattern durations to their comfortable pace.
-- **"The world is breathing" counter** — ambient seeded count ("2,847 minds breathing right now") on Breathe screen. Social presence without a backend.
-- **Zodiac energy meter** — daily 1-10 "cosmic energy" gauge per sign (seeded), feeds the AI message. Co-Star-style hook.
+- ✅ **"The world is breathing" counter** — DONE 2026-09-05 — live "🌍 {n} minds breathing right now" on Breathe (smooth time-of-day rhythm + seeded jitter, refreshes every 4s). `services/breathingNow.ts` (6 tests).
+- ✅ **Zodiac energy meter** ("Cosmic Energy") — DONE 2026-09-05 — daily seeded 1–10 gauge for the user's sign with 3 facets (Vitality/Clarity/Harmony) on Home. `services/cosmicEnergy.ts` (10 tests) + `CosmicEnergyCard`. (Feeding it into the AI message still open.)
 - **Sleep timer auto-fade** — soundscape continues after session, fades out over N minutes for falling asleep.
 - **App shortcuts / quick actions** — long-press icon → "2-min breather" straight into a session.
 - **Mood → music** — soundscape suggestion based on last mood entry.

@@ -31,6 +31,7 @@ import { useI18n } from '../i18n';
 import { patternName, patternDesc, soundscapeName } from '../constants/localize';
 import { useContentBottomPadding } from '../constants/layout';
 import { suggestSession } from '../services/sessionSuggestion';
+import { getBreathingNow } from '../services/breathingNow';
 import { getMoodEntries } from '../services/storage';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
@@ -62,6 +63,7 @@ export default function BreatheScreen() {
   const [earnedXp, setEarnedXp] = useState(0);
   const [newBadges, setNewBadges] = useState<AchievementDef[]>([]);
   const [suggestion, setSuggestion] = useState<ReturnType<typeof suggestSession>>(null);
+  const [breathingNow, setBreathingNow] = useState<number>(() => getBreathingNow());
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -75,6 +77,13 @@ export default function BreatheScreen() {
 
   useEffect(() => () => { cleanup(); stopMix(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
+  // Ambient "minds breathing now" — refresh every few seconds while choosing.
+  useEffect(() => {
+    if (mode !== 'select') return;
+    setBreathingNow(getBreathingNow());
+    const id = setInterval(() => setBreathingNow(getBreathingNow()), 4000);
+    return () => clearInterval(id);
+  }, [mode]);
 
   // Offer to resume a session abandoned in the last 2 hours.
   useEffect(() => {
@@ -258,6 +267,7 @@ export default function BreatheScreen() {
           <Text style={styles.kicker}>{t('breathe.kicker')}</Text>
           <Text style={styles.title}>{patternName(pattern.id, t)}</Text>
           <Text style={styles.titleSub}>{patternDesc(pattern.id, t)}</Text>
+          <Text style={styles.worldBreathing}>{t('breathe.worldBreathing', { n: breathingNow.toLocaleString() })}</Text>
 
           {resumable && (
             <View style={styles.resumeBanner}>
@@ -510,6 +520,10 @@ const styles = StyleSheet.create({
   },
   titleSub: {
     fontFamily: FONTS.regular, fontSize: 15, color: COLORS.textMuted,
+    marginBottom: SPACING.xs,
+  },
+  worldBreathing: {
+    fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primaryLight,
     marginBottom: SPACING.lg,
   },
   resumeBanner: {
