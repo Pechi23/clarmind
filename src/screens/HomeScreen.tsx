@@ -36,9 +36,10 @@ import NumerologyScreen from './NumerologyScreen';
 
 interface Props {
   profile: UserProfile;
+  onProfileChange?: () => void;
 }
 
-export default function HomeScreen({ profile }: Props) {
+export default function HomeScreen({ profile, onProfileChange }: Props) {
   const { t, language } = useI18n();
   const bottomPad = useContentBottomPadding();
   const [content, setContent] = useState<DailyContent | null>(null);
@@ -213,7 +214,7 @@ export default function HomeScreen({ profile }: Props) {
       </Modal>
       {/* Daily numerology */}
       <Modal visible={numerologyOpen} animationType="slide" onRequestClose={() => setNumerologyOpen(false)}>
-        <NumerologyScreen profile={profile} onClose={() => setNumerologyOpen(false)} onUpdated={() => {}} />
+        <NumerologyScreen profile={profile} onClose={() => setNumerologyOpen(false)} onUpdated={() => onProfileChange?.()} />
       </Modal>
       {/* Challenges info */}
       <Modal visible={challengeInfoOpen} transparent animationType="fade" onRequestClose={() => setChallengeInfoOpen(false)}>

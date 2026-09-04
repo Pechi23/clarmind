@@ -310,7 +310,9 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
         </GradientCard>
 
         <Modal visible={natalOpen} animationType="slide" onRequestClose={() => setNatalOpen(false)}>
-          <NatalChartScreen profile={profile} onClose={() => setNatalOpen(false)} />
+          {/* Use the birth details held in local state — the parent's `onUpdated`
+              may be a no-op, so `profile.birth` can be stale/undefined here. */}
+          <NatalChartScreen profile={{ ...profile, birth: birth ?? profile.birth }} onClose={() => setNatalOpen(false)} />
         </Modal>
 
         {/* Destiny Matrix */}

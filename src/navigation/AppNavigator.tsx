@@ -116,7 +116,7 @@ export default function AppNavigator({ profile, onReset }: Props) {
           tabBar={(props) => <CustomTabBar {...props} />}
         >
           <Tab.Screen name="Home">
-            {() => <HomeScreen profile={profile} />}
+            {() => <HomeScreen profile={profile} onProfileChange={onReset} />}
           </Tab.Screen>
           <Tab.Screen name="Breathe" component={BreatheScreen} />
           <Tab.Screen name="Sky">
