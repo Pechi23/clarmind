@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Alert, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -24,12 +24,29 @@ export default function ShareCardModal({ visible, onClose, profile, level, strea
   const { t, language } = useI18n();
   const cardRef = useRef<View>(null);
   const [sharing, setSharing] = useState(false);
+  const [copied, setCopied] = useState(false);
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
 
   const onShare = async () => {
     if (sharing) return;
     setSharing(true);
     try {
+      // Web: react-native-view-shot / expo-sharing aren't available. Share the
+      // progress as text via the Web Share API, falling back to the clipboard.
+      if (Platform.OS === 'web') {
+        const shareText =
+          `${profile.name} · ${rankName(level, t)} · ${signName(zodiacInfo, language)}\n` +
+          `🔥 ${streak} · ⏱️ ${minutes} · ⭐ ${stars}\n${t('share.tagline')}`;
+        const nav: any = (globalThis as any).navigator;
+        if (nav?.share) {
+          await nav.share({ title: 'ClarMind', text: shareText });
+        } else if (nav?.clipboard?.writeText) {
+          await nav.clipboard.writeText(shareText);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1800);
+        }
+        return;
+      }
       const available = await Sharing.isAvailableAsync();
       if (!available) {
         Alert.alert(t('share.unavailable'));
@@ -38,7 +55,8 @@ export default function ShareCardModal({ visible, onClose, profile, level, strea
       const uri = await captureRef(cardRef, { format: 'png', quality: 1 });
       await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: t('share.cardTitle') });
     } catch {
-      Alert.alert(t('share.unavailable'));
+      // A user cancelling the Web Share sheet throws — don't nag on web.
+      if (Platform.OS !== 'web') Alert.alert(t('share.unavailable'));
     } finally {
       setSharing(false);
     }
@@ -83,7 +101,7 @@ export default function ShareCardModal({ visible, onClose, profile, level, strea
         {/* Actions */}
         <TouchableOpacity onPress={onShare} disabled={sharing} activeOpacity={0.85} style={styles.shareBtn}>
           <LinearGradient colors={GRADIENTS.button} style={styles.shareGradient}>
-            <Text style={styles.shareText}>{sharing ? '…' : t('share.action')}</Text>
+            <Text style={styles.shareText}>{sharing ? '…' : copied ? '✓' : t('share.action')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         <TouchableOpacity onPress={onClose} style={styles.closeBtn}>

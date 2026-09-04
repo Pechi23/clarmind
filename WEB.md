@@ -61,4 +61,4 @@ Native-only features degrade gracefully — the app never crashes on web:
 | Soundscapes / bells | HTML5 audio via expo-av (works) |
 | Haptics | No-op (guarded by `Platform.OS !== 'web'`) |
 | Daily notifications | No-op (expo-notifications is native-only) |
-| Share progress card | No-op on web (native share sheet unavailable) — a future enhancement could use the browser Share API / image download |
+| Share progress card | Shares progress as text via the browser **Web Share API**, falling back to clipboard copy (shows ✓). The image card itself is native-only |
