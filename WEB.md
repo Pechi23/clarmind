@@ -26,6 +26,11 @@ Quick local preview of the production build:
 npx serve dist
 ```
 
+The build also runs `scripts/web-postbuild.js`, which adds a web manifest, an
+Apple touch icon, `theme-color`, and Open Graph / Twitter tags to `dist/` — so the
+site is **installable** ("Add to Home Screen" on iOS/Android) and gets a proper
+link preview when shared. (No service worker, so installs always load fresh.)
+
 ## Deploy (no backend needed)
 
 The `dist/` folder is a plain static site. Easiest options:

@@ -38,7 +38,7 @@ jobs:
         env:
           EXPO_PUBLIC_BASE_URL: /${{ github.event.repository.name }}
           EXPO_PUBLIC_AI_PROXY_URL: ${{ vars.EXPO_PUBLIC_AI_PROXY_URL }}
-        run: npx expo export --platform web
+        run: npm run build:web
       - name: Add SPA + Jekyll-bypass files
         run: |
           cp dist/index.html dist/404.html   # client-side routing fallback
