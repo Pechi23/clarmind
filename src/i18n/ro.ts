@@ -80,6 +80,18 @@ export const ro: TranslationShape = {
     tierHigh: 'Flux puternic — profită',
     tierPeak: 'Energie maximă ✨',
   },
+  moon: {
+    label: 'Faza Lunii',
+    illuminated: '{pct}% iluminată',
+    new: 'Lună nouă',
+    waxingCrescent: 'Semilună crescătoare',
+    firstQuarter: 'Primul pătrar',
+    waxingGibbous: 'Lună gibbostă crescătoare',
+    full: 'Lună plină',
+    waningGibbous: 'Lună gibbostă descrescătoare',
+    lastQuarter: 'Ultimul pătrar',
+    waningCrescent: 'Semilună descrescătoare',
+  },
   breathe: {
     kicker: 'MEDITAȚIE',
     title: 'Găsește-ți\ncalmul.',

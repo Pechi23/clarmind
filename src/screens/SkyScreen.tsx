@@ -7,6 +7,7 @@ import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile, MeditationSession } from '../types';
 import { getMeditationSessions } from '../services/storage';
 import ConstellationSky, { getRuns, countConstellations } from '../components/ConstellationSky';
+import { getMoonPhase } from '../services/moonPhase';
 import { useI18n } from '../i18n';
 import { useContentBottomPadding } from '../constants/layout';
 import { signName } from '../constants/localize';
@@ -28,6 +29,7 @@ export default function SkyScreen({ profile }: Props) {
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
   const constellationsFormed = countConstellations(sessions);
+  const moon = getMoonPhase();
 
   // Days toward the next constellation, from the current active run
   const runs = getRuns(sessions);
@@ -53,6 +55,15 @@ export default function SkyScreen({ profile }: Props) {
             <Text style={styles.statValue}>{zodiacInfo.emoji} {constellationsFormed}</Text>
             <Text style={styles.statLabel}>{t('sky.constellations')}</Text>
           </View>
+        </View>
+
+        <View style={styles.moonCard}>
+          <Text style={styles.moonEmoji}>{moon.emoji}</Text>
+          <View style={styles.moonInfo}>
+            <Text style={styles.moonLabel}>{t('moon.label')}</Text>
+            <Text style={styles.moonPhase}>{t(`moon.${moon.phase}`)}</Text>
+          </View>
+          <Text style={styles.moonIllum}>{t('moon.illuminated', { pct: Math.round(moon.illumination * 100) })}</Text>
         </View>
 
         <View style={styles.skyFrame}>
@@ -97,6 +108,20 @@ const styles = StyleSheet.create({
   },
   statValue: { fontFamily: FONTS.bold, fontSize: 20, color: COLORS.text },
   statLabel: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
+  moonCard: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: SPACING.md, paddingHorizontal: SPACING.md, marginBottom: SPACING.md,
+    backgroundColor: 'rgba(167,139,250,0.1)',
+    borderRadius: RADIUS.md, borderWidth: 1, borderColor: 'rgba(167,139,250,0.22)',
+  },
+  moonEmoji: { fontSize: 30, marginRight: SPACING.md },
+  moonInfo: { flex: 1 },
+  moonLabel: {
+    fontFamily: FONTS.semiBold, fontSize: 11, letterSpacing: 1, color: COLORS.textMuted,
+    textTransform: 'uppercase',
+  },
+  moonPhase: { fontFamily: FONTS.bold, fontSize: 16, color: COLORS.text, marginTop: 1 },
+  moonIllum: { fontFamily: FONTS.medium, fontSize: 13, color: '#c4b5fd' },
   skyFrame: {
     borderRadius: RADIUS.lg, overflow: 'hidden',
     borderWidth: 1, borderColor: 'rgba(167,139,250,0.2)',

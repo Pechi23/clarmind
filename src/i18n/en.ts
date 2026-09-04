@@ -78,6 +78,18 @@ export const en = {
     tierHigh: 'Strong flow — use it',
     tierPeak: 'Peak energy ✨',
   },
+  moon: {
+    label: 'Moon Phase',
+    illuminated: '{pct}% illuminated',
+    new: 'New Moon',
+    waxingCrescent: 'Waxing Crescent',
+    firstQuarter: 'First Quarter',
+    waxingGibbous: 'Waxing Gibbous',
+    full: 'Full Moon',
+    waningGibbous: 'Waning Gibbous',
+    lastQuarter: 'Last Quarter',
+    waningCrescent: 'Waning Crescent',
+  },
   breathe: {
     kicker: 'MEDITATION',
     title: 'Find your\ncalm.',
