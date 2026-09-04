@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, speechRecognitionAvailable } from '../services/speechRecognition';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
 import {
@@ -183,9 +183,11 @@ export default function ClaraScreen({ profile, onClose }: Props) {
           </View>
         ) : (
           <View style={styles.inputBar}>
-            <TouchableOpacity onPress={toggleMic} activeOpacity={0.8} style={[styles.micButton, recording && styles.micButtonOn]}>
-              <Text style={styles.micIcon}>{recording ? '⏺' : '🎤'}</Text>
-            </TouchableOpacity>
+            {speechRecognitionAvailable && (
+              <TouchableOpacity onPress={toggleMic} activeOpacity={0.8} style={[styles.micButton, recording && styles.micButtonOn]}>
+                <Text style={styles.micIcon}>{recording ? '⏺' : '🎤'}</Text>
+              </TouchableOpacity>
+            )}
             <TextInput
               style={styles.input}
               placeholder={recording ? t('clara.listening') : t('clara.inputPlaceholder')}
