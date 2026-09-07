@@ -6,9 +6,30 @@ import { DailyContent, UserGoal } from '../types';
 import { WeeklyRecap, buildFallbackReflection } from './weeklyRecapLogic';
 import { Language, languageName } from '../i18n/languages';
 import { callGemini, hasAi } from './ai';
+import { getCosmicEnergy, dominantFacet, FacetKey } from './cosmicEnergy';
+import { getMoonPhase, MoonPhaseName } from './moonPhase';
 
 const LOCALE: Record<Language, string> = {
   en: 'en-GB', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES',
+};
+
+// Human-readable descriptors for the AI prompt (English; the model translates output).
+const FACET_WORD: Record<FacetKey, string> = {
+  vitality: 'physical vitality and drive',
+  clarity: 'mental clarity and focus',
+  harmony: 'emotional harmony and connection',
+};
+const MOON_WORD: Record<MoonPhaseName, string> = {
+  new: 'new moon', waxingCrescent: 'waxing crescent', firstQuarter: 'first quarter',
+  waxingGibbous: 'waxing gibbous', full: 'full moon', waningGibbous: 'waning gibbous',
+  lastQuarter: 'last quarter', waningCrescent: 'waning crescent',
+};
+
+/** A one-line English cosmic snapshot the daily-content prompt can weave in. */
+const cosmicSnapshot = (zodiacSign: ZodiacSign): string => {
+  const energy = getCosmicEnergy(zodiacSign);
+  const moon = getMoonPhase();
+  return `Today's cosmic snapshot for ${zodiacSign}: overall energy ${energy.overall}/10, strongest in ${FACET_WORD[dominantFacet(energy)]}; the Moon is a ${MOON_WORD[moon.phase]} (${Math.round(moon.illumination * 100)}% illuminated). Weave this naturally into the zodiacMessage — reference the energy and moon in plain, warm language; do NOT print numbers or the words "facet"/"score".`;
 };
 
 const GOAL_CONTEXT: Record<UserGoal, string> = {
@@ -33,6 +54,7 @@ export const generateDailyContent = async (
 
   const prompt = `You are ClarMind, a calming mindfulness and wellness AI assistant. Generate personalized daily content for ${name}, whose zodiac sign is ${zodiacSign}. Today is ${today}.
 ${goal ? GOAL_CONTEXT[goal] : ''}
+${cosmicSnapshot(zodiacSign)}
 
 Return ONLY a valid JSON object with exactly these fields:
 {
