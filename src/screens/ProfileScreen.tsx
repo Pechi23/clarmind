@@ -26,6 +26,7 @@ import { useI18n, LANGUAGES } from '../i18n';
 import { signName, elementName, achievementName, achievementDesc, rankName } from '../constants/localize';
 import { useContentBottomPadding } from '../constants/layout';
 import ShareCardModal from '../components/ShareCardModal';
+import PaywallModal from '../components/PaywallModal';
 
 interface Props {
   profile: UserProfile;
@@ -49,6 +50,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [premium, setPremium] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -312,6 +314,13 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           />
         </View>
 
+        {/* Upgrade to Premium (real subscription via RevenueCat) */}
+        {!premium && (
+          <TouchableOpacity onPress={() => setPaywallOpen(true)} activeOpacity={0.85} style={styles.upgradeBtn}>
+            <Text style={styles.upgradeText}>✦ {t('paywall.upgrade')}</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Premium testing unlock */}
         <View style={styles.settingRow}>
           <View style={{ flex: 1 }}>
@@ -396,6 +405,12 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         streak={streak}
         minutes={totalMin}
         stars={sessions}
+      />
+
+      <PaywallModal
+        visible={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        onPremium={() => { setPremium(true); load(); }}
       />
 
       {/* Achievement detail */}
@@ -483,6 +498,11 @@ const styles = StyleSheet.create({
   },
   settingTitle: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
   settingSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textDim, marginTop: 2 },
+  upgradeBtn: {
+    backgroundColor: 'rgba(252,211,77,0.14)', borderWidth: 1, borderColor: 'rgba(252,211,77,0.35)',
+    borderRadius: RADIUS.md, paddingVertical: 14, alignItems: 'center', marginBottom: SPACING.md,
+  },
+  upgradeText: { fontFamily: FONTS.bold, fontSize: 15, color: '#fcd34d' },
   langToggle: {
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: RADIUS.full, padding: 3, gap: 2,

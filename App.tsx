@@ -12,6 +12,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { getUserProfile } from './src/services/storage';
+import { configurePurchases } from './src/services/purchases';
 import { UserProfile } from './src/types';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -39,6 +40,7 @@ function Root() {
 
   useEffect(() => {
     (async () => {
+      configurePurchases(); // RevenueCat (native only; no-op on web / without a key)
       await refreshProfile();
       setAppReady(true);
     })();
