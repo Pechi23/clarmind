@@ -1,0 +1,10 @@
+name = "clarmind-leaderboard"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# D1 database binding. Create the DB first (see README) and paste its id here:
+#   wrangler d1 create clarmind-leaderboard
+[[d1_databases]]
+binding = "DB"
+database_name = "clarmind-leaderboard"
+database_id = "PASTE_YOUR_DATABASE_ID_HERE"

@@ -8,6 +8,7 @@ import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile } from '../types';
 import { buildLeaderboard, LeaderboardUser } from '../services/leaderboard';
+import { remoteLeaderboardEnabled, submitScore, fetchTop } from '../services/leaderboardRemote';
 import { getStreak, getTotalMeditationMinutes } from '../services/storage';
 import { getXp } from '../services/gamification';
 import { useI18n } from '../i18n';
@@ -42,6 +43,17 @@ export default function LeaderboardScreen({ profile }: Props) {
       xp,
       isCurrentUser: true,
     };
+
+    // Real leaderboard (Cloudflare Worker) when configured; else seeded users.
+    if (remoteLeaderboardEnabled()) {
+      await submitScore(me);
+      const remote = await fetchTop(tab);
+      if (remote.length > 0) {
+        if (!remote.some((u) => u.isCurrentUser)) remote.push(me);
+        setUsers(remote.sort((a, b) => b[tab] - a[tab]));
+        return;
+      }
+    }
     setUsers(buildLeaderboard(me, tab));
   }, [profile, tab]);
 
