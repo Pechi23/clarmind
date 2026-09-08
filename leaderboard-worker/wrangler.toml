@@ -7,4 +7,4 @@ compatibility_date = "2026-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "clarmind-leaderboard"
-database_id = "PASTE_YOUR_DATABASE_ID_HERE"
+database_id = "de2e7077-3d97-4c74-babb-279513d5f7f4"
