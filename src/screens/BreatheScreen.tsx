@@ -32,6 +32,7 @@ import { patternName, patternDesc, soundscapeName } from '../constants/localize'
 import { useContentBottomPadding } from '../constants/layout';
 import { suggestSession } from '../services/sessionSuggestion';
 import { getBreathingNow } from '../services/breathingNow';
+import GuidedMeditationScreen from './GuidedMeditationScreen';
 import { getMoodEntries } from '../services/storage';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
@@ -64,6 +65,7 @@ export default function BreatheScreen() {
   const [newBadges, setNewBadges] = useState<AchievementDef[]>([]);
   const [suggestion, setSuggestion] = useState<ReturnType<typeof suggestSession>>(null);
   const [breathingNow, setBreathingNow] = useState<number>(() => getBreathingNow());
+  const [guidedOpen, setGuidedOpen] = useState(false);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -269,6 +271,17 @@ export default function BreatheScreen() {
           <Text style={styles.titleSub}>{patternDesc(pattern.id, t)}</Text>
           <Text style={styles.worldBreathing}>{t('breathe.worldBreathing', { n: breathingNow.toLocaleString() })}</Text>
 
+          <TouchableOpacity onPress={() => setGuidedOpen(true)} activeOpacity={0.85} style={styles.guidedCard}>
+            <LinearGradient colors={['rgba(167,139,250,0.22)', 'rgba(124,58,237,0.08)']} style={styles.guidedInner}>
+              <Text style={styles.guidedEmoji}>🎙️</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.guidedTitle}>{t('guided.entry')}</Text>
+                <Text style={styles.guidedSub}>{t('guided.entrySub')}</Text>
+              </View>
+              <Text style={styles.guidedArrow}>→</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
           {resumable && (
             <View style={styles.resumeBanner}>
               <View style={{ flex: 1 }}>
@@ -393,6 +406,10 @@ export default function BreatheScreen() {
             </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
+
+        <Modal visible={guidedOpen} animationType="slide" onRequestClose={() => setGuidedOpen(false)}>
+          <GuidedMeditationScreen onClose={() => setGuidedOpen(false)} />
+        </Modal>
       </LinearGradient>
     );
   }
@@ -526,6 +543,15 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primaryLight,
     marginBottom: SPACING.lg,
   },
+  guidedCard: { borderRadius: RADIUS.lg, overflow: 'hidden', marginBottom: SPACING.lg },
+  guidedInner: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    padding: SPACING.md, borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)', borderRadius: RADIUS.lg,
+  },
+  guidedEmoji: { fontSize: 28 },
+  guidedTitle: { fontFamily: FONTS.bold, fontSize: 16, color: COLORS.text },
+  guidedSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
+  guidedArrow: { fontFamily: FONTS.bold, fontSize: 20, color: COLORS.primaryLight },
   resumeBanner: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.sm,
     backgroundColor: 'rgba(167,139,250,0.15)', borderRadius: RADIUS.md,
