@@ -149,10 +149,14 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 
 ### P4 — Social & platform
 - ✅ **Share cards** — DONE v1.6: `ShareCardModal` captures a branded rank/streak/minutes/stars card via `react-native-view-shot` and shares it through `expo-sharing`'s OS sheet. "Share my progress" button in Profile.
-- (Remaining P4 needs a dev build or backend: home-screen widgets, Supabase leaderboard/friends, watch companions.)
+- ✅ **Real leaderboard** — DONE 2026-09-09 via a free **Cloudflare Worker + D1** (`leaderboard-worker/`), anonymous per-device id. (A backend for **friends / cross-device accounts** is still open — could extend the same Worker/D1, or Supabase.)
 - Home-screen widgets (streak + quote) — needs dev-build, `expo-apple-targets` / Glance.
-- Supabase backend → real leaderboard, friends. Migration: mirror AsyncStorage to Supabase keyed by anonymous device ID; merge on account creation.
 - Watch companions (breathe haptics on wrist).
+
+### P5 — Product analytics & release strategy (NOT YET — George, 2026-09-09; noted only, do not implement)
+- 📊 **Product analytics / usage monitoring** — instrument the app so we know **which screens, tabs and buttons people actually use**, where they drop off, and what to improve. Recommended: **PostHog** (generous free tier; `posthog-react-native` on native + web, funnels, retention, feature flags; EU-hosted option for GDPR). Alternatives: Firebase Analytics or Amplitude free tier. **Track:** screen/tab views, key taps (start session, guided meditation, Clara open, paywall view→tap→purchase, share, mood check-in), onboarding-completion funnel, DAU/retention/streak, most-used features. **Privacy:** anonymous device id only (no PII — it's local-first), add an opt-out + a line in the privacy policy (EU users). **Key requirement below:** tag every event with the **app variant + build id** so the two releases can be compared.
+- 🆎 **Two-app A/B release** (George's plan) — ship **two identical apps from one codebase**: a **free** one and a **one-time-paid** one, and compare which performs better and why (installs → retention → revenue → reviews). Needs: a build-time variant flag (e.g. `EXPO_PUBLIC_APP_VARIANT=free|paid`) that (a) toggles the paywall/entitlement, (b) tags analytics events, and (c) uses separate bundle ids / store listings. The paid variant unlocks premium outright (no RevenueCat subscription needed for a one-time purchase — could use a store one-time IAP or just a paid app). Analytics (above) is what makes the comparison meaningful.
+- 🌍 **International languages for the release** — the two apps target **EN / FR / DE / ES / IT (+ maybe PT)**; currently we have EN/RO/IT/FR/ES. **TODO: add German (`de`) + Portuguese (`pt`)** dictionaries (deep-partial, English fallback, like it/fr/es). Romanian stays for the RO market / drops from the international listings.
 
 ---
 
