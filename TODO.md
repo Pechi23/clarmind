@@ -165,6 +165,16 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
 - **App shortcuts / quick actions** — long-press icon → "2-min breather" straight into a session.
 - **Mood → music** — soundscape suggestion based on last mood entry.
 
+### From George's "MindSpace" brainstorm (Aug 2025) — only the NEW items
+Most of that brainstorm ClarMind already has (breathing timer, guided journal, smart reminders, onboarding, stats/streaks, mood check-in, wind-down after 21:00). These are the genuinely-new ones:
+- 🎙️ **Voice mood scan** — speak how you feel; Gemini (reuses Clara's mic + `ai.ts`) infers your mood and recommends a session/breath pattern. Feasible reframing of the brainstorm's "emotion scanner" (real voice-emotion ML is overkill; text-from-speech + AI intent works). Premium-friendly.
+- 🧠 **AI pattern insights** — weekly, the AI reads your journal entries + mood history + sessions and surfaces gentle patterns ("you feel calmest after evening sessions"). The brainstorm's "discover your mental patterns." Uses existing data + `ai.ts`; extends the weekly recap.
+- 📈 **Mood & clarity trends** — a small trend chart of logged moods over time (we already store `MoodEntry`s but never visualize the trend). Extends Profile stats.
+- 🎲 **Intuition mini-games** — quick-decision / guess-the-card micro-games that "train intuition"; a light gamification hook fitting the astrology/cosmic theme (e.g., "sense today's card"). Seeded/offline.
+- 🔔 **Per-phase breathing cues** — optional gong/haptic on each inhale→hold→exhale transition (today only start/end bells + soundscape). Small `BreatheScreen` + `soundscape.ts` add.
+- 💾 **Export / import progress (.json)** — back up / move all local data (profile, streaks, sessions, moods, journal) between devices from Settings. High value for a local-first app; low effort (AsyncStorage dump/restore).
+- ⏸️ *(off-theme, note only)* **Zen planner / to-do with mindful breaks** — the brainstorm's productivity planner is a scope shift away from mindfulness+astrology; a lighter fit would be **daytime "mindful break" reminders** rather than a full task manager.
+
 ---
 
 ## 5. Known issues / tech debt
