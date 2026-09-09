@@ -140,6 +140,17 @@ export const ro: TranslationShape = {
     entry: 'Meditație ghidată AI',
     entrySub: 'O voce calmă te ghidează, scrisă special pentru azi',
   },
+  intuition: {
+    entry: 'Antrenează-ți intuiția',
+    entrySub: 'Simte care stea e ascunsă',
+    title: 'Intuiție',
+    prompt: 'Care te cheamă?',
+    hit: 'Intuiția ta e ascuțită ✨',
+    miss: 'Ai încredere la următoarea 🌙',
+    score: '{hits}/{total} simțite',
+    streak: '🔥 serie {n}',
+    again: 'Din nou',
+  },
   moodTrend: {
     title: 'Starea ta',
     window: 'ultimele {n} zile',

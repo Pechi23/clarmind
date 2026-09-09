@@ -138,6 +138,17 @@ export const en = {
     entry: 'AI Guided Meditation',
     entrySub: 'A calm voice guides you, written just for today',
   },
+  intuition: {
+    entry: 'Train your intuition',
+    entrySub: 'Sense which star is hidden',
+    title: 'Intuition',
+    prompt: 'Which one calls to you?',
+    hit: 'Your intuition is sharp ✨',
+    miss: 'Trust the next one 🌙',
+    score: '{hits}/{total} sensed',
+    streak: '🔥 streak {n}',
+    again: 'Again',
+  },
   moodTrend: {
     title: 'Your mood',
     window: 'last {n} days',

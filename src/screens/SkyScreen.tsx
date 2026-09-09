@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, FONTS, RADIUS, SPACING } from '../constants/theme';
@@ -8,6 +8,7 @@ import { UserProfile, MeditationSession } from '../types';
 import { getMeditationSessions } from '../services/storage';
 import ConstellationSky, { getRuns, countConstellations } from '../components/ConstellationSky';
 import { getMoonPhase } from '../services/moonPhase';
+import IntuitionGame from '../components/IntuitionGame';
 import { useI18n } from '../i18n';
 import { useContentBottomPadding } from '../constants/layout';
 import { signName } from '../constants/localize';
@@ -20,6 +21,7 @@ export default function SkyScreen({ profile }: Props) {
   const { t, language } = useI18n();
   const bottomPad = useContentBottomPadding();
   const [sessions, setSessions] = useState<MeditationSession[]>([]);
+  const [gameOpen, setGameOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -83,7 +85,18 @@ export default function SkyScreen({ profile }: Props) {
               ? t('sky.hintProgress', { days: daysToNext, sign: signName(zodiacInfo, language) })
               : t('sky.hintNew')}
         </Text>
+
+        <TouchableOpacity onPress={() => setGameOpen(true)} activeOpacity={0.85} style={styles.gameCard}>
+          <Text style={styles.gameEmoji}>🔮</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.gameTitle}>{t('intuition.entry')}</Text>
+            <Text style={styles.gameSub}>{t('intuition.entrySub')}</Text>
+          </View>
+          <Text style={styles.gameArrow}>→</Text>
+        </TouchableOpacity>
       </ScrollView>
+
+      <IntuitionGame visible={gameOpen} onClose={() => setGameOpen(false)} />
     </LinearGradient>
   );
 }
@@ -122,6 +135,15 @@ const styles = StyleSheet.create({
   },
   moonPhase: { fontFamily: FONTS.bold, fontSize: 16, color: COLORS.text, marginTop: 1 },
   moonIllum: { fontFamily: FONTS.medium, fontSize: 13, color: '#c4b5fd' },
+  gameCard: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md, marginTop: SPACING.lg,
+    padding: SPACING.md, backgroundColor: 'rgba(167,139,250,0.1)',
+    borderRadius: RADIUS.md, borderWidth: 1, borderColor: 'rgba(167,139,250,0.25)',
+  },
+  gameEmoji: { fontSize: 26 },
+  gameTitle: { fontFamily: FONTS.bold, fontSize: 15, color: COLORS.text },
+  gameSub: { fontFamily: FONTS.regular, fontSize: 12, color: COLORS.textMuted, marginTop: 2 },
+  gameArrow: { fontFamily: FONTS.bold, fontSize: 18, color: COLORS.primaryLight },
   skyFrame: {
     borderRadius: RADIUS.lg, overflow: 'hidden',
     borderWidth: 1, borderColor: 'rgba(167,139,250,0.2)',
