@@ -5,6 +5,7 @@ import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { useI18n } from '../i18n';
+import { capture } from '../services/analytics';
 import { UserProfile } from '../types';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { signName, rankName } from '../constants/localize';
@@ -30,6 +31,7 @@ export default function ShareCardModal({ visible, onClose, profile, level, strea
   const onShare = async () => {
     if (sharing) return;
     setSharing(true);
+    capture('share');
     try {
       // Web: react-native-view-shot / expo-sharing aren't available. Share the
       // progress as text via the Web Share API, falling back to the clipboard.

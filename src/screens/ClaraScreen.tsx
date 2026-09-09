@@ -14,6 +14,7 @@ import {
 import { askClara } from '../services/clara';
 import { getUsageInfo, recordAiUse, UsageInfo } from '../services/entitlements';
 import { useI18n } from '../i18n';
+import { capture } from '../services/analytics';
 
 interface Props {
   profile: UserProfile;
@@ -90,6 +91,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     setMessages(next);
     setInput('');
     setSending(true);
+    capture('clara_message');
     scrollToEnd();
 
     const reply = await askClara(messages, text, profile, language);

@@ -13,6 +13,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { getUserProfile } from './src/services/storage';
 import { configurePurchases } from './src/services/purchases';
+import { initAnalytics, capture } from './src/services/analytics';
 import { UserProfile } from './src/types';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -41,6 +42,8 @@ function Root() {
   useEffect(() => {
     (async () => {
       configurePurchases(); // RevenueCat (native only; no-op on web / without a key)
+      await initAnalytics();
+      capture('app_open');
       await refreshProfile();
       setAppReady(true);
     })();

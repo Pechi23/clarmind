@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { PRIVACY_URL, TERMS_URL } from '../constants/legal';
 import { isPaidVariant } from '../constants/appVariant';
+import { analyticsEnabled, getAnalyticsOptOut, setAnalyticsOptOut } from '../services/analytics';
 import * as Clipboard from 'expo-clipboard';
 import DateTimePicker from '../components/DateTimePicker';
 import { exportData, importData } from '../services/backup';
@@ -50,6 +51,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [allSessions, setAllSessions] = useState<MeditationSession[]>([]);
   const [moods, setMoods] = useState<MoodEntry[]>([]);
   const [phaseCues, setPhaseCuesState] = useState(true);
+  const [analyticsOn, setAnalyticsOn] = useState(!getAnalyticsOptOut());
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
@@ -479,6 +481,22 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           )}
           {!!backupMsg && <Text style={styles.backupMsg}>{backupMsg}</Text>}
         </View>
+
+        {/* Anonymous analytics opt-out (only if analytics is configured) */}
+        {analyticsEnabled() && (
+          <View style={styles.settingRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.settingTitle}>{t('profile.analytics')}</Text>
+              <Text style={styles.settingSub}>{t('profile.analyticsSub')}</Text>
+            </View>
+            <Switch
+              value={analyticsOn}
+              onValueChange={(v) => { setAnalyticsOn(v); setAnalyticsOptOut(!v); }}
+              trackColor={{ false: '#3a3a5e', true: COLORS.primary }}
+              thumbColor="#fff"
+            />
+          </View>
+        )}
 
         {/* Legal */}
         <View style={styles.backupBox}>

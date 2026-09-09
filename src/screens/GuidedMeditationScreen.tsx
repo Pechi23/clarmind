@@ -8,6 +8,7 @@ import * as Speech from 'expo-speech';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserGoal } from '../types';
 import { useI18n } from '../i18n';
+import { capture } from '../services/analytics';
 import { isPremium, recordAiUse } from '../services/entitlements';
 import { getUserProfile } from '../services/storage';
 import {
@@ -84,6 +85,7 @@ export default function GuidedMeditationScreen({ onClose }: Props) {
   }, [language]);
 
   const begin = async () => {
+    capture('guided_meditation_start', { voice: voice.id, goal, minutes });
     setPhase('loading');
     const segs = await generateGuidedMeditation(goal, minutes, language);
     segmentsRef.current = segs;

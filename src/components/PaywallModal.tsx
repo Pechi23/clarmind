@@ -6,6 +6,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, ActivityIndicator } fr
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { useI18n } from '../i18n';
+import { capture } from '../services/analytics';
 import {
   getPremiumPackages, purchase, restore, PurchasesPackage,
 } from '../services/purchases';
@@ -24,6 +25,7 @@ export default function PaywallModal({ visible, onClose, onPremium }: Props) {
 
   useEffect(() => {
     if (!visible) return;
+    capture('paywall_view');
     setLoading(true);
     getPremiumPackages().then((p) => { setPackages(p); setLoading(false); });
   }, [visible]);
@@ -33,6 +35,7 @@ export default function PaywallModal({ visible, onClose, onPremium }: Props) {
   const onSubscribe = async () => {
     if (!pkg || busy) return;
     setBusy(true);
+    capture('purchase_start');
     const ok = await purchase(pkg);
     setBusy(false);
     if (ok) { onPremium(); onClose(); }

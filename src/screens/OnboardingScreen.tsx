@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS, ZodiacInfo } from '../constants/zodiac';
 import { saveUserProfile } from '../services/storage';
+import { capture } from '../services/analytics';
 import { UserProfile, UserGoal } from '../types';
 import { useI18n, LANGUAGES } from '../i18n';
 import { signName } from '../constants/localize';
@@ -46,6 +47,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
       onboardingComplete: true,
     };
     await saveUserProfile(profile);
+    capture('onboarding_complete', { goal: selectedGoal, zodiac: selectedZodiac.name });
     onComplete();
   };
 

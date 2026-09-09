@@ -32,6 +32,7 @@ import { patternName, patternDesc, soundscapeName } from '../constants/localize'
 import { useContentBottomPadding } from '../constants/layout';
 import { suggestSession } from '../services/sessionSuggestion';
 import { getBreathingNow } from '../services/breathingNow';
+import { capture } from '../services/analytics';
 import GuidedMeditationScreen from './GuidedMeditationScreen';
 import VoiceMoodScan from '../components/VoiceMoodScan';
 import { getMoodEntries } from '../services/storage';
@@ -217,6 +218,7 @@ export default function BreatheScreen() {
   const finishSession = async () => {
     cleanup();
     clearInProgressSession();
+    capture('session_complete', { minutes: durationMin, pattern: pattern.id });
     playChime('end').catch(() => {});
     fadeOutMix(mix, 4000).catch(() => {}); // gentle wind-down, esp. for sleep
     const today = new Date().toISOString().split('T')[0];

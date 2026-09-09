@@ -12,6 +12,7 @@ import { UserProfile } from '../types';
 import { useI18n } from '../i18n';
 import HomeScreen from '../screens/HomeScreen';
 import BreatheScreen from '../screens/BreatheScreen';
+import { capture } from '../services/analytics';
 import SkyScreen from '../screens/SkyScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -110,7 +111,12 @@ export default function AppNavigator({ profile, onReset }: Props) {
 
   return (
     <View style={{ flex: 1 }}>
-      <NavigationContainer>
+      <NavigationContainer
+        onStateChange={(state) => {
+          const route = state?.routes[state.index]?.name;
+          if (route) capture('screen_view', { screen: route });
+        }}
+      >
         <Tab.Navigator
           screenOptions={{ headerShown: false }}
           tabBar={(props) => <CustomTabBar {...props} />}

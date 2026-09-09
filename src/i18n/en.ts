@@ -268,6 +268,8 @@ export const en = {
     premiumTestSub: 'Unlock numerology, birth chart & 50 AI/day for testing',
     phaseCues: 'Breathing cues',
     phaseCuesSub: 'A subtle vibration at each inhale, hold and exhale',
+    analytics: 'Share anonymous usage',
+    analyticsSub: 'Helps us improve ClarMind. No personal data, no tracking.',
     language: 'Language',
     dailyReminder: 'Daily reminder',
     reminderSub: 'Notify me to take a mindful moment',

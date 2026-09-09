@@ -270,6 +270,8 @@ export const ro: TranslationShape = {
     premiumTestSub: 'Deblochează numerologia, harta natală și 50 AI/zi pentru testare',
     phaseCues: 'Semnale la respirație',
     phaseCuesSub: 'O vibrație subtilă la fiecare inspirație, ținere și expirație',
+    analytics: 'Partajează utilizarea anonimă',
+    analyticsSub: 'Ne ajută să îmbunătățim ClarMind. Fără date personale, fără urmărire.',
     language: 'Limbă',
     dailyReminder: 'Memento zilnic',
     reminderSub: 'Anunță-mă să iau un moment de mindfulness',

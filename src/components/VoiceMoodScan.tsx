@@ -6,6 +6,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, ActivityInd
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { useI18n } from '../i18n';
+import { capture } from '../services/analytics';
 import { patternName } from '../constants/localize';
 import { saveMoodEntry } from '../services/storage';
 import { analyzeMood, MoodScan } from '../services/moodScan';
@@ -47,6 +48,7 @@ export default function VoiceMoodScan({ visible, onClose }: Props) {
     setBusy(true);
     const r = await analyzeMood(text, language);
     await saveMoodEntry({ date: new Date().toISOString(), mood: r.mood, context: 'general' }).catch(() => {});
+    capture('mood_checkin', { mood: r.mood });
     setResult(r);
     setBusy(false);
   };
