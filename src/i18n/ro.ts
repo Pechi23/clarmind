@@ -140,6 +140,14 @@ export const ro: TranslationShape = {
     entry: 'Meditație ghidată AI',
     entrySub: 'O voce calmă te ghidează, scrisă special pentru azi',
   },
+  moodTrend: {
+    title: 'Starea ta',
+    window: 'ultimele {n} zile',
+    empty: 'Notează cum te simți — trendul stării tale va apărea aici.',
+    trendUp: 'mai calm în ultima vreme ↑',
+    trendDown: 'un pic mai jos în ultima vreme ↓',
+    trendFlat: 'stabil →',
+  },
   backup: {
     title: 'Backup și restaurare',
     sub: 'Salvează-ți progresul sau mută-l pe alt telefon',

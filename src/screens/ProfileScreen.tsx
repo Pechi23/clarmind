@@ -13,14 +13,15 @@ import { UserProfile } from '../types';
 import {
   getStreak, getTotalMeditationMinutes, getMeditationSessions,
   clearUserProfile, setNotificationsEnabled, getNotificationsEnabled,
-  getReminderTime, setReminderTime, ReminderTime,
+  getReminderTime, setReminderTime, ReminderTime, getMoodEntries,
 } from '../services/storage';
 import GradientCard from '../components/GradientCard';
+import MoodTrendCard from '../components/MoodTrendCard';
 import {
   requestNotificationPermissions, scheduleDailyReminder, cancelAllReminders,
 } from '../services/notifications';
 import ActivityHeatmap from '../components/ActivityHeatmap';
-import { MeditationSession } from '../types';
+import { MeditationSession, MoodEntry } from '../types';
 import { getXp, getUnlockedAchievements } from '../services/gamification';
 import { getUsageInfo, getPremiumOverride, setPremiumOverride, UsageInfo } from '../services/entitlements';
 import { ACHIEVEMENTS, getLevelForXp, AchievementDef } from '../constants/achievements';
@@ -43,6 +44,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [sessions, setSessions] = useState(0);
   const [notifs, setNotifs] = useState(false);
   const [allSessions, setAllSessions] = useState<MeditationSession[]>([]);
+  const [moods, setMoods] = useState<MoodEntry[]>([]);
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
@@ -106,6 +108,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     setTotalMin(m);
     setSessions(sess.length);
     setAllSessions(sess);
+    setMoods(await getMoodEntries());
     setNotifs(n);
     setXp(totalXp);
     setUnlockedIds(unlocked);
@@ -293,6 +296,9 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         <View style={styles.heatmapWrap}>
           <ActivityHeatmap sessions={allSessions} />
         </View>
+
+        {/* Mood trend */}
+        <MoodTrendCard entries={moods} />
 
         <Text style={styles.appVersion}>ClarMind · v1.6.0</Text>
       </ScrollView>

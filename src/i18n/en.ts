@@ -138,6 +138,14 @@ export const en = {
     entry: 'AI Guided Meditation',
     entrySub: 'A calm voice guides you, written just for today',
   },
+  moodTrend: {
+    title: 'Your mood',
+    window: 'last {n} days',
+    empty: 'Check in with how you feel — your mood trend will appear here.',
+    trendUp: 'calmer lately ↑',
+    trendDown: 'a bit lower lately ↓',
+    trendFlat: 'steady →',
+  },
   backup: {
     title: 'Backup & restore',
     sub: 'Save your progress, or move it to another device',
