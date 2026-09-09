@@ -10,7 +10,7 @@ import { getCosmicEnergy, dominantFacet, FacetKey } from './cosmicEnergy';
 import { getMoonPhase, MoonPhaseName } from './moonPhase';
 
 const LOCALE: Record<Language, string> = {
-  en: 'en-GB', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES',
+  en: 'en-GB', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT',
 };
 
 // Human-readable descriptors for the AI prompt (English; the model translates output).

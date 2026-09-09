@@ -30,7 +30,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const [recording, setRecording] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
-  const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES' };
+  const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT' };
   const speak = (text: string) => {
     Speech.stop();
     Speech.speak(text, { language: TTS_LOCALE[language] ?? 'en-US', rate: 0.95, pitch: 1.05 });

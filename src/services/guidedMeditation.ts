@@ -23,7 +23,7 @@ export const MEDITATION_VOICES: MeditationVoice[] = [
 ];
 
 export const TTS_LOCALE: Record<Language, string> = {
-  en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES',
+  en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT',
 };
 
 /** One spoken line plus the silent pause that follows it (breathing room). */
