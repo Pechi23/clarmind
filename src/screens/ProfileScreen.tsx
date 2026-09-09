@@ -17,6 +17,7 @@ import {
 } from '../services/storage';
 import GradientCard from '../components/GradientCard';
 import MoodTrendCard from '../components/MoodTrendCard';
+import InsightsCard from '../components/InsightsCard';
 import {
   requestNotificationPermissions, scheduleDailyReminder, cancelAllReminders,
 } from '../services/notifications';
@@ -296,6 +297,9 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         <View style={styles.heatmapWrap}>
           <ActivityHeatmap sessions={allSessions} />
         </View>
+
+        {/* AI pattern insights */}
+        <InsightsCard />
 
         {/* Mood trend */}
         <MoodTrendCard entries={moods} />

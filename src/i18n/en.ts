@@ -138,6 +138,14 @@ export const en = {
     entry: 'AI Guided Meditation',
     entrySub: 'A calm voice guides you, written just for today',
   },
+  insights: {
+    title: 'Insights',
+    loading: 'Reading your patterns…',
+    fbStart: 'Your first sessions will start to reveal your patterns.',
+    fbConsistent: "You've built a steady rhythm this week — consistency is where calm grows.",
+    fbCalm: "Your calm has been trending up lately. Whatever you're doing, it's working.",
+    fbKeep: 'Small, regular moments add up. Keep showing up for yourself.',
+  },
   intuition: {
     entry: 'Train your intuition',
     entrySub: 'Sense which star is hidden',

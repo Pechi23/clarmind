@@ -140,6 +140,14 @@ export const ro: TranslationShape = {
     entry: 'Meditație ghidată AI',
     entrySub: 'O voce calmă te ghidează, scrisă special pentru azi',
   },
+  insights: {
+    title: 'Observații',
+    loading: 'Îți citesc tiparele…',
+    fbStart: 'Primele tale sesiuni vor începe să-ți dezvăluie tiparele.',
+    fbConsistent: 'Ți-ai construit un ritm constant săptămâna asta — din consecvență crește calmul.',
+    fbCalm: 'Calmul tău a crescut în ultima vreme. Orice faci, funcționează.',
+    fbKeep: 'Momentele mici și regulate se adună. Continuă să fii prezent pentru tine.',
+  },
   intuition: {
     entry: 'Antrenează-ți intuiția',
     entrySub: 'Simte care stea e ascunsă',
