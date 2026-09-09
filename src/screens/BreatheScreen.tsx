@@ -122,6 +122,10 @@ export default function BreatheScreen() {
     const p = BREATHING_PATTERNS.find((bp) => bp.id === suggestion.patternId);
     if (p) setPattern(p);
     setDurationMin(suggestion.minutes);
+    // Also pre-select a fitting ambient sound for the mood (mood → soundscape).
+    if (suggestion.soundscapeId && suggestion.soundscapeId !== 'silence') {
+      setMix({ [suggestion.soundscapeId]: 0.5 });
+    }
   };
 
   // Start (or restart, on resume) the countdown + phase intervals.

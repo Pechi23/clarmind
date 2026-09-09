@@ -3,20 +3,20 @@ import { suggestSession } from '../sessionSuggestion';
 describe('suggestSession', () => {
   it('recommends 4-7-8 at night regardless of mood', () => {
     const late = suggestSession(5, 22);
-    expect(late).toEqual({ patternId: '478', minutes: 10, reasonKey: 'suggestion.night' });
+    expect(late).toEqual({ patternId: '478', minutes: 10, reasonKey: 'suggestion.night', soundscapeId: 'rain' });
     const early = suggestSession(null, 3);
     expect(early?.patternId).toBe('478');
   });
 
   it('recommends Deep Calm for a low recent mood during the day', () => {
     const s = suggestSession(2, 14);
-    expect(s).toEqual({ patternId: 'deepCalm', minutes: 10, reasonKey: 'suggestion.lowMood' });
+    expect(s).toEqual({ patternId: 'deepCalm', minutes: 10, reasonKey: 'suggestion.lowMood', soundscapeId: 'ocean' });
     expect(suggestSession(1, 10)?.patternId).toBe('deepCalm');
   });
 
   it('recommends a short Box session for a high recent mood during the day', () => {
     const s = suggestSession(5, 11);
-    expect(s).toEqual({ patternId: 'box', minutes: 5, reasonKey: 'suggestion.highMood' });
+    expect(s).toEqual({ patternId: 'box', minutes: 5, reasonKey: 'suggestion.highMood', soundscapeId: 'forest' });
   });
 
   it('returns null for a neutral mood during the day', () => {

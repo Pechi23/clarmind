@@ -3,7 +3,8 @@ import { BreathingPatternId } from '../types';
 export interface SessionSuggestion {
   patternId: BreathingPatternId;
   minutes: number;
-  reasonKey: string; // i18n key under "suggestion."
+  reasonKey: string;      // i18n key under "suggestion."
+  soundscapeId: string;   // a fitting ambient sound to pre-select
 }
 
 const isNight = (hour: number) => hour >= 21 || hour < 5;
@@ -20,13 +21,13 @@ export const suggestSession = (
   hour: number
 ): SessionSuggestion | null => {
   if (isNight(hour)) {
-    return { patternId: '478', minutes: 10, reasonKey: 'suggestion.night' };
+    return { patternId: '478', minutes: 10, reasonKey: 'suggestion.night', soundscapeId: 'rain' };
   }
   if (recentMood !== null && recentMood <= 2) {
-    return { patternId: 'deepCalm', minutes: 10, reasonKey: 'suggestion.lowMood' };
+    return { patternId: 'deepCalm', minutes: 10, reasonKey: 'suggestion.lowMood', soundscapeId: 'ocean' };
   }
   if (recentMood !== null && recentMood >= 4) {
-    return { patternId: 'box', minutes: 5, reasonKey: 'suggestion.highMood' };
+    return { patternId: 'box', minutes: 5, reasonKey: 'suggestion.highMood', soundscapeId: 'forest' };
   }
   return null;
 };
