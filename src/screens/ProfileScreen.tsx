@@ -14,6 +14,7 @@ import {
   getStreak, getTotalMeditationMinutes, getMeditationSessions,
   clearUserProfile, setNotificationsEnabled, getNotificationsEnabled,
   getReminderTime, setReminderTime, ReminderTime, getMoodEntries,
+  getPhaseCues, setPhaseCues,
 } from '../services/storage';
 import GradientCard from '../components/GradientCard';
 import MoodTrendCard from '../components/MoodTrendCard';
@@ -46,6 +47,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [notifs, setNotifs] = useState(false);
   const [allSessions, setAllSessions] = useState<MeditationSession[]>([]);
   const [moods, setMoods] = useState<MoodEntry[]>([]);
+  const [phaseCues, setPhaseCuesState] = useState(true);
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [reminderTime, setReminderTimeState] = useState<ReminderTime>({ hour: 9, minute: 0 });
@@ -110,6 +112,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     setSessions(sess.length);
     setAllSessions(sess);
     setMoods(await getMoodEntries());
+    setPhaseCuesState(await getPhaseCues());
     setNotifs(n);
     setXp(totalXp);
     setUnlockedIds(unlocked);
@@ -346,6 +349,19 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           <Switch
             value={notifs}
             onValueChange={toggleNotifs}
+            trackColor={{ false: '#3a3a5e', true: COLORS.primary }}
+            thumbColor="#fff"
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.settingTitle}>{t('profile.phaseCues')}</Text>
+            <Text style={styles.settingSub}>{t('profile.phaseCuesSub')}</Text>
+          </View>
+          <Switch
+            value={phaseCues}
+            onValueChange={(v) => { setPhaseCuesState(v); setPhaseCues(v); }}
             trackColor={{ false: '#3a3a5e', true: COLORS.primary }}
             thumbColor="#fff"
           />

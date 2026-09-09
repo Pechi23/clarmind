@@ -13,6 +13,7 @@ const KEYS = {
   MEDITATION_SESSIONS: 'clarmind_meditation_sessions',
   MOOD_ENTRIES: 'clarmind_mood_entries',
   NOTIFICATIONS_ENABLED: 'clarmind_notifications_enabled',
+  PHASE_CUES: 'clarmind_phase_cues',
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
   LAST_RECAP_WEEK: 'clarmind_last_recap_week',
@@ -249,6 +250,15 @@ export const setNotificationsEnabled = async (enabled: boolean): Promise<void> =
 export const getNotificationsEnabled = async (): Promise<boolean> => {
   const data = await AsyncStorage.getItem(KEYS.NOTIFICATIONS_ENABLED);
   return data === 'true';
+};
+
+// Per-phase breathing cue (subtle vibration on each inhale/hold/exhale). Default on.
+export const setPhaseCues = async (enabled: boolean): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.PHASE_CUES, String(enabled));
+};
+export const getPhaseCues = async (): Promise<boolean> => {
+  const data = await AsyncStorage.getItem(KEYS.PHASE_CUES);
+  return data !== 'false'; // default true
 };
 
 // Weekly recap — remember which week's recap we've already shown

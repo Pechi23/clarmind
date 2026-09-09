@@ -261,6 +261,8 @@ export const en = {
     planPremium: 'Premium',
     premiumTest: 'Premium (testing)',
     premiumTestSub: 'Unlock numerology, birth chart & 50 AI/day for testing',
+    phaseCues: 'Breathing cues',
+    phaseCuesSub: 'A subtle vibration at each inhale, hold and exhale',
     language: 'Language',
     dailyReminder: 'Daily reminder',
     reminderSub: 'Notify me to take a mindful moment',

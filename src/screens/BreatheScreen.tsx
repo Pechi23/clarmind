@@ -13,7 +13,7 @@ import {
   setInProgressSession, getInProgressSession, clearInProgressSession, InProgressSession,
 } from '../services/storage';
 import { MoodEntry } from '../types';
-import { saveMoodEntry } from '../services/storage';
+import { saveMoodEntry, getPhaseCues } from '../services/storage';
 import {
   SOUNDSCAPES, syncMix, stopMix, fadeOutMix, playChime,
 } from '../services/soundscape';
@@ -68,6 +68,7 @@ export default function BreatheScreen() {
   const [breathingNow, setBreathingNow] = useState<number>(() => getBreathingNow());
   const [guidedOpen, setGuidedOpen] = useState(false);
   const [moodScanOpen, setMoodScanOpen] = useState(false);
+  const phaseCuesRef = useRef(true);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -81,6 +82,7 @@ export default function BreatheScreen() {
 
   useEffect(() => () => { cleanup(); stopMix(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
+  useEffect(() => { getPhaseCues().then((v) => { phaseCuesRef.current = v; }); }, [mode]);
   // Ambient "minds breathing now" — refresh every few seconds while choosing.
   useEffect(() => {
     if (mode !== 'select') return;
@@ -139,7 +141,17 @@ export default function BreatheScreen() {
           // advance phase
           setPhaseIndex((i) => {
             const next = (i + 1) % pattern.phases.length;
-            if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+            // Per-phase cue: a distinct subtle vibration for inhale / hold / exhale.
+            if (phaseCuesRef.current && Platform.OS !== 'web') {
+              const from = pattern.phases[i].scale;
+              const to = pattern.phases[next].scale;
+              const h = to > from
+                ? Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) // inhale (expanding)
+                : to < from
+                  ? Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light) // exhale (releasing)
+                  : Haptics.selectionAsync();                              // hold
+              h.catch(() => {});
+            }
             return next;
           });
           return 0;

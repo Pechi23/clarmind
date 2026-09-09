@@ -263,6 +263,8 @@ export const ro: TranslationShape = {
     planPremium: 'Premium',
     premiumTest: 'Premium (testare)',
     premiumTestSub: 'Deblochează numerologia, harta natală și 50 AI/zi pentru testare',
+    phaseCues: 'Semnale la respirație',
+    phaseCuesSub: 'O vibrație subtilă la fiecare inspirație, ținere și expirație',
     language: 'Limbă',
     dailyReminder: 'Memento zilnic',
     reminderSub: 'Anunță-mă să iau un moment de mindfulness',
