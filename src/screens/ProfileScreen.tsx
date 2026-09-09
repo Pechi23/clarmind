@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform, TextInput,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import DateTimePicker from '../components/DateTimePicker';
+import { exportData, importData } from '../services/backup';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
@@ -51,6 +53,31 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [premium, setPremium] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [restoreOpen, setRestoreOpen] = useState(false);
+  const [restoreText, setRestoreText] = useState('');
+  const [backupMsg, setBackupMsg] = useState('');
+
+  const onExportBackup = async () => {
+    try {
+      await Clipboard.setStringAsync(await exportData());
+      setBackupMsg(t('backup.exported'));
+    } catch {
+      setBackupMsg(t('backup.exportError'));
+    }
+  };
+
+  const onRestoreBackup = async () => {
+    try {
+      const { imported } = await importData(restoreText);
+      setBackupMsg(t('backup.restored', { n: imported }));
+      setRestoreOpen(false);
+      setRestoreText('');
+      await load();
+      onReset(); // refresh app-level profile/gating from the restored data
+    } catch {
+      setBackupMsg(t('backup.restoreError'));
+    }
+  };
 
   const REMINDER_PRESETS: ReminderTime[] = [
     { hour: 7, minute: 0 },
@@ -389,6 +416,40 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </View>
         )}
 
+        {/* Backup & restore */}
+        <View style={styles.backupBox}>
+          <Text style={styles.settingTitle}>{t('backup.title')}</Text>
+          <Text style={styles.settingSub}>{t('backup.sub')}</Text>
+          <TouchableOpacity onPress={onExportBackup} activeOpacity={0.85} style={styles.backupBtn}>
+            <Text style={styles.backupBtnText}>{t('backup.export')}</Text>
+          </TouchableOpacity>
+          {restoreOpen ? (
+            <>
+              <TextInput
+                style={styles.restoreInput}
+                value={restoreText}
+                onChangeText={setRestoreText}
+                placeholder={t('backup.placeholder')}
+                placeholderTextColor={COLORS.textDim}
+                multiline
+              />
+              <View style={styles.restoreRow}>
+                <TouchableOpacity onPress={() => { setRestoreOpen(false); setRestoreText(''); }} style={styles.backupBtnGhost}>
+                  <Text style={styles.backupBtnGhostText}>{t('backup.cancel')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={onRestoreBackup} disabled={!restoreText.trim()} style={[styles.backupBtn, { flex: 1, marginTop: 0, opacity: restoreText.trim() ? 1 : 0.4 }]}>
+                  <Text style={styles.backupBtnText}>{t('backup.restoreBtn')}</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <TouchableOpacity onPress={() => { setRestoreOpen(true); setBackupMsg(''); }} activeOpacity={0.85} style={styles.backupBtnGhost}>
+              <Text style={styles.backupBtnGhostText}>{t('backup.restore')}</Text>
+            </TouchableOpacity>
+          )}
+          {!!backupMsg && <Text style={styles.backupMsg}>{backupMsg}</Text>}
+        </View>
+
         {/* Reset */}
         <TouchableOpacity onPress={handleReset} activeOpacity={0.85} style={styles.resetButton}>
           <Text style={styles.resetText}>{t('profile.reset')}</Text>
@@ -503,6 +564,27 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md, paddingVertical: 14, alignItems: 'center', marginBottom: SPACING.md,
   },
   upgradeText: { fontFamily: FONTS.bold, fontSize: 15, color: '#fcd34d' },
+  backupBox: {
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: RADIUS.md,
+    padding: SPACING.md, marginBottom: SPACING.lg,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+  },
+  backupBtn: {
+    backgroundColor: 'rgba(167,139,250,0.16)', borderRadius: RADIUS.md,
+    paddingVertical: 12, alignItems: 'center', marginTop: SPACING.md,
+    borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)',
+  },
+  backupBtnText: { fontFamily: FONTS.semiBold, fontSize: 14, color: COLORS.primaryLight },
+  backupBtnGhost: { paddingVertical: 12, alignItems: 'center', marginTop: SPACING.sm },
+  backupBtnGhostText: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.textMuted },
+  restoreRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  restoreInput: {
+    backgroundColor: 'rgba(0,0,0,0.25)', borderRadius: RADIUS.md,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    padding: SPACING.md, marginTop: SPACING.md, minHeight: 70, maxHeight: 120,
+    fontFamily: FONTS.regular, fontSize: 12, color: COLORS.text,
+  },
+  backupMsg: { fontFamily: FONTS.medium, fontSize: 12, color: COLORS.accent, marginTop: SPACING.sm, textAlign: 'center' },
   langToggle: {
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: RADIUS.full, padding: 3, gap: 2,
