@@ -14,6 +14,7 @@ const KEYS = {
   MOOD_ENTRIES: 'clarmind_mood_entries',
   NOTIFICATIONS_ENABLED: 'clarmind_notifications_enabled',
   PHASE_CUES: 'clarmind_phase_cues',
+  SLEEP_FADE: 'clarmind_sleep_fade',
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
   LAST_RECAP_WEEK: 'clarmind_last_recap_week',
@@ -259,6 +260,14 @@ export const setPhaseCues = async (enabled: boolean): Promise<void> => {
 export const getPhaseCues = async (): Promise<boolean> => {
   const data = await AsyncStorage.getItem(KEYS.PHASE_CUES);
   return data !== 'false'; // default true
+};
+
+// Sleep fade: after a session, gently fade the soundscape over ~90s. Default off.
+export const setSleepFade = async (enabled: boolean): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.SLEEP_FADE, String(enabled));
+};
+export const getSleepFade = async (): Promise<boolean> => {
+  return (await AsyncStorage.getItem(KEYS.SLEEP_FADE)) === 'true';
 };
 
 // Weekly recap — remember which week's recap we've already shown

@@ -270,6 +270,8 @@ export const en = {
     phaseCuesSub: 'A subtle vibration at each inhale, hold and exhale',
     analytics: 'Share anonymous usage',
     analyticsSub: 'Helps us improve ClarMind. No personal data, no tracking.',
+    sleepFade: 'Fade sounds to sleep',
+    sleepFadeSub: 'After a session, the sound gently fades out over ~90 seconds',
     language: 'Language',
     dailyReminder: 'Daily reminder',
     reminderSub: 'Notify me to take a mindful moment',

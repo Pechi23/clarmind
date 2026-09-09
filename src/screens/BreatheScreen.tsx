@@ -13,7 +13,7 @@ import {
   setInProgressSession, getInProgressSession, clearInProgressSession, InProgressSession,
 } from '../services/storage';
 import { MoodEntry } from '../types';
-import { saveMoodEntry, getPhaseCues } from '../services/storage';
+import { saveMoodEntry, getPhaseCues, getSleepFade } from '../services/storage';
 import {
   SOUNDSCAPES, syncMix, stopMix, fadeOutMix, playChime,
 } from '../services/soundscape';
@@ -70,6 +70,7 @@ export default function BreatheScreen() {
   const [guidedOpen, setGuidedOpen] = useState(false);
   const [moodScanOpen, setMoodScanOpen] = useState(false);
   const phaseCuesRef = useRef(true);
+  const sleepFadeRef = useRef(false);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -84,6 +85,7 @@ export default function BreatheScreen() {
   useEffect(() => () => { cleanup(); stopMix(); }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
   useEffect(() => { getPhaseCues().then((v) => { phaseCuesRef.current = v; }); }, [mode]);
+  useEffect(() => { getSleepFade().then((v) => { sleepFadeRef.current = v; }); }, [mode]);
   // Ambient "minds breathing now" — refresh every few seconds while choosing.
   useEffect(() => {
     if (mode !== 'select') return;
@@ -224,7 +226,8 @@ export default function BreatheScreen() {
     clearInProgressSession();
     capture('session_complete', { minutes: durationMin, pattern: pattern.id });
     playChime('end').catch(() => {});
-    fadeOutMix(mix, 4000).catch(() => {}); // gentle wind-down, esp. for sleep
+    // Gentle wind-down; a long fade if "sleep fade" is on (sound eases you to sleep).
+    fadeOutMix(mix, sleepFadeRef.current ? 90000 : 4000).catch(() => {});
     const today = new Date().toISOString().split('T')[0];
     await saveMeditationSession({
       date: today,

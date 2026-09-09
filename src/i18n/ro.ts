@@ -272,6 +272,8 @@ export const ro: TranslationShape = {
     phaseCuesSub: 'O vibrație subtilă la fiecare inspirație, ținere și expirație',
     analytics: 'Partajează utilizarea anonimă',
     analyticsSub: 'Ne ajută să îmbunătățim ClarMind. Fără date personale, fără urmărire.',
+    sleepFade: 'Estompează sunetul pentru somn',
+    sleepFadeSub: 'După o sesiune, sunetul se stinge ușor în ~90 de secunde',
     language: 'Limbă',
     dailyReminder: 'Memento zilnic',
     reminderSub: 'Anunță-mă să iau un moment de mindfulness',
