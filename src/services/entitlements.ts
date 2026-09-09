@@ -6,6 +6,7 @@
 // unlocks everything so we can test without payments.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCachedPremium } from './purchases';
+import { isPaidVariant } from '../constants/appVariant';
 
 export const FREE_DAILY_LIMIT = 3;   // free Clara messages / AI requests per day
 export const PAID_DAILY_LIMIT = 50;  // premium AI requests per day
@@ -24,11 +25,12 @@ export const setPremiumOverride = async (on: boolean): Promise<void> => {
 };
 
 /**
- * True when the user has premium access: a real RevenueCat subscription (the
- * "premium" entitlement), the build-time bypass, or the in-app testing override.
+ * True when the user has premium access: the paid app variant (everything unlocked),
+ * a real RevenueCat subscription (the "premium" entitlement), the build-time bypass,
+ * or the in-app testing override.
  */
 export const isPremium = async (): Promise<boolean> =>
-  bypassEnabled() || getCachedPremium() || (await getPremiumOverride());
+  isPaidVariant() || bypassEnabled() || getCachedPremium() || (await getPremiumOverride());
 
 export const getAiUsage = async (): Promise<number> =>
   parseInt((await AsyncStorage.getItem(usageKey(today()))) || '0', 10);

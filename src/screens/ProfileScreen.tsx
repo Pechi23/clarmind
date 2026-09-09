@@ -4,6 +4,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform, TextInput, Linking,
 } from 'react-native';
 import { PRIVACY_URL, TERMS_URL } from '../constants/legal';
+import { isPaidVariant } from '../constants/appVariant';
 import * as Clipboard from 'expo-clipboard';
 import DateTimePicker from '../components/DateTimePicker';
 import { exportData, importData } from '../services/backup';
@@ -375,19 +376,21 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </TouchableOpacity>
         )}
 
-        {/* Premium testing unlock */}
-        <View style={styles.settingRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.settingTitle}>{t('profile.premiumTest')}</Text>
-            <Text style={styles.settingSub}>{t('profile.premiumTestSub')}</Text>
+        {/* Premium testing unlock (hidden in the paid build — already all unlocked) */}
+        {!isPaidVariant() && (
+          <View style={styles.settingRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.settingTitle}>{t('profile.premiumTest')}</Text>
+              <Text style={styles.settingSub}>{t('profile.premiumTestSub')}</Text>
+            </View>
+            <Switch
+              value={premium}
+              onValueChange={togglePremium}
+              trackColor={{ false: '#3a3a5e', true: '#fcd34d' }}
+              thumbColor="#fff"
+            />
           </View>
-          <Switch
-            value={premium}
-            onValueChange={togglePremium}
-            trackColor={{ false: '#3a3a5e', true: '#fcd34d' }}
-            thumbColor="#fff"
-          />
-        </View>
+        )}
 
         {notifs && (
           <View style={styles.reminderTimeWrap}>

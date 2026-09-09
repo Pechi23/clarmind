@@ -1,13 +1,28 @@
-// Extends the static app.json. Its only job: when EXPO_PUBLIC_BASE_URL is set
-// (e.g. "/clarmind" for GitHub Pages project sites), bake that base path into the
-// web export so every asset URL resolves under the subpath. When the env var is
-// unset — local dev, native builds, root-hosted web (Netlify/Vercel) — the config
-// is byte-for-byte the same as app.json.
+// Extends the static app.json with two build-time switches:
+//  - EXPO_PUBLIC_BASE_URL (e.g. "/clarmind") bakes a subpath into the web export
+//    so assets resolve under GitHub Pages project sites.
+//  - EXPO_PUBLIC_APP_VARIANT=paid builds the paid twin: a distinct name + bundle id
+//    so the free and paid apps are separate store listings (see constants/appVariant).
+// With neither env var set — local dev, native free build, root-hosted web — the
+// config is byte-for-byte the same as app.json.
 module.exports = ({ config }) => {
+  let c = config;
+
   const baseUrl = process.env.EXPO_PUBLIC_BASE_URL;
-  if (!baseUrl) return config;
-  return {
-    ...config,
-    experiments: { ...(config.experiments || {}), baseUrl },
-  };
+  if (baseUrl) {
+    c = { ...c, experiments: { ...(c.experiments || {}), baseUrl } };
+  }
+
+  if (process.env.EXPO_PUBLIC_APP_VARIANT === 'paid') {
+    const iosId = (c.ios && c.ios.bundleIdentifier) || 'com.clarmind.app';
+    const androidId = (c.android && c.android.package) || 'com.clarmind.app';
+    c = {
+      ...c,
+      name: `${c.name} Pro`,
+      ios: { ...(c.ios || {}), bundleIdentifier: `${iosId}.pro` },
+      android: { ...(c.android || {}), package: `${androidId}.pro` },
+    };
+  }
+
+  return c;
 };
