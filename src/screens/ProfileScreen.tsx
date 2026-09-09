@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform, TextInput,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform, TextInput, Linking,
 } from 'react-native';
+import { PRIVACY_URL, TERMS_URL } from '../constants/legal';
 import * as Clipboard from 'expo-clipboard';
 import DateTimePicker from '../components/DateTimePicker';
 import { exportData, importData } from '../services/backup';
@@ -476,6 +477,19 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           {!!backupMsg && <Text style={styles.backupMsg}>{backupMsg}</Text>}
         </View>
 
+        {/* Legal */}
+        <View style={styles.backupBox}>
+          <Text style={styles.settingTitle}>{t('legal.title')}</Text>
+          <TouchableOpacity onPress={() => Linking.openURL(PRIVACY_URL)} style={styles.legalRow}>
+            <Text style={styles.legalLink}>{t('legal.privacy')}</Text>
+            <Text style={styles.legalArrow}>↗</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => Linking.openURL(TERMS_URL)} style={styles.legalRow}>
+            <Text style={styles.legalLink}>{t('legal.terms')}</Text>
+            <Text style={styles.legalArrow}>↗</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Reset */}
         <TouchableOpacity onPress={handleReset} activeOpacity={0.85} style={styles.resetButton}>
           <Text style={styles.resetText}>{t('profile.reset')}</Text>
@@ -611,6 +625,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular, fontSize: 12, color: COLORS.text,
   },
   backupMsg: { fontFamily: FONTS.medium, fontSize: 12, color: COLORS.accent, marginTop: SPACING.sm, textAlign: 'center' },
+  legalRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', marginTop: SPACING.sm,
+  },
+  legalLink: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.primaryLight },
+  legalArrow: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.textMuted },
   langToggle: {
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: RADIUS.full, padding: 3, gap: 2,

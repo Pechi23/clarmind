@@ -179,6 +179,11 @@ export const ro: TranslationShape = {
     trendDown: 'un pic mai jos în ultima vreme ↓',
     trendFlat: 'stabil →',
   },
+  legal: {
+    title: 'Legal',
+    privacy: 'Politica de confidențialitate',
+    terms: 'Termeni și condiții',
+  },
   backup: {
     title: 'Backup și restaurare',
     sub: 'Salvează-ți progresul sau mută-l pe alt telefon',

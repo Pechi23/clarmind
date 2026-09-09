@@ -177,6 +177,11 @@ export const en = {
     trendDown: 'a bit lower lately ↓',
     trendFlat: 'steady →',
   },
+  legal: {
+    title: 'Legal',
+    privacy: 'Privacy Policy',
+    terms: 'Terms & Conditions',
+  },
   backup: {
     title: 'Backup & restore',
     sub: 'Save your progress, or move it to another device',

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ClarMind — Privacy Policy</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0f0c29; color: #e5e7f0; font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 80px; }
+  h1 { font-size: 30px; margin: 0 0 4px; }
+  h2 { font-size: 20px; margin: 34px 0 8px; color: #c4b5fd; }
+  h3 { font-size: 16px; margin: 22px 0 6px; color: #a5b4fc; }
+  .updated { color: #94a3b8; font-size: 14px; margin-bottom: 8px; }
+  .logo { color: #a78bfa; font-weight: 700; letter-spacing: 1px; }
+  a { color: #7dd3fc; }
+  ul { padding-left: 20px; }
+  li { margin: 5px 0; }
+  .note { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; margin: 16px 0; }
+  code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 5px; font-size: 13px; }
+  footer { color: #64748b; font-size: 13px; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="logo">✦ ClarMind</p>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: 10 September 2026</p>
+
+  <p>ClarMind (“we”, “our”, “the app”) is a mindfulness, breathing and astrology app. We built it to be <strong>privacy-first and local-first</strong>: your personal data lives on your device, and only the specific items described below ever leave it. ClarMind has <strong>no user accounts</strong>.</p>
+
+  <h2>Summary</h2>
+  <ul>
+    <li>Your profile, sessions, moods, journal, streaks and progress are stored <strong>only on your device</strong>.</li>
+    <li>Some features send small, specific pieces of data off your device to make them work: AI content, the leaderboard, birth-chart geocoding and purchases (details below).</li>
+    <li>We do <strong>not</strong> sell your data, show third-party ads, or track you across other apps or websites.</li>
+    <li>There are no user accounts and no email/password.</li>
+  </ul>
+
+  <h2>Data stored only on your device</h2>
+  <p>Saved locally (standard app storage) and never sent to us:</p>
+  <ul>
+    <li>The name/nickname you enter, your zodiac sign and wellness goal</li>
+    <li>Birth details you optionally enter for numerology / birth chart (date, time, place)</li>
+    <li>Meditation and breathing session history, mood check-ins, evening-reflection journal</li>
+    <li>Streak, shields, XP, level, achievements, challenges, and your chat history with “Clara”</li>
+    <li>Your preferences (language, reminders, cues)</li>
+  </ul>
+  <p>You can erase all of it at any time in <strong>Profile → Settings → Reset onboarding</strong>, or back it up via <strong>Backup &amp; restore</strong>.</p>
+
+  <h2>Data sent off your device (and why)</h2>
+
+  <h3>1. AI features — Google Gemini via our proxy</h3>
+  <p>When you use AI features (daily content, the “Clara” chat, guided meditations, the mood check-in, weekly insights, numerology reading, personalized horoscope), the app sends the text needed for that feature to Google’s Gemini API through our own <strong>Cloudflare Worker proxy</strong>. Depending on the feature this may include your first name, zodiac sign, goal, the date, the day’s “cosmic energy”/moon phase, aggregate session/mood counts, or <strong>the text you type or say</strong> to Clara or the mood check-in. Our proxy only holds the API key and forwards the request; it does not store your requests on a server. Google processes the request under <a href="https://policies.google.com/privacy">Google’s Privacy Policy</a>. If you stay offline, AI content simply won’t refresh; everything else keeps working.</p>
+
+  <h3>2. Leaderboard — Cloudflare D1</h3>
+  <p>If you open the leaderboard (“Top”), the app sends your <strong>display name, zodiac sign and stats</strong> (XP, streak, minutes) plus a <strong>random, anonymous device id</strong> to our Cloudflare Worker + D1 database so the community ranking can be shown. There is no account and no email. Your device id is generated on your device and is never shown to other users. You can ask us to remove your leaderboard entry (see Contact); resetting the app also stops further updates.</p>
+
+  <h3>3. Birth chart — OpenStreetMap Nominatim</h3>
+  <p>If you generate a birth chart, the <strong>birth city you enter</strong> is sent to the OpenStreetMap Nominatim service to look up coordinates. The result is cached on your device.</p>
+
+  <h3>4. Purchases — the app store &amp; RevenueCat</h3>
+  <p>Purchases are handled by Apple’s App Store / Google Play and by RevenueCat. We receive your <strong>purchase/subscription status</strong> to unlock features — not your card or payment details.</p>
+
+  <h3>5. Voice input</h3>
+  <p>When you tap the microphone (Clara, mood check-in), your speech is turned into text by your device’s or browser’s speech-recognition. We do not record or store audio; only the resulting text is used as described in section&nbsp;1.</p>
+
+  <h2>Notifications</h2>
+  <p>If you enable reminders, ClarMind schedules <strong>local notifications</strong> on your device. They are generated on-device and not sent through us.</p>
+
+  <h2>Advertising &amp; analytics</h2>
+  <p>ClarMind shows no third-party advertising and does not track you across other apps. We do not currently use analytics. If we add anonymous usage analytics in the future, we will update this policy and it will use an anonymous device id with an opt-out.</p>
+
+  <h2>Children’s privacy</h2>
+  <p>ClarMind is not directed to children under 13 (or the minimum age in your country). We do not knowingly collect personal information from children.</p>
+
+  <h2>Your rights &amp; choices</h2>
+  <ul>
+    <li><strong>Access / portability:</strong> export all your data via Backup &amp; restore.</li>
+    <li><strong>Erasure:</strong> Reset onboarding wipes your local data; contact us to remove your leaderboard entry.</li>
+    <li><strong>Minimize sharing:</strong> use the app offline to avoid AI requests, and don’t open the leaderboard to avoid submitting a score.</li>
+  </ul>
+  <p>EU/EEA users have rights under the GDPR (access, rectification, erasure, objection). Because the app is local-first, most of these you exercise directly on your device.</p>
+
+  <h2>Data retention</h2>
+  <p>Local data stays until you delete it. Leaderboard rows are kept until you ask us to remove yours or the entry is cleared. AI providers retain data per their own policies.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>We may update this policy; material changes are reflected by the “Last updated” date above.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <strong>[add your contact email before publishing]</strong>.</p>
+
+  <footer>ClarMind · Privacy Policy · See also the <a href="terms.html">Terms &amp; Conditions</a>.</footer>
+</div>
+</body>
+</html>

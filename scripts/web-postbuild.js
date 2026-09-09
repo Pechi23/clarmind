@@ -28,6 +28,16 @@ if (fs.existsSync(iconSrc)) {
   fs.copyFileSync(iconSrc, path.join(DIST, 'icon.png'));
 }
 
+// 1b) Copy static legal pages (public/*.html) into the deploy so Privacy & Terms
+// get real public URLs (e.g. /clarmind/privacy.html) for the app-store listings.
+const publicDir = path.resolve(__dirname, '..', 'public');
+if (fs.existsSync(publicDir)) {
+  for (const f of fs.readdirSync(publicDir)) {
+    if (f.endsWith('.html')) fs.copyFileSync(path.join(publicDir, f), path.join(DIST, f));
+  }
+  console.log('web-postbuild: copied public/*.html (legal pages) into dist.');
+}
+
 // 2) Write the web manifest. Relative paths keep it valid at root or /<repo>/.
 const manifest = {
   name: NAME,
