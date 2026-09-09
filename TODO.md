@@ -162,6 +162,7 @@ Small-to-medium polish + a few features. Faithful to how George wrote them, with
   - **Privacy Policy — exists (`legal/privacy-policy.md` + `legal/index.html`) but must be updated** for the current data flows: Gemini via the **Cloudflare proxy**, the **Cloudflare D1 leaderboard** (anonymous device id, name/sign/stats shared), **RevenueCat**, geocoding (Nominatim), and **analytics if added** (P5). Note it's local-first (data stays on device except the above).
   - **Host both** as public URLs — easiest on the existing GitHub Pages site (e.g. `/clarmind/privacy` + `/clarmind/terms`, add to `scripts/web-postbuild.js` or a static route).
   - **Surface in-app** — a "Legal" section in Profile → Settings linking Privacy + Terms (app currently links neither), and show/accept at onboarding + at purchase. Consolidate the existing inline disclaimers (Clara "not a substitute for professional care," numerology "for reflection/entertainment") to point here.
+  - ⚠️ **Have the final Terms + Privacy reviewed by a qualified person / lawyer before public launch** — what we generate are solid templates, not legal advice; a quick professional check (esp. GDPR + purchase/refund terms for the EU release) before submitting to the stores.
 
 ---
 
