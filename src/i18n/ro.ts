@@ -140,6 +140,18 @@ export const ro: TranslationShape = {
     entry: 'Meditație ghidată AI',
     entrySub: 'O voce calmă te ghidează, scrisă special pentru azi',
   },
+  moodScan: {
+    entry: 'Cum te simți?',
+    entrySub: 'Spune cu voce tare — primești un moment de calm',
+    title: 'Check-in',
+    prompt: 'Apasă microfonul și spune cum te simți — sau scrie.',
+    placeholder: 'Cum te simți chiar acum?',
+    listening: 'Ascult…',
+    analyze: '✨ Reflectă',
+    analyzing: 'Reflectez…',
+    suggested: 'Încearcă: {pattern}',
+    fallback: 'Mulțumesc că te-ai oprit o clipă. Respiră lent — ești aici, și e de ajuns.',
+  },
   insights: {
     title: 'Observații',
     loading: 'Îți citesc tiparele…',

@@ -33,6 +33,7 @@ import { useContentBottomPadding } from '../constants/layout';
 import { suggestSession } from '../services/sessionSuggestion';
 import { getBreathingNow } from '../services/breathingNow';
 import GuidedMeditationScreen from './GuidedMeditationScreen';
+import VoiceMoodScan from '../components/VoiceMoodScan';
 import { getMoodEntries } from '../services/storage';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
@@ -66,6 +67,7 @@ export default function BreatheScreen() {
   const [suggestion, setSuggestion] = useState<ReturnType<typeof suggestSession>>(null);
   const [breathingNow, setBreathingNow] = useState<number>(() => getBreathingNow());
   const [guidedOpen, setGuidedOpen] = useState(false);
+  const [moodScanOpen, setMoodScanOpen] = useState(false);
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -282,6 +284,15 @@ export default function BreatheScreen() {
             </LinearGradient>
           </TouchableOpacity>
 
+          <TouchableOpacity onPress={() => setMoodScanOpen(true)} activeOpacity={0.85} style={styles.checkinCard}>
+            <Text style={styles.guidedEmoji}>💬</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.guidedTitle}>{t('moodScan.entry')}</Text>
+              <Text style={styles.guidedSub}>{t('moodScan.entrySub')}</Text>
+            </View>
+            <Text style={styles.guidedArrow}>→</Text>
+          </TouchableOpacity>
+
           {resumable && (
             <View style={styles.resumeBanner}>
               <View style={{ flex: 1 }}>
@@ -410,6 +421,8 @@ export default function BreatheScreen() {
         <Modal visible={guidedOpen} animationType="slide" onRequestClose={() => setGuidedOpen(false)}>
           <GuidedMeditationScreen onClose={() => setGuidedOpen(false)} />
         </Modal>
+
+        <VoiceMoodScan visible={moodScanOpen} onClose={() => setMoodScanOpen(false)} />
       </LinearGradient>
     );
   }
@@ -543,7 +556,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.medium, fontSize: 13, color: COLORS.primaryLight,
     marginBottom: SPACING.lg,
   },
-  guidedCard: { borderRadius: RADIUS.lg, overflow: 'hidden', marginBottom: SPACING.lg },
+  guidedCard: { borderRadius: RADIUS.lg, overflow: 'hidden', marginBottom: SPACING.md },
+  checkinCard: {
+    flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
+    padding: SPACING.md, marginBottom: SPACING.lg,
+    backgroundColor: 'rgba(125,211,252,0.1)', borderRadius: RADIUS.lg,
+    borderWidth: 1, borderColor: 'rgba(125,211,252,0.25)',
+  },
   guidedInner: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
     padding: SPACING.md, borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)', borderRadius: RADIUS.lg,

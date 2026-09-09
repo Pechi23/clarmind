@@ -138,6 +138,18 @@ export const en = {
     entry: 'AI Guided Meditation',
     entrySub: 'A calm voice guides you, written just for today',
   },
+  moodScan: {
+    entry: 'How are you feeling?',
+    entrySub: 'Say it out loud — get a moment of calm back',
+    title: 'Check-in',
+    prompt: 'Tap the mic and say how you feel — or type it.',
+    placeholder: 'How are you feeling right now?',
+    listening: 'Listening…',
+    analyze: '✨ Reflect',
+    analyzing: 'Reflecting…',
+    suggested: 'Try: {pattern}',
+    fallback: 'Thank you for checking in. Take one slow breath — you are here, and that is enough.',
+  },
   insights: {
     title: 'Insights',
     loading: 'Reading your patterns…',
