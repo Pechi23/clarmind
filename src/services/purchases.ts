@@ -8,17 +8,27 @@ import Purchases, { CustomerInfo, PurchasesPackage } from 'react-native-purchase
 export const ENTITLEMENT_ID = 'premium';
 const KEY = process.env.EXPO_PUBLIC_REVENUECAT_KEY ?? '';
 
+// RevenueCat only permits a `test_` store key in debug builds — in a release
+// build its native SDK shows a blocking "Wrong API Key" dialog and force-closes
+// the app. So a test key is usable only when __DEV__ is true; in a release build
+// we must not configure with it, and premium falls back to the testing bypass.
+const isTestKey = KEY.startsWith('test_');
+// __DEV__ is injected by Metro (false in release). Guard for the jest/node env
+// where it's undefined — there we treat it as dev so tests can use a test key.
+const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : true;
+const keyUsable = !!KEY && (!isTestKey || isDev);
+
 /** True when a RevenueCat key is configured (i.e. purchases are wired up). */
-export const purchasesAvailable = (): boolean => !!KEY;
+export const purchasesAvailable = (): boolean => keyUsable;
 
 let configured = false;
 let cachedPremium = false;
 
 const hasPremium = (info: CustomerInfo): boolean => !!info.entitlements.active[ENTITLEMENT_ID];
 
-/** Configure the SDK once at app start. Safe to call repeatedly; no-op without a key. */
+/** Configure the SDK once at app start. Safe to call repeatedly; no-op without a usable key. */
 export const configurePurchases = async (): Promise<void> => {
-  if (!KEY || configured) return;
+  if (!keyUsable || configured) return;
   try {
     Purchases.configure({ apiKey: KEY });
     configured = true;
