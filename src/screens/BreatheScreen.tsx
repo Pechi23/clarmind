@@ -13,7 +13,9 @@ import {
   setInProgressSession, getInProgressSession, clearInProgressSession, InProgressSession,
 } from '../services/storage';
 import { MoodEntry } from '../types';
-import { saveMoodEntry, getPhaseCues, getSleepFade } from '../services/storage';
+import { saveMoodEntry, getPhaseCues, getSleepFade, getBreathCalibration, setBreathCalibration } from '../services/storage';
+import { applyCalibration } from '../services/breathCalibration';
+import BreathCalibrationModal from '../components/BreathCalibrationModal';
 import {
   SOUNDSCAPES, syncMix, stopMix, fadeOutMix, playChime,
 } from '../services/soundscape';
@@ -38,6 +40,11 @@ import VoiceMoodScan from '../components/VoiceMoodScan';
 import { getMoodEntries } from '../services/storage';
 
 const isAfter9PM = () => new Date().getHours() >= 21 || new Date().getHours() < 5;
+
+// The original, uncalibrated pattern for an id — calibration is always applied
+// on top of this so it never compounds.
+const basePatternOf = (p: BreathingPattern): BreathingPattern =>
+  BREATHING_PATTERNS.find((bp) => bp.id === p.id) ?? p;
 
 type Mode = 'select' | 'session' | 'complete';
 
@@ -69,6 +76,8 @@ export default function BreatheScreen() {
   const [breathingNow, setBreathingNow] = useState<number>(() => getBreathingNow());
   const [guidedOpen, setGuidedOpen] = useState(false);
   const [moodScanOpen, setMoodScanOpen] = useState(false);
+  const [calibration, setCalibration] = useState(1);
+  const [calibrateOpen, setCalibrateOpen] = useState(false);
   const phaseCuesRef = useRef(true);
   const sleepFadeRef = useRef(false);
 
@@ -83,6 +92,13 @@ export default function BreatheScreen() {
   };
 
   useEffect(() => () => { cleanup(); stopMix(); }, []);
+  // Load the saved breath-pace calibration and apply it to the current pattern.
+  useEffect(() => {
+    getBreathCalibration().then((s) => {
+      setCalibration(s);
+      if (s !== 1) setPattern((p) => applyCalibration(basePatternOf(p), s));
+    });
+  }, []);
   useEffect(() => { getTotalMeditationMinutes().then(setTotalMinutes); }, [mode]);
   useEffect(() => { getPhaseCues().then((v) => { phaseCuesRef.current = v; }); }, [mode]);
   useEffect(() => { getSleepFade().then((v) => { sleepFadeRef.current = v; }); }, [mode]);
@@ -342,7 +358,7 @@ export default function BreatheScreen() {
               return (
                 <TouchableOpacity
                   key={p.id}
-                  onPress={() => setPattern(p)}
+                  onPress={() => setPattern(applyCalibration(p, calibration))}
                   activeOpacity={0.85}
                   style={[
                     styles.patternCard,
@@ -358,6 +374,16 @@ export default function BreatheScreen() {
               );
             })}
           </View>
+
+          <TouchableOpacity
+            style={styles.calibrateBtn}
+            onPress={() => setCalibrateOpen(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.calibrateBtnText, calibration !== 1 && { color: pattern.color }]}>
+              {calibration !== 1 ? t('breathe.calibrated') : `🫁  ${t('breathe.calibrate')}`}
+            </Text>
+          </TouchableOpacity>
 
           <Text style={styles.label}>{t('breathe.sessionLength')}</Text>
           <View style={styles.durationRow}>
@@ -444,6 +470,18 @@ export default function BreatheScreen() {
         </Modal>
 
         <VoiceMoodScan visible={moodScanOpen} onClose={() => setMoodScanOpen(false)} />
+
+        <BreathCalibrationModal
+          visible={calibrateOpen}
+          pattern={basePatternOf(pattern)}
+          onClose={() => setCalibrateOpen(false)}
+          onSave={(scale) => {
+            setCalibration(scale);
+            setBreathCalibration(scale);
+            setPattern((p) => applyCalibration(basePatternOf(p), scale));
+            setCalibrateOpen(false);
+          }}
+        />
       </LinearGradient>
     );
   }
@@ -619,6 +657,17 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   patternList: { gap: SPACING.sm },
+  calibrateBtn: {
+    alignSelf: 'center',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    marginTop: SPACING.md,
+  },
+  calibrateBtnText: {
+    fontFamily: FONTS.medium,
+    fontSize: 14,
+    color: COLORS.textMuted,
+  },
   patternCard: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
     padding: SPACING.md, backgroundColor: 'rgba(255,255,255,0.05)',

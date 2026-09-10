@@ -15,6 +15,7 @@ const KEYS = {
   NOTIFICATIONS_ENABLED: 'clarmind_notifications_enabled',
   PHASE_CUES: 'clarmind_phase_cues',
   SLEEP_FADE: 'clarmind_sleep_fade',
+  BREATH_CALIBRATION: 'clarmind_breath_calibration',
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
   LAST_RECAP_WEEK: 'clarmind_last_recap_week',
@@ -268,6 +269,17 @@ export const setSleepFade = async (enabled: boolean): Promise<void> => {
 };
 export const getSleepFade = async (): Promise<boolean> => {
   return (await AsyncStorage.getItem(KEYS.SLEEP_FADE)) === 'true';
+};
+
+// Breath calibration: a single multiplier scaling every pattern to the user's
+// natural pace. 1 = uncalibrated (pattern runs at its designed speed).
+export const setBreathCalibration = async (scale: number): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.BREATH_CALIBRATION, String(scale));
+};
+export const getBreathCalibration = async (): Promise<number> => {
+  const raw = await AsyncStorage.getItem(KEYS.BREATH_CALIBRATION);
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 1;
 };
 
 // Weekly recap — remember which week's recap we've already shown
