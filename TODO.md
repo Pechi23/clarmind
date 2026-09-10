@@ -196,6 +196,12 @@ Most of that brainstorm ClarMind already had; these were the genuinely-new ones,
 - TypeScript strict mode on for app code; tests excluded from tsc. `npm test` = 84 tests / 9 suites (pure logic + AsyncStorage-mocked integration).
 - Soundscapes are procedurally-generated WAVs (`scripts/generate-sounds.js`). Fine for launch; could be swapped for higher-fidelity recordings later.
 
+### On-device testing feedback — George, 2026-09-10 (from the arm64 APK, real phone) — OPEN
+1. 🐞 **Onboarding page 1 ("Choose your language") doesn't scroll** — the language list is cut off / can't reach items below the fold. Likely the first onboarding step isn't wrapped in a `ScrollView` (or the ScrollView has no flex/contentContainer height) so long language lists overflow off-screen. Check `OnboardingScreen` step 0. **P0-ish** (blocks picking some languages on smaller screens / longer lists).
+2. 🐞 **Name input box not visible** — on the onboarding step where you type your name, the text field itself doesn't show (you can't see where the name goes). Could be: input rendered with no visible border/background on the dark theme, keyboard covering it (edge-to-edge `adjustPan` — see known issue above), or it's off-screen below the fold (same scroll issue as #1). Verify the name `TextInput` is visible + scrolls into view when focused. **P0-ish** (can't confirm what you typed).
+3. ❓ **"How do I unlock premium for testing?"** — ANSWERED (not a bug): **Profile tab → Settings → "Premium (testing)"** toggle ("Unlock numerology, birth chart & 50 AI/day for testing"). It's `setPremiumOverride(true)` and is **hidden in the paid variant** (that build is already all-unlocked). TODO: make this more discoverable during testing (maybe a hint), and confirm the toggle is reachable given bug #1's scroll issue on Profile too.
+4. ✨ **Replace the robotic AI voice with a smooth female voice** — Clara's TTS (`ClaraScreen.tsx:37 Speech.speak(..., rate:0.95, pitch:1.05)`) uses the device default voice (robotic). Fix: call `Speech.getAvailableVoicesAsync()`, pick a **female, higher-quality** voice per locale (prefer enhanced/neural — e.g. `com.apple.voice.enhanced.*` / `en-us-x-*-network` on Android; fall back gracefully), pass `{ voice: identifier }`. Also applies to guided meditation TTS (`guidedMeditation.ts` voice avatars) — unify the voice picker. Note: available voices vary by device/OS; may need a small preference + fallback chain.
+
 ---
 
 ## 6. Session log
