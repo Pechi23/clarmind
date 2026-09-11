@@ -4,8 +4,7 @@ import {
   KeyboardAvoidingView, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Speech from 'expo-speech';
-import { speakCalm } from '../services/voice';
+import { speakCalm, stopSpeaking } from '../services/voice';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, speechRecognitionAvailable } from '../services/speechRecognition';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
@@ -34,7 +33,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
 
   const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT' };
   const speak = (text: string) => {
-    Speech.stop();
+    stopSpeaking();
     // Natural female voice (pitch 1.0 — a raised pitch is what sounds robotic).
     speakCalm(text, TTS_LOCALE[language] ?? 'en-US', { rate: 0.95, pitch: 1.0 });
   };
@@ -52,14 +51,14 @@ export default function ClaraScreen({ profile, onClose }: Props) {
     try {
       const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
       if (!perm.granted) return;
-      Speech.stop();
+      stopSpeaking();
       setRecording(true);
       ExpoSpeechRecognitionModule.start({ lang: TTS_LOCALE[language] ?? 'en-US', interimResults: true, continuous: false });
     } catch { setRecording(false); }
   };
 
   // Stop any speech/recording when the screen closes.
-  useEffect(() => () => { Speech.stop(); try { ExpoSpeechRecognitionModule.stop(); } catch {} }, []);
+  useEffect(() => () => { stopSpeaking(); try { ExpoSpeechRecognitionModule.stop(); } catch {} }, []);
 
   useEffect(() => {
     (async () => {
@@ -138,7 +137,7 @@ export default function ClaraScreen({ profile, onClose }: Props) {
           </View>
           <View style={styles.headerRight}>
             <TouchableOpacity
-              onPress={() => { if (autoSpeak) Speech.stop(); setAutoSpeak((v) => !v); }}
+              onPress={() => { if (autoSpeak) stopSpeaking(); setAutoSpeak((v) => !v); }}
               hitSlop={10}
             >
               <Text style={[styles.voiceToggle, autoSpeak && styles.voiceToggleOn]}>{autoSpeak ? '🔊' : '🔈'}</Text>

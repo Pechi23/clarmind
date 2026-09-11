@@ -212,6 +212,10 @@ Most of that brainstorm ClarMind already had; these were the genuinely-new ones,
 11. ✅ **City-select bug** — DONE 2026-09-11 — `placeSearch.ts` built the query with `URLSearchParams`, which is unreliable in React Native/Hermes; switched to manual `encodeURIComponent` like `geocode.ts`.
 12. ✅ **Rate-limit rule tweak** — DONE 2026-09-11 — first 2 language changes are back to back (no cooldown); the 15-min cooldown now only gates the 3rd (last) change of the day.
 13. ✅ **No dashes / do not look AI** — DONE 2026-09-11 — hard rule added to `CLAUDE.md`; swept em/en dashes from `i18n/en.ts` + `ro.ts`. STILL OPEN: sweep the other 5 locale files (it/fr/es/de/pt) on their next edit.
+14. ✅ **Neural AI voice (Gemini TTS)** — DONE 2026-09-11 (code) — cloud neural TTS via Gemini `gemini-2.5-flash-preview-tts` through the proxy (`?mode=tts`), voices Kore (female) / Charon (male), PCM wrapped to WAV (`wav.ts`, tested) and played with expo-av; falls back to on-device voice if unavailable. **ACTION NEEDED FROM GEORGE:** redeploy the proxy worker (`cd proxy && wrangler deploy`) so `?mode=tts` routes to the TTS model, and confirm the Gemini key has access to the preview TTS model. Until then it uses the on-device voice.
+15. ✅ **Onboarding EN/RO toggle removed** — DONE 2026-09-11 — the old 2-language toggle on the name step is gone now that language is chosen on step 0 (7 languages).
+17. ✅ **Ascendant mismatch fixed** — DONE 2026-09-11 — the Numerology summary showed the rough Sun+time estimate (e.g. Leo) while the full birth chart showed the accurate location-based value (e.g. Pisces). Numerology now geocodes the birth place and uses the same `computeNatalChart` ascendant, so both match. The estimate is only a fallback when no location is set.
+16. ⏳ **User accounts / login** (NOT NOW, needs backend) — sign in with Google, Apple, or email + password; forgot-password flow, account management, cross-device sync. Needs an auth backend (e.g. Supabase Auth, Firebase Auth, or Clerk) and moving from local-only storage to a synced user record. Big piece, defer until after launch. Ties into the friends/social backlog.
 
 ---
 

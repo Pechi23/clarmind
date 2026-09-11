@@ -17,7 +17,9 @@ import {
 import { getNumerologyReading, NumerologyReading } from '../services/numerologyReading';
 import { isFeatureLocked } from '../services/entitlements';
 import { ascendantSign } from '../services/ascendant';
-import { moonSign } from '../services/birthChart';
+import { moonSign, computeNatalChart, signFromLongitude } from '../services/birthChart';
+import { geocodePlace } from '../services/geocode';
+import { ZodiacSign } from '../constants/zodiac';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
 import GradientCard from '../components/GradientCard';
@@ -57,7 +59,22 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const initialCountry = initialComma >= 0 ? initialPlace.slice(initialComma + 1).trim() : '';
   const [country, setCountry] = useState(initialCountry);
   const [countryCode, setCountryCode] = useState<string | undefined>(findCountryByName(initialCountry)?.code);
+  const [accurateAsc, setAccurateAsc] = useState<ZodiacSign | null>(null);
   const [error, setError] = useState('');
+
+  // Accurate ascendant: geocode the birth place and use the same astronomical
+  // calc as the natal chart, so the "Rising" here matches the full birth chart
+  // (instead of the rough Sun+time estimate) once a location is known.
+  useEffect(() => {
+    let cancelled = false;
+    if (!birth?.place) { setAccurateAsc(null); return; }
+    geocodePlace(birth.place).then((coords) => {
+      if (cancelled || !coords) return;
+      const chart = computeNatalChart(birth.dob, birth.hour, birth.minute, coords.lat, coords.lon);
+      if (chart.ascendant !== null) setAccurateAsc(signFromLongitude(chart.ascendant));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [birth?.place, birth?.dob, birth?.hour, birth?.minute]);
 
   const pad = (n: number) => String(n).padStart(2, '0');
   const dateLabel = dateVal ? `${pad(dateVal.getDate())}.${pad(dateVal.getMonth() + 1)}.${dateVal.getFullYear()}` : '';
@@ -236,7 +253,8 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const nums = computeNumerology(dob, `${birth.firstName} ${birth.lastName}`);
   const matrix = computeDestinyMatrix(dob);
 
-  const ascName = ascendantSign(profile.zodiacSign, birth.hour, birth.minute);
+  // Prefer the accurate, location-based ascendant; fall back to the estimate.
+  const ascName = accurateAsc ?? ascendantSign(profile.zodiacSign, birth.hour, birth.minute);
   const ascInfo = ZODIAC_SIGNS.find((z) => z.name === ascName)!;
   const sunInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
   const moonInfo = ZODIAC_SIGNS.find((z) => z.name === moonSign(birth.dob, birth.hour, birth.minute))!;

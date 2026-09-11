@@ -132,19 +132,6 @@ export default function OnboardingScreen({ onComplete }: Props) {
           >
             <View style={styles.topRow}>
               <Text style={styles.logo}>✦ ClarMind</Text>
-              <View style={styles.langToggle}>
-                {(['en', 'ro'] as const).map((lng) => (
-                  <TouchableOpacity
-                    key={lng}
-                    onPress={() => setLanguage(lng)}
-                    style={[styles.langChip, language === lng && styles.langChipActive]}
-                  >
-                    <Text style={[styles.langChipText, language === lng && styles.langChipTextActive]}>
-                      {lng === 'en' ? 'EN' : 'RO'}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
             </View>
             <Text style={styles.headline}>{t('onboarding.headline')}</Text>
             <Text style={styles.subtext}>{t('onboarding.subtext')}</Text>

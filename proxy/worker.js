@@ -7,8 +7,9 @@
 // Deploy: see README.md. Set the secret with `wrangler secret put GEMINI_API_KEY`.
 
 const MODEL = 'gemini-3.6-flash';
-const GEMINI = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
-const MAX_BODY = 24_000; // bytes — our largest prompt is well under this
+const TTS_MODEL = 'gemini-2.5-flash-preview-tts'; // neural text-to-speech
+const url = (model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+const MAX_BODY = 24_000; // bytes, our largest prompt is well under this
 
 export default {
   async fetch(request, env) {
@@ -30,7 +31,10 @@ export default {
       return json({ error: 'Invalid JSON body' }, 400);
     }
 
-    const res = await fetch(`${GEMINI}?key=${env.GEMINI_API_KEY}`, {
+    // ?mode=tts routes to the text-to-speech model; everything else is text.
+    const isTts = new URL(request.url).searchParams.get('mode') === 'tts';
+    const target = url(isTts ? TTS_MODEL : MODEL);
+    const res = await fetch(`${target}?key=${env.GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,

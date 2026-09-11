@@ -2,8 +2,11 @@
 // The pure selection logic lives in voiceSelect.ts (unit-tested); this file just
 // enumerates the device voices once and speaks with the chosen identifier.
 import * as Speech from 'expo-speech';
+import { Audio } from 'expo-av';
 import { chooseVoice, VoiceLike } from './voiceSelect';
 import { getVoiceGender } from './storage';
+import { synthesizeGemini } from './tts';
+import { wavDataUri } from './wav';
 
 const cache: Record<string, string | undefined> = {};
 let voicesPromise: Promise<Speech.Voice[]> | null = null;
@@ -37,7 +40,17 @@ export interface SpeakOptions {
  * Speak with a calm, natural female voice. Pitch defaults to 1.0 (a raised pitch
  * is what makes TTS sound robotic) and rate slightly slow.
  */
-export const speakCalm = async (text: string, locale: string, opts: SpeakOptions = {}): Promise<void> => {
+let cloudSound: Audio.Sound | null = null;
+
+/** Stop any speech (cloud audio or on-device). */
+export const stopSpeaking = async (): Promise<void> => {
+  Speech.stop();
+  const s = cloudSound;
+  cloudSound = null;
+  if (s) { try { await s.stopAsync(); } catch {} try { await s.unloadAsync(); } catch {} }
+};
+
+const speakOnDevice = async (text: string, locale: string, opts: SpeakOptions) => {
   const voice = await getVoiceId(locale);
   Speech.speak(text, {
     language: locale,
@@ -48,4 +61,34 @@ export const speakCalm = async (text: string, locale: string, opts: SpeakOptions
     onStopped: opts.onStopped,
     onError: opts.onError,
   });
+};
+
+/**
+ * Speak text. Prefers Gemini neural TTS (natural, Siri-like) and falls back to
+ * the on-device voice when cloud TTS is unavailable or fails.
+ */
+export const speakCalm = async (text: string, locale: string, opts: SpeakOptions = {}): Promise<void> => {
+  await stopSpeaking();
+  try {
+    const audio = await synthesizeGemini(text);
+    if (audio) {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: wavDataUri(audio.base64, audio.rate) },
+        { shouldPlay: true }
+      );
+      cloudSound = sound;
+      sound.setOnPlaybackStatusUpdate((st: any) => {
+        if (st?.isLoaded && st.didJustFinish) {
+          if (cloudSound === sound) cloudSound = null;
+          sound.unloadAsync().catch(() => {});
+          opts.onDone?.();
+        }
+      });
+      return;
+    }
+  } catch {
+    // fall through to on-device
+  }
+  await speakOnDevice(text, locale, opts);
 };
