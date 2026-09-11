@@ -55,7 +55,11 @@ export default function OnboardingScreen({ onComplete }: Props) {
     <LinearGradient colors={GRADIENTS.background} style={styles.container}>
       <View style={[styles.flex, { paddingBottom: kb }]}>
         {step === 0 ? (
-          <View style={styles.stepContainer}>
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.stepScroll}
+            showsVerticalScrollIndicator={false}
+          >
             <Text style={styles.logo}>✦ ClarMind</Text>
             <Text style={styles.headline}>{t('onboarding.langTitle')}</Text>
             <Text style={styles.subtext}>{t('onboarding.langSubtitle')}</Text>
@@ -72,7 +76,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </ScrollView>
         ) : step === 3 ? (
           <View style={styles.flex}>
             <View style={styles.stepHeader}>
@@ -120,7 +124,12 @@ export default function OnboardingScreen({ onComplete }: Props) {
             </View>
           </View>
         ) : step === 1 ? (
-          <View style={styles.stepContainer}>
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.stepScroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.topRow}>
               <Text style={styles.logo}>✦ ClarMind</Text>
               <View style={styles.langToggle}>
@@ -139,7 +148,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
             </View>
             <Text style={styles.headline}>{t('onboarding.headline')}</Text>
             <Text style={styles.subtext}>{t('onboarding.subtext')}</Text>
-            <View style={{ flex: 1 }} />
+            {/* Input sits directly under the header so the keyboard never covers it. */}
             <View style={styles.inputWrapper}>
               <Text style={styles.label}>{t('onboarding.namePrompt')}</Text>
               <TextInput
@@ -163,7 +172,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
                 <Text style={styles.buttonText}>{t('common.continue')}</Text>
               </LinearGradient>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         ) : (
           <View style={styles.flex}>
             <View style={styles.stepHeader}>
@@ -229,6 +238,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingTop: 80,
     paddingBottom: SPACING.xl,
+  },
+  stepScroll: {
+    flexGrow: 1,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: 80,
+    paddingBottom: SPACING.xxl,
   },
   topRow: {
     flexDirection: 'row',
