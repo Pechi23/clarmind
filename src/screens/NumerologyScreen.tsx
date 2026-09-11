@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
   KeyboardAvoidingView, ActivityIndicator, Platform, Modal,
@@ -22,6 +22,9 @@ import { ZODIAC_SIGNS } from '../constants/zodiac';
 import DestinyMatrixChart, { MatrixNodeSelection } from '../components/DestinyMatrixChart';
 import GradientCard from '../components/GradientCard';
 import NatalChartScreen from './NatalChartScreen';
+import CountryPicker from '../components/CountryPicker';
+import CityAutocomplete from '../components/CityAutocomplete';
+import { findCountryByName } from '../constants/countries';
 
 interface Props {
   profile: UserProfile;
@@ -51,8 +54,9 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
   const initialPlace = profile.birth?.place ?? '';
   const initialComma = initialPlace.indexOf(',');
   const [locality, setLocality] = useState(initialComma >= 0 ? initialPlace.slice(0, initialComma).trim() : initialPlace.trim());
-  const [country, setCountry] = useState(initialComma >= 0 ? initialPlace.slice(initialComma + 1).trim() : '');
-  const countryRef = useRef<TextInput>(null);
+  const initialCountry = initialComma >= 0 ? initialPlace.slice(initialComma + 1).trim() : '';
+  const [country, setCountry] = useState(initialCountry);
+  const [countryCode, setCountryCode] = useState<string | undefined>(findCountryByName(initialCountry)?.code);
   const [error, setError] = useState('');
 
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -196,27 +200,20 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
               </TouchableOpacity>
             )}
 
-            <Text style={styles.label}>{t('numerology.locality')}</Text>
-            <TextInput
-              style={styles.input}
-              value={locality}
-              onChangeText={setLocality}
-              placeholder={t('numerology.localityPlaceholder')}
-              placeholderTextColor={COLORS.textDim}
-              returnKeyType="next"
-              onSubmitEditing={() => countryRef.current?.focus()}
-              blurOnSubmit={false}
+            <Text style={styles.label}>{t('numerology.country')}</Text>
+            <CountryPicker
+              value={country}
+              placeholder={t('numerology.countryPlaceholder')}
+              onSelect={(c) => { setCountry(c.name); setCountryCode(c.code); }}
             />
 
-            <Text style={styles.label}>{t('numerology.country')}</Text>
-            <TextInput
-              ref={countryRef}
-              style={styles.input}
-              value={country}
-              onChangeText={setCountry}
-              placeholder={t('numerology.countryPlaceholder')}
-              placeholderTextColor={COLORS.textDim}
-              returnKeyType="done"
+            <Text style={styles.label}>{t('numerology.locality')}</Text>
+            <CityAutocomplete
+              value={locality}
+              onChangeText={setLocality}
+              onSelectCity={setLocality}
+              countryCode={countryCode}
+              placeholder={t('numerology.localityPlaceholder')}
             />
 
             {error ? <Text style={styles.error}>{error}</Text> : null}
