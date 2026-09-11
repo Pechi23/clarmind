@@ -41,9 +41,11 @@ export interface SpeakOptions {
  * is what makes TTS sound robotic) and rate slightly slow.
  */
 let cloudSound: Audio.Sound | null = null;
+let gen = 0; // bumped on every stop/new speak so stale in-flight synths are discarded
 
-/** Stop any speech (cloud audio or on-device). */
+/** Stop any speech (cloud audio or on-device) and invalidate in-flight requests. */
 export const stopSpeaking = async (): Promise<void> => {
+  gen++;
   Speech.stop();
   const s = cloudSound;
   cloudSound = null;
@@ -69,14 +71,17 @@ const speakOnDevice = async (text: string, locale: string, opts: SpeakOptions) =
  */
 export const speakCalm = async (text: string, locale: string, opts: SpeakOptions = {}): Promise<void> => {
   await stopSpeaking();
+  const my = gen; // this request's generation; if it changes, we were superseded
   try {
     const audio = await synthesizeGemini(text);
+    if (my !== gen) return; // a newer speak/stop happened while we were fetching
     if (audio) {
       await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
       const { sound } = await Audio.Sound.createAsync(
         { uri: wavDataUri(audio.base64, audio.rate) },
         { shouldPlay: true }
       );
+      if (my !== gen) { sound.unloadAsync().catch(() => {}); return; } // superseded during load
       cloudSound = sound;
       sound.setOnPlaybackStatusUpdate((st: any) => {
         if (st?.isLoaded && st.didJustFinish) {
@@ -88,7 +93,9 @@ export const speakCalm = async (text: string, locale: string, opts: SpeakOptions
       return;
     }
   } catch {
+    if (my !== gen) return;
     // fall through to on-device
   }
+  if (my !== gen) return;
   await speakOnDevice(text, locale, opts);
 };

@@ -12,6 +12,8 @@ export const ro: TranslationShape = {
     min: 'min',
     minutes: 'minute',
     tryAgain: 'Încearcă din nou',
+    cancel: 'Anulează',
+    close: 'Închide',
   },
   onboarding: {
     logo: '✦ ClarMind',

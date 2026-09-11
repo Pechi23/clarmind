@@ -10,6 +10,8 @@ export const en = {
     min: 'min',
     minutes: 'minutes',
     tryAgain: 'Try again',
+    cancel: 'Cancel',
+    close: 'Close',
   },
   onboarding: {
     logo: '✦ ClarMind',

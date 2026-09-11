@@ -86,12 +86,10 @@ const styles = StyleSheet.create({
   fieldText: { flex: 1, fontFamily: FONTS.medium, fontSize: 16, color: COLORS.text },
   placeholder: { color: COLORS.textDim },
   chevron: { color: COLORS.textMuted, fontSize: 14, marginLeft: SPACING.sm },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  sheet: {
-    backgroundColor: COLORS.backgroundLight,
-    borderTopLeftRadius: RADIUS.lg, borderTopRightRadius: RADIUS.lg,
-    paddingTop: SPACING.md, maxHeight: '80%',
-  },
+  // Full-height, top-anchored so the search box and list stay above the keyboard
+  // (a bottom sheet gets covered by the keyboard on Android).
+  backdrop: { flex: 1, backgroundColor: COLORS.background, paddingTop: 44 },
+  sheet: { flex: 1, backgroundColor: COLORS.background, paddingTop: SPACING.md },
   sheetHeader: {
     flexDirection: 'row', alignItems: 'center', gap: SPACING.md,
     paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md,

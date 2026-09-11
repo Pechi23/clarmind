@@ -29,13 +29,26 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [autoSpeak, setAutoSpeak] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [voiceIdx, setVoiceIdx] = useState<number | null>(null); // bubble currently loading/playing
+  const [voiceLoading, setVoiceLoading] = useState(false);
+  const speakReq = useRef(0);
   const scrollRef = useRef<ScrollView>(null);
 
   const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT' };
-  const speak = (text: string) => {
-    stopSpeaking();
-    // Natural female voice (pitch 1.0 — a raised pitch is what sounds robotic).
-    speakCalm(text, TTS_LOCALE[language] ?? 'en-US', { rate: 0.95, pitch: 1.0 });
+  // Play one message at a time. Tapping the same bubble again stops it. While the
+  // neural audio is loading we show a spinner instead of firing more requests.
+  const speak = async (text: string, idx = -1) => {
+    if (voiceIdx === idx) { await stopSpeaking(); setVoiceIdx(null); setVoiceLoading(false); return; }
+    const my = ++speakReq.current;
+    await stopSpeaking();
+    setVoiceIdx(idx);
+    setVoiceLoading(true);
+    await speakCalm(text, TTS_LOCALE[language] ?? 'en-US', {
+      rate: 0.95,
+      pitch: 1.0,
+      onDone: () => { if (speakReq.current === my) { setVoiceIdx(null); setVoiceLoading(false); } },
+    });
+    if (speakReq.current === my) setVoiceLoading(false);
   };
 
   // Voice input (speech-to-text). Needs a device with a speech engine (real phone).
@@ -163,8 +176,10 @@ export default function ClaraScreen({ profile, onClose }: Props) {
               <View style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleClara]}>
                 <Text style={m.role === 'user' ? styles.textUser : styles.textClara}>{m.text}</Text>
                 {m.role === 'assistant' && (
-                  <TouchableOpacity onPress={() => speak(m.text)} hitSlop={8} style={styles.bubbleSpeak}>
-                    <Text style={styles.bubbleSpeakIcon}>🔊</Text>
+                  <TouchableOpacity onPress={() => speak(m.text, i)} hitSlop={8} style={styles.bubbleSpeak}>
+                    {voiceLoading && voiceIdx === i
+                      ? <ActivityIndicator size="small" color={COLORS.primaryLight} />
+                      : <Text style={styles.bubbleSpeakIcon}>{voiceIdx === i ? '⏸️' : '🔊'}</Text>}
                   </TouchableOpacity>
                 )}
               </View>
