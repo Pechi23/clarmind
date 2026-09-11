@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
+import { speakCalm } from '../services/voice';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent, speechRecognitionAvailable } from '../services/speechRecognition';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserProfile, ChatMessage } from '../types';
@@ -34,7 +35,8 @@ export default function ClaraScreen({ profile, onClose }: Props) {
   const TTS_LOCALE: Record<string, string> = { en: 'en-US', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT' };
   const speak = (text: string) => {
     Speech.stop();
-    Speech.speak(text, { language: TTS_LOCALE[language] ?? 'en-US', rate: 0.95, pitch: 1.05 });
+    // Natural female voice (pitch 1.0 — a raised pitch is what sounds robotic).
+    speakCalm(text, TTS_LOCALE[language] ?? 'en-US', { rate: 0.95, pitch: 1.0 });
   };
 
   // Voice input (speech-to-text). Needs a device with a speech engine (real phone).

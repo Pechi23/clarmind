@@ -16,6 +16,7 @@ import {
   TTS_LOCALE, generateGuidedMeditation,
 } from '../services/guidedMeditation';
 import PaywallModal from '../components/PaywallModal';
+import { getFemaleVoiceId } from '../services/voice';
 
 interface Props { onClose: () => void; }
 
@@ -41,6 +42,7 @@ export default function GuidedMeditationScreen({ onClose }: Props) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const voiceRef = useRef(voice);
   voiceRef.current = voice;
+  const voiceIdRef = useRef<string | undefined>(undefined); // resolved female TTS voice
 
   const pulse = useRef(new Animated.Value(0)).current;
 
@@ -72,6 +74,7 @@ export default function GuidedMeditationScreen({ onClose }: Props) {
     if (pausedRef.current) return;
     Speech.speak(segs[i].text, {
       language: TTS_LOCALE[language] ?? 'en-US',
+      ...(voiceIdRef.current ? { voice: voiceIdRef.current } : {}),
       rate: voiceRef.current.rate,
       pitch: voiceRef.current.pitch,
       onDone: () => {
@@ -87,6 +90,7 @@ export default function GuidedMeditationScreen({ onClose }: Props) {
   const begin = async () => {
     capture('guided_meditation_start', { voice: voice.id, goal, minutes });
     setPhase('loading');
+    voiceIdRef.current = await getFemaleVoiceId(TTS_LOCALE[language] ?? 'en-US');
     const segs = await generateGuidedMeditation(goal, minutes, language);
     segmentsRef.current = segs;
     recordAiUse().catch(() => {});
