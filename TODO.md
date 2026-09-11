@@ -207,6 +207,8 @@ Most of that brainstorm ClarMind already had; these were the genuinely-new ones,
 6. ✅ **Limit language switches** — DONE — `services/languageLimit.ts` (pure, 6 tests): max 3/day + 15-min cooldown; Settings shows an explaining alert when blocked. (Onboarding's first pick is exempt.)
 7. ✅ **City & country as selects (worldwide)** — DONE — **Country**: offline searchable picker (`constants/countries.ts`, ~195 ISO countries, derived flag emoji) → `CountryPicker`. **City**: `CityAutocomplete` typeahead backed by OpenStreetMap **Nominatim** (the geocoder already in use), biased to the chosen country. A true "dropdown of every city on Earth" isn't feasible (millions), so this is the standard autocomplete other apps use. Wired into the Numerology birth-details form.
 8. ⏳ **Android keyboard covering text (general)** — the onboarding + birth-details cases are fixed via #2/#7 (inputs no longer bottom-anchored; birth city/country are now selects/typeahead). `app.json` stays `softwareKeyboardLayoutMode: "pan"`. If other screens still show the keyboard covering an input, consider `react-native-keyboard-controller` — left as follow-up only if reported.
+9. ⏳ **AI voice still sounds robotic** — the on-device female voice is an improvement but not neural-quality. George will look for a better-sounding option; target = Gemini/ElevenLabs-grade cloud TTS (a bigger infra add: proxy the TTS request, stream/play returned audio). Open.
+10. ⏳ **Confirm before changing language** — add an "Are you sure you want to change the language?" confirmation dialog when switching in Settings (on top of the existing 3/day + 15-min rate limit), since a switch regenerates AI content. Open.
 
 ---
 
