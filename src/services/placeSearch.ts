@@ -32,15 +32,13 @@ export const searchPlaces = async (
   const q = query.trim();
   if (q.length < 2) return [];
   try {
-    const params = new URLSearchParams({
-      format: 'jsonv2',
-      addressdetails: '1',
-      limit: '6',
-      'accept-language': 'en',
-      q,
-    });
-    if (countryCode) params.set('countrycodes', countryCode.toLowerCase());
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+    // Build the query manually. React Native/Hermes has an unreliable
+    // URLSearchParams, so we encode by hand like services/geocode.ts does.
+    const cc = countryCode ? `&countrycodes=${countryCode.toLowerCase()}` : '';
+    const url =
+      `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1` +
+      `&limit=6&accept-language=en&q=${encodeURIComponent(q)}${cc}`;
+    const res = await fetch(url, {
       headers: { 'User-Agent': 'ClarMind/1.0 (mindfulness app)', Accept: 'application/json' },
       signal,
     });

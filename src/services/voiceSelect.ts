@@ -30,36 +30,47 @@ const MALE_HINTS = [
 
 const includesAny = (hay: string, needles: string[]) => needles.some((n) => hay.includes(n));
 
-/** Higher is better. Female hints dominate; quality/naturalness break ties. */
-export const scoreVoice = (v: VoiceLike, locale: string): number => {
+export type Gender = 'female' | 'male';
+
+/** Higher is better. The chosen-gender hints dominate; naturalness breaks ties. */
+export const scoreVoice = (v: VoiceLike, locale: string, gender: Gender = 'female'): number => {
   const lang = locale.toLowerCase();
   const base = lang.split('-')[0];
   const vlang = (v.language ?? '').toLowerCase();
-  if (!vlang.startsWith(base)) return -Infinity; // wrong language — never pick
+  if (!vlang.startsWith(base)) return -Infinity; // wrong language, never pick
   const id = (v.identifier ?? '').toLowerCase();
   const nm = (v.name ?? '').toLowerCase();
   const text = `${id} ${nm}`;
 
+  const want = gender === 'male' ? MALE_HINTS : FEMALE_HINTS;
+  const avoid = gender === 'male' ? FEMALE_HINTS : MALE_HINTS;
+
   let s = 0;
-  if (includesAny(text, FEMALE_HINTS)) s += 100;
-  if (includesAny(text, MALE_HINTS)) s -= 100;
-  if ((v.quality ?? '').toLowerCase() === 'enhanced') s += 25;
-  if (text.includes('network')) s += 12; // Android network voices are more natural
-  if (text.includes('premium') || text.includes('neural') || text.includes('wavenet')) s += 15;
+  if (includesAny(text, want)) s += 100;
+  if (includesAny(text, avoid)) s -= 100;
+  // Prefer natural, high quality engines (this is what stops it sounding robotic).
+  if ((v.quality ?? '').toLowerCase() === 'enhanced') s += 40;
+  if (text.includes('premium') || text.includes('neural') || text.includes('wavenet')) s += 30;
+  if (text.includes('network')) s += 20; // Android network voices are more natural
+  if (text.includes('enhanced') || text.includes('siri')) s += 25;
   if (vlang === lang) s += 8; // exact region match (en-US over en-GB)
   return s;
 };
 
 /**
- * Pick the best female-sounding voice identifier for a locale, or undefined to
- * let the platform default apply. When no voice scores positively (e.g. Android
+ * Pick the best voice identifier for a locale and gender, or undefined to let
+ * the platform default apply. When no voice scores positively (e.g. Android
  * can't reveal gender), fall back to the highest-quality same-language voice.
  */
-export const chooseVoice = (voices: VoiceLike[], locale: string): string | undefined => {
+export const chooseVoice = (
+  voices: VoiceLike[],
+  locale: string,
+  gender: Gender = 'female'
+): string | undefined => {
   const base = locale.toLowerCase().split('-')[0];
   const candidates = voices.filter((v) => (v.language ?? '').toLowerCase().startsWith(base));
   if (!candidates.length) return undefined;
-  const ranked = [...candidates].sort((a, b) => scoreVoice(b, locale) - scoreVoice(a, locale));
+  const ranked = [...candidates].sort((a, b) => scoreVoice(b, locale, gender) - scoreVoice(a, locale, gender));
   const best = ranked[0];
   return best ? best.identifier : undefined;
 };

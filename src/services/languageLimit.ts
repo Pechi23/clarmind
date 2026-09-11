@@ -40,7 +40,9 @@ export const checkLanguageChange = (history: number[], now: number): LangLimitCh
   if (usedToday >= MAX_CHANGES_PER_DAY) {
     return { allowed: false, usedToday, remaining, waitMs: 0, reason: 'daily' };
   }
-  if (waitMs > 0) {
+  // The first two changes of the day are free (back to back). The cooldown only
+  // gates the final (third) change so a burst of switches can't hammer the AI.
+  if (usedToday >= MAX_CHANGES_PER_DAY - 1 && waitMs > 0) {
     return { allowed: false, usedToday, remaining, waitMs, reason: 'cooldown' };
   }
   return { allowed: true, usedToday, remaining, waitMs: 0, reason: 'ok' };

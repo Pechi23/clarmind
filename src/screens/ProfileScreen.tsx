@@ -18,7 +18,7 @@ import {
   getStreak, getTotalMeditationMinutes, getMeditationSessions,
   clearUserProfile, setNotificationsEnabled, getNotificationsEnabled,
   getReminderTime, setReminderTime, ReminderTime, getMoodEntries,
-  getPhaseCues, setPhaseCues, getSleepFade, setSleepFade,
+  getPhaseCues, setPhaseCues, getSleepFade, setSleepFade, getVoiceGender, setVoiceGender,
 } from '../services/storage';
 import GradientCard from '../components/GradientCard';
 import MoodTrendCard from '../components/MoodTrendCard';
@@ -60,8 +60,18 @@ export default function ProfileScreen({ profile, onReset }: Props) {
       );
       return;
     }
-    await recordLanguageChange();
-    setLanguage(code);
+    // Confirm first: switching regenerates AI content and is capped at 3 per day.
+    Alert.alert(
+      t('profile.langConfirmTitle'),
+      t('profile.langConfirmMsg', { remaining: check.remaining }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('profile.langConfirmYes'),
+          onPress: async () => { await recordLanguageChange(); setLanguage(code); },
+        },
+      ]
+    );
   };
 
   const [streak, setStreak] = useState(0);
@@ -72,6 +82,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [moods, setMoods] = useState<MoodEntry[]>([]);
   const [phaseCues, setPhaseCuesState] = useState(true);
   const [sleepFade, setSleepFadeState] = useState(false);
+  const [voiceGender, setVoiceGenderState] = useState<'female' | 'male'>('female');
   const [analyticsOn, setAnalyticsOn] = useState(!getAnalyticsOptOut());
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
@@ -139,6 +150,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     setMoods(await getMoodEntries());
     setPhaseCuesState(await getPhaseCues());
     setSleepFadeState(await getSleepFade());
+    setVoiceGenderState(await getVoiceGender());
     setNotifs(n);
     setXp(totalXp);
     setUnlockedIds(unlocked);
@@ -404,6 +416,27 @@ export default function ProfileScreen({ profile, onReset }: Props) {
             trackColor={{ false: '#3a3a5e', true: COLORS.primary }}
             thumbColor="#fff"
           />
+        </View>
+
+        {/* AI companion voice: female or male */}
+        <View style={styles.settingRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.settingTitle}>{t('profile.voice')}</Text>
+            <Text style={styles.settingSub}>{t('profile.voiceSub')}</Text>
+          </View>
+          <View style={styles.langChipRow}>
+            {(['female', 'male'] as const).map((g) => (
+              <TouchableOpacity
+                key={g}
+                onPress={() => { setVoiceGenderState(g); setVoiceGender(g); }}
+                style={[styles.langChip2, voiceGender === g && styles.langChipActive]}
+              >
+                <Text style={[styles.langChipText, voiceGender === g && styles.langChipTextActive]}>
+                  {t(`profile.voice_${g}`)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* Upgrade to Premium (real subscription via RevenueCat) */}

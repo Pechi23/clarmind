@@ -16,6 +16,7 @@ const KEYS = {
   PHASE_CUES: 'clarmind_phase_cues',
   SLEEP_FADE: 'clarmind_sleep_fade',
   BREATH_CALIBRATION: 'clarmind_breath_calibration',
+  VOICE_GENDER: 'clarmind_voice_gender',
   REMINDER_TIME: 'clarmind_reminder_time',
   SHIELDS: 'clarmind_shields',
   LAST_RECAP_WEEK: 'clarmind_last_recap_week',
@@ -280,6 +281,15 @@ export const getBreathCalibration = async (): Promise<number> => {
   const raw = await AsyncStorage.getItem(KEYS.BREATH_CALIBRATION);
   const n = Number(raw);
   return Number.isFinite(n) && n > 0 ? n : 1;
+};
+
+// Preferred AI voice gender for text to speech. Default female.
+export type VoiceGender = 'female' | 'male';
+export const setVoiceGender = async (g: VoiceGender): Promise<void> => {
+  await AsyncStorage.setItem(KEYS.VOICE_GENDER, g);
+};
+export const getVoiceGender = async (): Promise<VoiceGender> => {
+  return (await AsyncStorage.getItem(KEYS.VOICE_GENDER)) === 'male' ? 'male' : 'female';
 };
 
 // Weekly recap — remember which week's recap we've already shown

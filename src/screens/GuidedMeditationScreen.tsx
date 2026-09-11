@@ -16,7 +16,7 @@ import {
   TTS_LOCALE, generateGuidedMeditation,
 } from '../services/guidedMeditation';
 import PaywallModal from '../components/PaywallModal';
-import { getFemaleVoiceId } from '../services/voice';
+import { getVoiceId } from '../services/voice';
 
 interface Props { onClose: () => void; }
 
@@ -90,7 +90,7 @@ export default function GuidedMeditationScreen({ onClose }: Props) {
   const begin = async () => {
     capture('guided_meditation_start', { voice: voice.id, goal, minutes });
     setPhase('loading');
-    voiceIdRef.current = await getFemaleVoiceId(TTS_LOCALE[language] ?? 'en-US');
+    voiceIdRef.current = await getVoiceId(TTS_LOCALE[language] ?? 'en-US');
     const segs = await generateGuidedMeditation(goal, minutes, language);
     segmentsRef.current = segs;
     recordAiUse().catch(() => {});

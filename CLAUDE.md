@@ -2,6 +2,10 @@
 
 > **For future Claude sessions and developers.** Read this before making changes.
 
+## Writing style (HARD RULE)
+
+**Never use em dashes (—) or en dashes (–) in any user-facing app text, and avoid the "AI look" in general.** This applies to all i18n strings, notifications, store copy, and anything a user reads. Use commas, periods, or parentheses instead. Keep copy plain and human: short sentences, no needless flourish, no "not just X but Y" constructions. Ordinary hyphens inside compound words and code are fine. This rule also applies to commit messages and anything written for George.
+
 ## What ClarMind is
 
 A cross-platform mindfulness mobile app (Android + iOS + Web) built with **React Native + Expo (TypeScript)**.

@@ -15,17 +15,23 @@ describe('checkLanguageChange', () => {
     expect(r.remaining).toBe(MAX_CHANGES_PER_DAY);
   });
 
-  it('blocks while in the cooldown window', () => {
-    const r = checkLanguageChange([T0 - 5 * 60 * 1000], T0); // 5 min ago
+  it('allows the second change back to back (no cooldown)', () => {
+    const r = checkLanguageChange([T0 - 1 * 60 * 1000], T0); // 1 change, 1 min ago
+    expect(r.allowed).toBe(true);
+    expect(r.usedToday).toBe(1);
+  });
+
+  it('blocks the third change while still in cooldown', () => {
+    const r = checkLanguageChange([T0 - 30 * 60 * 1000, T0 - 5 * 60 * 1000], T0); // 2 today, last 5 min ago
     expect(r.allowed).toBe(false);
     expect(r.reason).toBe('cooldown');
     expect(r.waitMs).toBe(COOLDOWN_MS - 5 * 60 * 1000);
   });
 
-  it('allows again once the cooldown has passed', () => {
-    const r = checkLanguageChange([T0 - 20 * 60 * 1000], T0); // 20 min ago
+  it('allows the third change once the cooldown has passed', () => {
+    const r = checkLanguageChange([T0 - 40 * 60 * 1000, T0 - 20 * 60 * 1000], T0); // 2 today, last 20 min ago
     expect(r.allowed).toBe(true);
-    expect(r.usedToday).toBe(1);
+    expect(r.usedToday).toBe(2);
   });
 
   it('blocks after the daily maximum, even past cooldown', () => {
