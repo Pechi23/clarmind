@@ -82,6 +82,7 @@ Keep the tone warm, calm, and encouraging. Write ALL field values in ${languageN
   return {
     ...parsed,
     generatedAt: new Date().toISOString().split('T')[0],
+    language,
   };
 };
 

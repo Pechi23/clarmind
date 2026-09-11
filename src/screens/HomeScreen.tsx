@@ -108,7 +108,10 @@ export default function HomeScreen({ profile, onProfileChange }: Props) {
     try {
       setError(null);
       const cached = await getDailyContent();
-      if (!forceRefresh && cached && cached.generatedAt === today) {
+      // Regenerate when the day rolls over OR the app language changed, so the
+      // quote/affirmation/horoscope match the language the user is now reading.
+      const sameLanguage = !cached?.language || cached.language === language;
+      if (!forceRefresh && cached && cached.generatedAt === today && sameLanguage) {
         setContent(cached);
       } else {
         const fresh = await generateDailyContent(profile.name, profile.zodiacSign, profile.goal, language);

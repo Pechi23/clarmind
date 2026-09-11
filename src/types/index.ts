@@ -31,6 +31,7 @@ export interface DailyContent {
   mindfulnessTask: string;
   affirmation: string;
   generatedAt: string;
+  language?: string; // the language this content was generated in (regenerate on change)
 }
 
 export type BreathingPatternId = 'box' | '478' | 'deepCalm';

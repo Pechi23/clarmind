@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { PRIVACY_URL, TERMS_URL } from '../constants/legal';
 import { isPaidVariant } from '../constants/appVariant';
+import { canChangeLanguageNow, recordLanguageChange } from '../services/languageLimit';
 import { analyticsEnabled, getAnalyticsOptOut, setAnalyticsOptOut } from '../services/analytics';
 import * as Clipboard from 'expo-clipboard';
 import DateTimePicker from '../components/DateTimePicker';
@@ -44,6 +45,25 @@ interface Props {
 export default function ProfileScreen({ profile, onReset }: Props) {
   const { t, language, setLanguage } = useI18n();
   const bottomPad = useContentBottomPadding();
+
+  // Switching language regenerates AI content (a network/token cost), so it's
+  // rate-limited: max a few per day with a cooldown between switches.
+  const changeLanguage = async (code: typeof language) => {
+    if (code === language) return;
+    const check = await canChangeLanguageNow();
+    if (!check.allowed) {
+      Alert.alert(
+        t('profile.langLimitTitle'),
+        check.reason === 'daily'
+          ? t('profile.langLimitDaily')
+          : t('profile.langLimitCooldown', { min: Math.ceil(check.waitMs / 60000) })
+      );
+      return;
+    }
+    await recordLanguageChange();
+    setLanguage(code);
+  };
+
   const [streak, setStreak] = useState(0);
   const [totalMin, setTotalMin] = useState(0);
   const [sessions, setSessions] = useState(0);
@@ -335,7 +355,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
             {LANGUAGES.map((l) => (
               <TouchableOpacity
                 key={l.code}
-                onPress={() => setLanguage(l.code)}
+                onPress={() => changeLanguage(l.code)}
                 style={[styles.langChip2, language === l.code && styles.langChipActive]}
               >
                 <Text style={styles.langChipFlag}>{l.flag}</Text>
