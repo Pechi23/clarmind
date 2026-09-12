@@ -2,7 +2,7 @@
   "expo": {
     "name": "ClarMind",
     "slug": "clarmind",
-    "version": "1.6.0",
+    "version": "1.6.1",
     "scheme": "clarmind",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,6 +23,7 @@
         "backgroundColor": "#0f0c29"
       },
       "package": "com.clarmind.app",
+      "versionCode": 2,
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan"
     },
