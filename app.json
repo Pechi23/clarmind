@@ -3,6 +3,7 @@
     "name": "ClarMind",
     "slug": "clarmind",
     "version": "1.6.0",
+    "scheme": "clarmind",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -30,6 +31,7 @@
     },
     "plugins": [
       "expo-font",
+      "expo-web-browser",
       "expo-splash-screen",
       "expo-secure-store",
       "expo-localization",

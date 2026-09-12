@@ -6,6 +6,8 @@ import {
 import { PRIVACY_URL, TERMS_URL } from '../constants/legal';
 import { isPaidVariant } from '../constants/appVariant';
 import { canChangeLanguageNow, recordLanguageChange } from '../services/languageLimit';
+import AccountModal from '../components/AccountModal';
+import { getCurrentUser, onAuthChange, authConfigured, AuthUser } from '../services/auth';
 import { analyticsEnabled, getAnalyticsOptOut, setAnalyticsOptOut } from '../services/analytics';
 import * as Clipboard from 'expo-clipboard';
 import DateTimePicker from '../components/DateTimePicker';
@@ -48,6 +50,11 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
   // Switching language regenerates AI content (a network/token cost), so it's
   // rate-limited: max a few per day with a cooldown between switches.
+  useEffect(() => {
+    getCurrentUser().then(setAuthUser);
+    return onAuthChange(setAuthUser);
+  }, []);
+
   const changeLanguage = async (code: typeof language) => {
     if (code === language) return;
     const check = await canChangeLanguageNow();
@@ -83,6 +90,8 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [phaseCues, setPhaseCuesState] = useState(true);
   const [sleepFade, setSleepFadeState] = useState(false);
   const [voiceGender, setVoiceGenderState] = useState<'female' | 'male'>('female');
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [analyticsOn, setAnalyticsOn] = useState(!getAnalyticsOptOut());
   const [xp, setXp] = useState(0);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
@@ -566,6 +575,17 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </View>
         )}
 
+        {/* Account (optional sign-in) */}
+        <TouchableOpacity style={styles.settingRow} onPress={() => setAccountOpen(true)} activeOpacity={0.8}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.settingTitle}>{t('account.settingRow')}</Text>
+            <Text style={styles.settingSub} numberOfLines={1}>
+              {authUser ? `${t('account.settingSubIn')} · ${authUser.email}` : t('account.settingSubOut')}
+            </Text>
+          </View>
+          <Text style={styles.legalArrow}>›</Text>
+        </TouchableOpacity>
+
         {/* Legal */}
         <View style={styles.backupBox}>
           <Text style={styles.settingTitle}>{t('legal.title')}</Text>
@@ -586,6 +606,8 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </ScrollView>
         </LinearGradient>
       </Modal>
+
+      <AccountModal visible={accountOpen} onClose={() => setAccountOpen(false)} />
 
       <ShareCardModal
         visible={shareOpen}
