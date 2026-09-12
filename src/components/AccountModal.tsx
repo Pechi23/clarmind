@@ -15,7 +15,7 @@ interface Props { visible: boolean; onClose: () => void; }
 type Mode = 'signin' | 'signup' | 'forgot';
 
 export default function AccountModal({ visible, onClose }: Props) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
@@ -41,7 +41,7 @@ export default function AccountModal({ visible, onClose }: Props) {
     setBusy(true);
     try {
       if (mode === 'signin') await signInEmail(email, password);
-      else if (mode === 'signup') { await signUpEmail(email, password); setMsg(t('account.checkEmail')); }
+      else if (mode === 'signup') { await signUpEmail(email, password, language); setMsg(t('account.checkEmail')); }
       else { await resetPassword(email); setMsg(t('account.resetSent')); }
     } catch (e: any) {
       setErr(e?.message ?? 'Error');

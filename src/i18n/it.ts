@@ -4,6 +4,21 @@ import { TranslationShape } from './en';
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 
 export const it: DeepPartial<TranslationShape> = {
+  account: {
+    title: 'Account', settingRow: 'Account',
+    settingSubOut: 'Accedi per backup e sincronizzazione', settingSubIn: 'Connesso',
+    signIn: 'Accedi', signUp: 'Crea account', signOut: 'Esci',
+    email: 'Email', password: 'Password',
+    google: 'Continua con Google', apple: 'Continua con Apple', or: 'oppure',
+    forgotQ: 'Password dimenticata?', sendReset: 'Invia link di reset',
+    resetSent: 'Controlla la tua email per il link di reset.',
+    checkEmail: 'Controlla la tua email per confermare l’account.',
+    signedInAs: 'Connesso come',
+    needAccount: 'Nuovo qui? Crea un account', haveAccount: 'Hai già un account? Accedi',
+    backToSignIn: 'Torna all’accesso',
+    errEmail: 'Inserisci un’email valida.', errPassword: 'La password deve avere almeno 6 caratteri.',
+    notConfigured: 'Gli account non sono ancora configurati.',
+  },
   common: {
     continue: 'Continua →', back: '← Indietro', done: 'Fatto', skip: 'Salta',
     day: 'giorno', days: 'giorni', min: 'min', minutes: 'minuti', tryAgain: 'Riprova',

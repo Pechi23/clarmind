@@ -47,9 +47,15 @@ export const onAuthChange = (cb: (u: AuthUser | null) => void): (() => void) => 
   return () => data.subscription.unsubscribe();
 };
 
-export const signUpEmail = async (email: string, password: string): Promise<void> => {
+export const signUpEmail = async (email: string, password: string, locale?: string): Promise<void> => {
   if (!supabase) throw new Error('Auth not configured');
-  const { error } = await supabase.auth.signUp({ email: email.trim(), password });
+  // Store the user's language so Supabase email templates / a Send-Email hook can
+  // localize the confirmation + reset emails (via {{ .Data.locale }}).
+  const { error } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: locale ? { data: { locale } } : undefined,
+  });
   if (error) throw error;
 };
 

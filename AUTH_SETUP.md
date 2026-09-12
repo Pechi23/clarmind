@@ -20,6 +20,15 @@ Email/password + password reset work immediately after this (rebuild the app).
 Authentication → Providers → Email is on by default. Under Authentication →
 URL Configuration, add the redirect URL `clarmind://reset` (and `clarmind://auth`).
 
+### Multi-language emails (confirm + reset)
+The in-app account screens are already localized in all 7 languages. The **emails**
+Supabase sends are dashboard templates (Authentication → Email Templates) and are
+global, not per-user language, out of the box. The app stores each user's language
+on sign-up (`user_metadata.locale`), so you have two options:
+- Simple: edit the templates in the dashboard to your main launch language(s).
+- Full per-language: add a **Send Email** auth hook (an edge function) that reads
+  `locale` from the user and renders the localized subject/body. Do this after launch.
+
 ## 3. Google login (optional)
 1. Authentication → Providers → Google → enable.
 2. Create an OAuth client in Google Cloud Console, paste the client id/secret into
