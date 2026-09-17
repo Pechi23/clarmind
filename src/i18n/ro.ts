@@ -343,7 +343,7 @@ export const ro: TranslationShape = {
     inputPlaceholder: 'Spune-i Clarei ce te frământă…',
     listening: 'Ascult… vorbește acum',
     limit: 'Ai atins limita blândă de azi cu Clara. Va fi aici din nou mâine. 🌙',
-    limitUpgrade: 'Ai folosit cele 3 mesaje gratuite de azi. Treci la Premium pentru până la 50 de cereri AI pe zi. 🌙',
+    limitUpgrade: 'Ai folosit cele 5 mesaje gratuite de azi. Treci la Premium pentru până la 50 de cereri AI pe zi. 🌙',
     remaining: '{n} mesaje rămase azi',
     disclaimer: 'Clara este o însoțitoare AI, nu un substitut pentru îngrijirea profesională.',
     opener: 'Salut, {name}, sunt Clara 🌙 Sunt aici oricând mintea ta e plină. Cum te simți acum?',

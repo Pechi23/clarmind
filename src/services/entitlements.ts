@@ -1,6 +1,6 @@
 // Freemium entitlements + AI usage quota.
 //
-// Free: 3 Clara messages/day, numerology + birth chart locked.
+// Free: 5 Clara messages/day, numerology + birth chart locked.
 // Premium ($5/mo): ~50 AI requests/day (Claude-style quota), everything unlocked.
 // Testing bypass: EXPO_PUBLIC_PREMIUM_BYPASS=1 or the in-app override toggle
 // unlocks everything so we can test without payments.
@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCachedPremium } from './purchases';
 import { isPaidVariant } from '../constants/appVariant';
 
-export const FREE_DAILY_LIMIT = 3;   // free Clara messages / AI requests per day
+export const FREE_DAILY_LIMIT = 5;   // free Clara messages / AI requests per day
 export const PAID_DAILY_LIMIT = 50;  // premium AI requests per day
 
 const OVERRIDE_KEY = 'clarmind_premium_override';

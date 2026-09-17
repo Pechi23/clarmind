@@ -190,7 +190,7 @@ export const de: DeepPartial<TranslationShape> = {
     subtitle: 'deine achtsame Begleiterin', clear: 'Löschen',
     inputPlaceholder: 'Sag Clara, was dich beschäftigt…',
     limit: 'Du hast dein heutiges Limit mit Clara erreicht. Morgen ist sie wieder da. 🌙',
-    limitUpgrade: 'Du hast deine 3 kostenlosen Nachrichten heute genutzt. Hol dir Premium für bis zu 50 KI-Anfragen pro Tag. 🌙',
+    limitUpgrade: 'Du hast deine 5 kostenlosen Nachrichten heute genutzt. Hol dir Premium für bis zu 50 KI-Anfragen pro Tag. 🌙',
     remaining: '{n} Nachrichten heute übrig',
     disclaimer: 'Clara ist eine KI-Begleiterin, kein Ersatz für professionelle Hilfe.',
     opener: 'Hallo {name}, ich bin Clara 🌙 Ich bin da, wenn dein Kopf voll ist. Wie fühlst du dich gerade?',

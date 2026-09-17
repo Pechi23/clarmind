@@ -190,7 +190,7 @@ export const pt: DeepPartial<TranslationShape> = {
     subtitle: 'a tua companheira mindful', clear: 'Limpar',
     inputPlaceholder: 'Diz à Clara o que te vai na mente…',
     limit: 'Atingiste o teu limite de hoje com a Clara. Amanhã ela volta. 🌙',
-    limitUpgrade: 'Usaste as tuas 3 mensagens gratuitas de hoje. Passa a Premium para até 50 pedidos de IA por dia. 🌙',
+    limitUpgrade: 'Usaste as tuas 5 mensagens gratuitas de hoje. Passa a Premium para até 50 pedidos de IA por dia. 🌙',
     remaining: '{n} mensagens restantes hoje',
     disclaimer: 'A Clara é uma companheira de IA, não substitui ajuda profissional.',
     opener: 'Olá {name}, sou a Clara 🌙 Estou aqui quando a tua mente está cheia. Como te sentes agora?',

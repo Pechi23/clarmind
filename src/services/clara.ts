@@ -66,7 +66,9 @@ export const askClara = async (
     const text = await callGemini({
       systemInstruction: { parts: [{ text: systemPrompt(profile, language) }] },
       contents,
-      generationConfig: { maxOutputTokens: 1024, temperature: 0.85 },
+      // Clara is casual chat, not reasoning. Disable "thinking" tokens (billed as
+      // output at the higher rate) to roughly halve the per-message cost.
+      generationConfig: { maxOutputTokens: 512, temperature: 0.85, thinkingConfig: { thinkingBudget: 0 } },
     });
     const clean = text.trim();
     return clean.length > 0 ? clean : fallback;
