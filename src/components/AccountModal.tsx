@@ -10,6 +10,7 @@ import {
   signOut, resetPassword, signInOAuth, AuthUser,
 } from '../services/auth';
 import { validateCredentials } from '../services/authValidate';
+import { syncOnLogin, pushUserData } from '../services/sync';
 
 interface Props { visible: boolean; onClose: () => void; }
 type Mode = 'signin' | 'signup' | 'forgot';
@@ -40,7 +41,7 @@ export default function AccountModal({ visible, onClose }: Props) {
     }
     setBusy(true);
     try {
-      if (mode === 'signin') await signInEmail(email, password);
+      if (mode === 'signin') { await signInEmail(email, password); await afterLogin(); }
       else if (mode === 'signup') { await signUpEmail(email, password, language); setMsg(t('account.checkEmail')); }
       else { await resetPassword(email); setMsg(t('account.resetSent')); }
     } catch (e: any) {
@@ -50,10 +51,26 @@ export default function AccountModal({ visible, onClose }: Props) {
     }
   };
 
+  // After a successful login, reconcile with the cloud (restore or back up).
+  const afterLogin = async () => {
+    const r = await syncOnLogin();
+    if (r === 'restored') setMsg(t('account.restored'));
+    else if (r === 'pushed') setMsg(t('account.backedUp'));
+  };
+
+  const backupNow = async () => {
+    reset();
+    setBusy(true);
+    try { const ok = await pushUserData(); setMsg(ok ? t('account.backedUp') : 'Error'); }
+    finally { setBusy(false); }
+  };
+
   const oauth = async (provider: 'google' | 'apple') => {
     reset();
     setBusy(true);
-    try { await signInOAuth(provider); } catch (e: any) { setErr(e?.message ?? 'Error'); } finally { setBusy(false); }
+    try { await signInOAuth(provider); await afterLogin(); }
+    catch (e: any) { setErr(e?.message ?? 'Error'); }
+    finally { setBusy(false); }
   };
 
   const close = () => { reset(); setPassword(''); onClose(); };
@@ -74,7 +91,15 @@ export default function AccountModal({ visible, onClose }: Props) {
               <View>
                 <Text style={styles.info}>{t('account.signedInAs')}</Text>
                 <Text style={styles.email}>{user.email}</Text>
-                <TouchableOpacity onPress={() => signOut()} activeOpacity={0.85} style={styles.secondaryBtn}>
+                <Text style={styles.syncNote}>{t('account.syncNote')}</Text>
+                {err ? <Text style={styles.err}>{err}</Text> : null}
+                {msg ? <Text style={styles.msg}>{msg}</Text> : null}
+                <TouchableOpacity onPress={backupNow} disabled={busy} activeOpacity={0.85} style={styles.primaryWrap}>
+                  <LinearGradient colors={GRADIENTS.button} style={styles.primaryBtn}>
+                    {busy ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.primaryText}>{t('account.backupNow')}</Text>}
+                  </LinearGradient>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => signOut()} activeOpacity={0.85} style={[styles.secondaryBtn, { marginTop: SPACING.sm }]}>
                   <Text style={styles.secondaryText}>{t('account.signOut')}</Text>
                 </TouchableOpacity>
               </View>
@@ -156,7 +181,8 @@ const styles = StyleSheet.create({
   title: { fontFamily: FONTS.semiBold, fontSize: 20, color: COLORS.text },
   close: { fontSize: 20, color: COLORS.textMuted },
   info: { fontFamily: FONTS.regular, fontSize: 14, color: COLORS.textMuted, marginBottom: SPACING.sm },
-  email: { fontFamily: FONTS.semiBold, fontSize: 16, color: COLORS.text, marginBottom: SPACING.lg },
+  email: { fontFamily: FONTS.semiBold, fontSize: 16, color: COLORS.text, marginBottom: SPACING.sm },
+  syncNote: { fontFamily: FONTS.regular, fontSize: 13, color: COLORS.textMuted, marginBottom: SPACING.md, lineHeight: 18 },
   input: {
     backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
     borderRadius: RADIUS.md, padding: SPACING.md, fontFamily: FONTS.medium, fontSize: 16,

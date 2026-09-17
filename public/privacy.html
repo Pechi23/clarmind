@@ -25,16 +25,16 @@
 <div class="wrap">
   <p class="logo">✦ ClarMind</p>
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: 10 September 2026</p>
+  <p class="updated">Last updated: 17 September 2026</p>
 
-  <p>ClarMind (“we”, “our”, “the app”) is a mindfulness, breathing and astrology app. We built it to be <strong>privacy-first and local-first</strong>: your personal data lives on your device, and only the specific items described below ever leave it. ClarMind has <strong>no user accounts</strong>.</p>
+  <p>ClarMind (“we”, “our”, “the app”) is a mindfulness, breathing and astrology app. We built it to be <strong>privacy-first and local-first</strong>: your personal data lives on your device, and only the specific items described below ever leave it. An <strong>optional account</strong> lets you back up and restore your data across devices.</p>
 
   <h2>Summary</h2>
   <ul>
     <li>Your profile, sessions, moods, journal, streaks and progress are stored <strong>only on your device</strong>.</li>
     <li>Some features send small, specific pieces of data off your device to make them work: AI content, the leaderboard, birth-chart geocoding and purchases (details below).</li>
     <li>We do <strong>not</strong> sell your data, show third-party ads, or track you across other apps or websites.</li>
-    <li>There are no user accounts and no email/password.</li>
+    <li>Accounts are <strong>optional</strong>. If you create one, your app data is backed up to your account so you can restore it on another device.</li>
   </ul>
 
   <h2>Data stored only on your device</h2>
@@ -56,13 +56,16 @@
   <h3>2. Leaderboard — Cloudflare D1</h3>
   <p>If you open the leaderboard (“Top”), the app sends your <strong>display name, zodiac sign and stats</strong> (XP, streak, minutes) plus a <strong>random, anonymous device id</strong> to our Cloudflare Worker + D1 database so the community ranking can be shown. There is no account and no email. Your device id is generated on your device and is never shown to other users. You can ask us to remove your leaderboard entry (see Contact); resetting the app also stops further updates.</p>
 
-  <h3>3. Birth chart — OpenStreetMap Nominatim</h3>
+  <h3>3. Optional account &amp; backup — Supabase</h3>
+  <p>If you create an account (email/password or Sign in with Google/Apple), we use <strong>Supabase</strong> to manage sign-in and to store a <strong>backup of your app data</strong> (profile, birth details, sessions, moods, streaks and stats) so you can restore it on another device. This data is tied to your account and protected so only you can access it. It is used only for backup and restore, not for advertising. You can sign out at any time, and you can ask us to delete your account and its backup (see Contact). If you never create an account, none of this applies and your data stays on your device.</p>
+
+  <h3>4. Birth chart — OpenStreetMap Nominatim</h3>
   <p>If you generate a birth chart, the <strong>birth city you enter</strong> is sent to the OpenStreetMap Nominatim service to look up coordinates. The result is cached on your device.</p>
 
-  <h3>4. Purchases — the app store &amp; RevenueCat</h3>
+  <h3>5. Purchases — the app store &amp; RevenueCat</h3>
   <p>Purchases are handled by Apple’s App Store / Google Play and by RevenueCat. We receive your <strong>purchase/subscription status</strong> to unlock features — not your card or payment details.</p>
 
-  <h3>5. Voice input</h3>
+  <h3>6. Voice input</h3>
   <p>When you tap the microphone (Clara, mood check-in), your speech is turned into text by your device’s or browser’s speech-recognition. We do not record or store audio; only the resulting text is used as described in section&nbsp;1.</p>
 
   <h2>Notifications</h2>
@@ -77,7 +80,7 @@
   <h2>Your rights &amp; choices</h2>
   <ul>
     <li><strong>Access / portability:</strong> export all your data via Backup &amp; restore.</li>
-    <li><strong>Erasure:</strong> Reset onboarding wipes your local data; contact us to remove your leaderboard entry.</li>
+    <li><strong>Erasure:</strong> Reset onboarding wipes your local data; contact us to remove your leaderboard entry or delete your account and its backup.</li>
     <li><strong>Minimize sharing:</strong> use the app offline to avoid AI requests, and don’t open the leaderboard to avoid submitting a score.</li>
   </ul>
   <p>EU/EEA users have rights under the GDPR (access, rectification, erasure, objection). Because the app is local-first, most of these you exercise directly on your device.</p>

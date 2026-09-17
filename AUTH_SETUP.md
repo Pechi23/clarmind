@@ -16,6 +16,13 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 
 Email/password + password reset work immediately after this (rebuild the app).
 
+## 1b. Cloud sync table (required for "back up & sync")
+
+For login to actually save/restore user data (birthday, progress, stats), create
+the sync table: Supabase -> SQL Editor -> paste `supabase/user_data.sql` -> Run.
+It creates a `user_data` table with Row Level Security so each user only ever
+touches their own row. Without it, login works but nothing is backed up.
+
 ## 2. Email settings
 Authentication → Providers → Email is on by default. Under Authentication →
 URL Configuration, add the redirect URL `clarmind://reset` (and `clarmind://auth`).

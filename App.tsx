@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, AppState } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -19,6 +19,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import AppNavigator from './src/navigation/AppNavigator';
 import { COLORS } from './src/constants/theme';
 import { I18nProvider, useI18n } from './src/i18n';
+import { syncOnLogin, backupIfSignedIn } from './src/services/sync';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -44,9 +45,20 @@ function Root() {
       configurePurchases(); // RevenueCat (native only; no-op on web / without a key)
       await initAnalytics();
       capture('app_open');
+      // If already signed in, reconcile with the cloud before reading the profile
+      // so restored data (birth details, progress) is present when screens mount.
+      try { await syncOnLogin(); } catch {}
       await refreshProfile();
       setAppReady(true);
     })();
+  }, []);
+
+  // Back up to the cloud when the app goes to the background (signed-in users only).
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'background' || s === 'inactive') backupIfSignedIn();
+    });
+    return () => sub.remove();
   }, []);
 
   useEffect(() => {

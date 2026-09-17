@@ -24,3 +24,6 @@ export const getDeviceId = async (): Promise<string> => {
   cached = id;
   return id;
 };
+
+/** Clear the in-memory cache so the next read picks up a restored id (after a cloud sync). */
+export const resetDeviceIdCache = (): void => { cached = null; };
