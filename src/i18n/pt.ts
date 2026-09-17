@@ -27,7 +27,7 @@ export const pt: DeepPartial<TranslationShape> = {
     day: 'dia', days: 'dias', min: 'min', minutes: 'minutos', tryAgain: 'Tentar de novo',
   },
   onboarding: {
-    logo: '✦ ClarMind',
+    logo: '✦ Stillnova',
     headline: 'Clareia a mente,\ntodos os dias.',
     subtext: 'Mindfulness personalizado, horóscopo e calma diária — feitos para ti.',
     namePrompt: 'Como te chamamos?',
@@ -43,7 +43,7 @@ export const pt: DeepPartial<TranslationShape> = {
   },
   guide: {
     skip: 'Saltar', next: 'Seguinte', done: 'Percebi!',
-    welcome: { title: 'Bem-vindo ao ClarMind', desc: 'Uma visita rápida ao que podes fazer. Demora 20 segundos.' },
+    welcome: { title: 'Bem-vindo ao Stillnova', desc: 'Uma visita rápida ao que podes fazer. Demora 20 segundos.' },
     home: { title: 'Início', desc: 'A tua citação, objetivo, uma tarefa mindful e pequenos desafios — todos os dias.' },
     breathe: { title: 'Respirar', desc: 'Meditações de respiração guiadas com um mixer de sons para relaxar ou concentrar.' },
     sky: { title: 'O teu céu', desc: 'Uma constelação que brilha mais a cada meditação.' },
@@ -197,7 +197,7 @@ export const pt: DeepPartial<TranslationShape> = {
   },
   tabs: { home: 'Início', breathe: 'Respirar', sky: 'Céu', top: 'Top', profile: 'Perfil' },
   share: {
-    button: 'Partilhar o meu progresso', cardTitle: 'A minha viagem ClarMind',
+    button: 'Partilhar o meu progresso', cardTitle: 'A minha viagem Stillnova',
     streak: 'dias de sequência', minutes: 'minutos mindful', stars: 'estrelas acesas',
     tagline: 'Clareia a mente, todos os dias.', action: 'Partilhar', close: 'Fechar',
     unavailable: 'A partilha não está disponível neste dispositivo.',

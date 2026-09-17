@@ -1,11 +1,11 @@
-# ClarMind — Store Listing Copy
+# Stillnova — Store Listing Copy
 
 Copy-paste ready text for the App Store and Google Play submissions. See `SHIPPING.md` for the step-by-step submission flow.
 
 ---
 
 ## App name
-**ClarMind**
+**Stillnova**
 
 ## Subtitle (App Store, 30 chars max)
 `Calm, breathe & zodiac insight`
@@ -20,19 +20,19 @@ Copy-paste ready text for the App Store and Google Play submissions. See `SHIPPI
 
 ## Full description (both stores, ~4000 chars max)
 
-**ClarMind helps you clear your mind — one breath at a time.**
+**Stillnova helps you clear your mind — one breath at a time.**
 
-ClarMind blends AI-personalized daily guidance, calming breathing meditations, and a touch of the cosmic into one beautifully simple app. No noise, no clutter — just your daily moment of calm.
+Stillnova blends AI-personalized daily guidance, calming breathing meditations, and a touch of the cosmic into one beautifully simple app. No noise, no clutter — just your daily moment of calm.
 
 **🌙 Your personal daily guide**
-Every day, ClarMind creates content made just for you: an inspiring quote, a personal affirmation, a zodiac insight, a practical stress-relief tip, and a small mindful task. Tell us your goal — better sleep, less stress, sharper focus, or simple curiosity — and your guidance adapts to it.
+Every day, Stillnova creates content made just for you: an inspiring quote, a personal affirmation, a zodiac insight, a practical stress-relief tip, and a small mindful task. Tell us your goal — better sleep, less stress, sharper focus, or simple curiosity — and your guidance adapts to it.
 
 **🌬️ Breathe with intention**
 Guided breathing meditations with a beautiful animated breathing circle, gentle haptics, and ambient soundscapes. Choose your rhythm:
 • Box Breathing (4-4-4-4) for focus and calm
 • 4-7-8 for falling asleep faster
 • Deep Calm (5-2-5) for steady relaxation
-Meditate for 2, 5, 10, or 20 minutes. After 9 PM, ClarMind gently shifts into a darker wind-down mode to help you rest.
+Meditate for 2, 5, 10, or 20 minutes. After 9 PM, Stillnova gently shifts into a darker wind-down mode to help you rest.
 
 **🌌 Watch your sky grow**
 Every meditation lights a star in your personal night sky. Keep a 7-day streak and your stars connect into your own zodiac constellation. A quiet, gentle way to see your progress build over weeks and months.
@@ -46,7 +46,7 @@ Build streaks, earn XP, climb through calming Mind Ranks, and unlock achievement
 • Zodiac signs in English and Romanian
 • Gentle daily reminders you control
 
-Clear your mind. Every day. Download ClarMind and begin.
+Clear your mind. Every day. Download Stillnova and begin.
 
 ---
 

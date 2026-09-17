@@ -1,4 +1,4 @@
-// Clara — ClarMind's AI companion. A warm, brief mindfulness coach (Gemini).
+// Clara — Stillnova's AI companion. A warm, brief mindfulness coach (Gemini).
 import { ChatMessage, UserProfile } from '../types';
 import { Language, languageName } from '../i18n/languages';
 import { callGemini, hasAi } from './ai';
@@ -30,7 +30,7 @@ export const buildClaraContents = (
   ];
 };
 
-const systemPrompt = (profile: UserProfile, language: Language): string => `You are Clara, the gentle AI companion inside ClarMind, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}). Reply ONLY in ${languageName(language)}.
+const systemPrompt = (profile: UserProfile, language: Language): string => `You are Clara, the gentle AI companion inside Stillnova, a mindfulness app. You are talking with ${profile.name} (zodiac sign ${profile.zodiacSign}${profile.goal ? `, here mainly for ${profile.goal}` : ''}). Reply ONLY in ${languageName(language)}.
 
 Your voice: warm, calm, encouraging, and human. Short replies — usually 2-4 sentences. You listen first, validate feelings, and offer one small, practical mindfulness suggestion when it helps (a breath, a grounding exercise, a reframe, a moment of self-kindness). You may gently reference their zodiac sign for warmth, never as fact.
 

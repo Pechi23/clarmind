@@ -61,7 +61,7 @@ export const saveBirthDetails = async (birth: UserProfile['birth']): Promise<Use
 };
 
 export const clearUserProfile = async (): Promise<void> => {
-  // Wipe everything ClarMind stored, including gamification keys owned by other modules
+  // Wipe everything Stillnova stored, including gamification keys owned by other modules
   const allKeys = await AsyncStorage.getAllKeys();
   await AsyncStorage.multiRemove(allKeys.filter((k) => k.startsWith('clarmind_')));
 };

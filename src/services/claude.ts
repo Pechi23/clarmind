@@ -52,14 +52,14 @@ export const generateDailyContent = async (
     day: 'numeric',
   });
 
-  const prompt = `You are ClarMind, a calming mindfulness and wellness AI assistant. Generate personalized daily content for ${name}, whose zodiac sign is ${zodiacSign}. Today is ${today}.
+  const prompt = `You are Stillnova, a calming mindfulness and wellness AI assistant. Generate personalized daily content for ${name}, whose zodiac sign is ${zodiacSign}. Today is ${today}.
 ${goal ? GOAL_CONTEXT[goal] : ''}
 ${cosmicSnapshot(zodiacSign)}
 
 Return ONLY a valid JSON object with exactly these fields:
 {
   "quote": "an inspiring quote (real or original) about clarity, peace, or growth",
-  "quoteAuthor": "the author name, or 'ClarMind' if original",
+  "quoteAuthor": "the author name, or 'Stillnova' if original",
   "zodiacMessage": "2-3 sentences of personalized zodiac insight for ${zodiacSign} today — focus on emotional wellbeing, clarity, and growth",
   "stressTip": "one practical, specific tip to handle stress today (2-3 sentences)",
   "mindfulnessTask": "one simple mindfulness task they can do in under 5 minutes today",
@@ -100,7 +100,7 @@ export const generateWeeklyReflection = async (
   if (!hasAi()) return fallback;
 
   const { thisWeek, lastWeek, minutesDelta, moodDelta } = recap;
-  const prompt = `You are ClarMind, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week, in ${languageName(language)}. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
+  const prompt = `You are Stillnova, a warm mindfulness companion. Write ONE short encouraging sentence (max 22 words) for ${name} reflecting on their meditation week, in ${languageName(language)}. Be specific and genuine, not generic. No quotes, no markdown — just the sentence.
 
 This week: ${thisWeek.sessions} sessions, ${thisWeek.minutes} minutes, ${thisWeek.activeDays} active days${thisWeek.avgMood !== null ? `, average mood ${thisWeek.avgMood}/5` : ''}.
 Last week: ${lastWeek.sessions} sessions, ${lastWeek.minutes} minutes.

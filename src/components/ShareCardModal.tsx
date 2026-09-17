@@ -41,7 +41,7 @@ export default function ShareCardModal({ visible, onClose, profile, level, strea
           `🔥 ${streak} · ⏱️ ${minutes} · ⭐ ${stars}\n${t('share.tagline')}`;
         const nav: any = (globalThis as any).navigator;
         if (nav?.share) {
-          await nav.share({ title: 'ClarMind', text: shareText });
+          await nav.share({ title: 'Stillnova', text: shareText });
         } else if (nav?.clipboard?.writeText) {
           await nav.clipboard.writeText(shareText);
           setCopied(true);
@@ -70,7 +70,7 @@ export default function ShareCardModal({ visible, onClose, profile, level, strea
         {/* The captured card */}
         <View ref={cardRef} collapsable={false} style={styles.cardWrap}>
           <LinearGradient colors={['#1a1a3e', '#0f0c29', '#24243e']} style={styles.card}>
-            <Text style={styles.logo}>✦ ClarMind</Text>
+            <Text style={styles.logo}>✦ Stillnova</Text>
             <Text style={styles.cardTitle}>{t('share.cardTitle')}</Text>
 
             <View style={[styles.avatar, { borderColor: zodiacInfo.color }]}>

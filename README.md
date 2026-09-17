@@ -1,4 +1,4 @@
-# ClarMind
+# Stillnova
 
 **Clear your mind, every day.** Daily AI-personalized mindfulness, breathing meditation, zodiac insights, and stress relief — built with React Native + Expo.
 

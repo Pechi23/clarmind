@@ -27,7 +27,7 @@ export const it: DeepPartial<TranslationShape> = {
     day: 'giorno', days: 'giorni', min: 'min', minutes: 'minuti', tryAgain: 'Riprova',
   },
   onboarding: {
-    logo: '✦ ClarMind',
+    logo: '✦ Stillnova',
     headline: 'Schiarisci la mente,\nogni singolo giorno.',
     subtext: 'Mindfulness personalizzata, oroscopo e calma quotidiana — creati su misura per te.',
     namePrompt: 'Come ti chiamiamo?',
@@ -43,7 +43,7 @@ export const it: DeepPartial<TranslationShape> = {
   },
   guide: {
     skip: 'Salta', next: 'Avanti', done: 'Capito!',
-    welcome: { title: 'Benvenuto in ClarMind', desc: 'Un breve tour di ciò che puoi fare. Bastano 20 secondi.' },
+    welcome: { title: 'Benvenuto in Stillnova', desc: 'Un breve tour di ciò che puoi fare. Bastano 20 secondi.' },
     home: { title: 'Home', desc: 'La tua citazione, obiettivo, un compito mindful e piccole sfide — ogni giorno.' },
     breathe: { title: 'Respira', desc: 'Meditazioni di respirazione guidate con un mixer di suoni per rilassarti o concentrarti.' },
     sky: { title: 'Il tuo cielo', desc: 'Una costellazione che brilla di più ogni volta che mediti.' },
@@ -197,7 +197,7 @@ export const it: DeepPartial<TranslationShape> = {
   },
   tabs: { home: 'Home', breathe: 'Respira', sky: 'Cielo', top: 'Top', profile: 'Profilo' },
   share: {
-    button: 'Condividi i miei progressi', cardTitle: 'Il mio percorso ClarMind',
+    button: 'Condividi i miei progressi', cardTitle: 'Il mio percorso Stillnova',
     streak: 'giorni di serie', minutes: 'minuti mindful', stars: 'stelle accese',
     tagline: 'Schiarisci la mente, ogni giorno.', action: 'Condividi', close: 'Chiudi',
     unavailable: 'La condivisione non è disponibile su questo dispositivo.',

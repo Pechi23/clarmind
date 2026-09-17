@@ -109,7 +109,7 @@ export const getWeeklyInsight = async (language: Language = 'en'): Promise<Insig
 
   try {
     const prompt =
-      `You are ClarMind, a warm mindfulness companion. Based on this user's data, write 1–2 warm, ` +
+      `You are Stillnova, a warm mindfulness companion. Based on this user's data, write 1–2 warm, ` +
       `specific observations about their patterns (when they seem calmest, what's working, a gentle nudge). ` +
       `Max 35 words, second person, no numbers, no lists, in ${languageName(language)}. Data: ${summary.text}`;
     const text = (await callGemini({

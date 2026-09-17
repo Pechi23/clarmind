@@ -43,7 +43,7 @@ export const getCourseDay = async (
 
   if (!hasAi()) return fallback(course, day, language);
 
-  const prompt = `You are ClarMind, a calm mindfulness guide. This is Day ${day} of ${COURSE_LENGTH} in a gentle micro-course about ${course.theme}. Write today's short lesson.
+  const prompt = `You are Stillnova, a calm mindfulness guide. This is Day ${day} of ${COURSE_LENGTH} in a gentle micro-course about ${course.theme}. Write today's short lesson.
 
 Return ONLY a valid JSON object with exactly these fields:
 {

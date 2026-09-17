@@ -51,7 +51,7 @@ describe('importData', () => {
     expect(await AsyncStorage.getItem('evil_key')).toBeNull();
   });
 
-  it('rejects invalid JSON and non-ClarMind backups', async () => {
+  it('rejects invalid JSON and non-Stillnova backups', async () => {
     await expect(importData('not json')).rejects.toThrow();
     await expect(importData('{"app":"other","data":{}}')).rejects.toThrow();
     await expect(importData('{"app":"clarmind","data":[]}')).rejects.toThrow();

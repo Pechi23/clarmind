@@ -16,10 +16,10 @@ Notifications.setNotificationHandler({
 
 const REMINDER_MESSAGES = [
   '🌙 The stars are aligning for your daily moment of calm.',
-  '✨ One breath at a time. Open ClarMind.',
+  '✨ One breath at a time. Open Stillnova.',
   '🧘 A clear mind awaits. Take 5 minutes for yourself.',
   '🌬️ Ready to breathe? Your daily reset is here.',
-  '🌌 Pause. Reset. Bloom. Your daily ClarMind is ready.',
+  '🌌 Pause. Reset. Bloom. Your daily Stillnova is ready.',
 ];
 
 export const requestNotificationPermissions = async (): Promise<boolean> => {
@@ -62,7 +62,7 @@ export const scheduleDailyReminder = async (hour = 9, minute = 0): Promise<void>
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'ClarMind',
+      title: 'Stillnova',
       body: message,
       sound: true,
     },

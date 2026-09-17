@@ -27,7 +27,7 @@ export const de: DeepPartial<TranslationShape> = {
     day: 'Tag', days: 'Tage', min: 'Min', minutes: 'Minuten', tryAgain: 'Erneut versuchen',
   },
   onboarding: {
-    logo: '✦ ClarMind',
+    logo: '✦ Stillnova',
     headline: 'Klarer Kopf,\njeden Tag.',
     subtext: 'Personalisierte Achtsamkeit, Horoskop und tägliche Ruhe — für dich gemacht.',
     namePrompt: 'Wie sollen wir dich nennen?',
@@ -43,7 +43,7 @@ export const de: DeepPartial<TranslationShape> = {
   },
   guide: {
     skip: 'Überspringen', next: 'Weiter', done: 'Verstanden!',
-    welcome: { title: 'Willkommen bei ClarMind', desc: 'Eine kurze Tour, was du tun kannst. Dauert 20 Sekunden.' },
+    welcome: { title: 'Willkommen bei Stillnova', desc: 'Eine kurze Tour, was du tun kannst. Dauert 20 Sekunden.' },
     home: { title: 'Home', desc: 'Dein Zitat, Ziel, eine achtsame Aufgabe und kleine Challenges — täglich.' },
     breathe: { title: 'Atmen', desc: 'Geführte Atemmeditationen mit Sound-Mixer zum Entspannen oder Fokussieren.' },
     sky: { title: 'Dein Himmel', desc: 'Ein Sternbild, das mit jeder Meditation heller leuchtet.' },
@@ -197,7 +197,7 @@ export const de: DeepPartial<TranslationShape> = {
   },
   tabs: { home: 'Home', breathe: 'Atmen', sky: 'Himmel', top: 'Top', profile: 'Profil' },
   share: {
-    button: 'Meinen Fortschritt teilen', cardTitle: 'Meine ClarMind-Reise',
+    button: 'Meinen Fortschritt teilen', cardTitle: 'Meine Stillnova-Reise',
     streak: 'Tage-Serie', minutes: 'achtsame Minuten', stars: 'entzündete Sterne',
     tagline: 'Klarer Kopf, jeden Tag.', action: 'Teilen', close: 'Schließen',
     unavailable: 'Teilen ist auf diesem Gerät nicht verfügbar.',

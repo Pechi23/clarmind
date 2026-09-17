@@ -1,4 +1,4 @@
-// Export / import all local ClarMind data (profile, streaks, sessions, moods,
+// Export / import all local Stillnova data (profile, streaks, sessions, moods,
 // journal, prefs…) as JSON — a real backup / device-migration for a local-first
 // app. Everything lives under the `clarmind_` AsyncStorage prefix, so we dump and
 // restore by prefix rather than a hand-kept key list (nothing gets missed).
@@ -14,7 +14,7 @@ export interface Backup {
   data: Record<string, string>;
 }
 
-/** Serialize all ClarMind data to a JSON string. */
+/** Serialize all Stillnova data to a JSON string. */
 export const exportData = async (): Promise<string> => {
   const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(PREFIX));
   const pairs = await AsyncStorage.multiGet(keys);
@@ -32,8 +32,8 @@ export const exportData = async (): Promise<string> => {
 export interface ImportResult { imported: number; }
 
 /**
- * Restore from a backup string: validates it's a ClarMind backup, then REPLACES
- * the current ClarMind data with it. Throws on anything that isn't our format.
+ * Restore from a backup string: validates it's a Stillnova backup, then REPLACES
+ * the current Stillnova data with it. Throws on anything that isn't our format.
  */
 export const importData = async (json: string): Promise<ImportResult> => {
   let parsed: any;
@@ -49,7 +49,7 @@ export const importData = async (json: string): Promise<ImportResult> => {
     ([k, v]) => typeof k === 'string' && k.startsWith(PREFIX) && typeof v === 'string'
   ) as [string, string][];
 
-  // Replace existing ClarMind data so a restore is exact (not a merge).
+  // Replace existing Stillnova data so a restore is exact (not a merge).
   const existing = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(PREFIX));
   if (existing.length) await AsyncStorage.multiRemove(existing);
   if (entries.length) await AsyncStorage.multiSet(entries);

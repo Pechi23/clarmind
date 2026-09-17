@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "ClarMind",
+    "name": "Stillnova",
     "slug": "clarmind",
-    "version": "1.6.5",
+    "version": "1.7.0",
     "scheme": "clarmind",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.clarmind.app"
+      "bundleIdentifier": "com.stillnova.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f0c29"
       },
-      "package": "com.clarmind.app",
+      "package": "com.stillnova.app",
       "versionCode": 2,
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan"
@@ -40,8 +40,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "ClarMind uses the microphone so you can talk to Clara.",
-          "speechRecognitionPermission": "ClarMind uses speech recognition to turn your voice into text for Clara."
+          "microphonePermission": "Stillnova uses the microphone so you can talk to Clara.",
+          "speechRecognitionPermission": "Stillnova uses speech recognition to turn your voice into text for Clara."
         }
       ]
     ]

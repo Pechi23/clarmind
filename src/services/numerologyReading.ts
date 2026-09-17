@@ -52,7 +52,7 @@ export const getNumerologyReading = async (
 
   if (!hasAi()) return fallback(personalDay, language);
 
-  const prompt = `You are ClarMind, a warm numerology + wellness guide. Write today's personal numerology reading for ${birth.firstName}.
+  const prompt = `You are Stillnova, a warm numerology + wellness guide. Write today's personal numerology reading for ${birth.firstName}.
 
 Their numbers:
 - Life Path (destiny number): ${nums.lifePath}

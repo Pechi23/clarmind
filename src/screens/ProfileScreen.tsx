@@ -354,7 +354,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         {/* Mood trend */}
         <MoodTrendCard entries={moods} />
 
-        <Text style={styles.appVersion}>ClarMind · v1.6.0</Text>
+        <Text style={styles.appVersion}>Stillnova · v1.6.0</Text>
       </ScrollView>
 
       {/* Settings — separate screen */}

@@ -1,4 +1,4 @@
-# ClarMind — Privacy Policy
+# Stillnova — Privacy Policy
 
 **The canonical, up-to-date Privacy Policy is [`public/privacy.html`](../public/privacy.html)**, which is deployed with the web app to:
 

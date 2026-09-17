@@ -60,7 +60,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
             contentContainerStyle={styles.stepScroll}
             showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.logo}>✦ ClarMind</Text>
+            <Text style={styles.logo}>✦ Stillnova</Text>
             <Text style={styles.headline}>{t('onboarding.langTitle')}</Text>
             <Text style={styles.subtext}>{t('onboarding.langSubtitle')}</Text>
             <View style={styles.langCards}>
@@ -83,7 +83,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
               <TouchableOpacity onPress={() => setStep(2)}>
                 <Text style={styles.back}>{t('common.back')}</Text>
               </TouchableOpacity>
-              <Text style={styles.logo}>✦ ClarMind</Text>
+              <Text style={styles.logo}>✦ Stillnova</Text>
               <View style={{ width: 50 }} />
             </View>
             <Text style={styles.headline2}>{t('onboarding.goalTitle')}</Text>
@@ -131,7 +131,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.topRow}>
-              <Text style={styles.logo}>✦ ClarMind</Text>
+              <Text style={styles.logo}>✦ Stillnova</Text>
             </View>
             <Text style={styles.headline}>{t('onboarding.headline')}</Text>
             <Text style={styles.subtext}>{t('onboarding.subtext')}</Text>
@@ -166,7 +166,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
               <TouchableOpacity onPress={() => setStep(1)}>
                 <Text style={styles.back}>{t('common.back')}</Text>
               </TouchableOpacity>
-              <Text style={styles.logo}>✦ ClarMind</Text>
+              <Text style={styles.logo}>✦ Stillnova</Text>
               <View style={{ width: 50 }} />
             </View>
             <Text style={styles.headline2}>{t('onboarding.zodiacTitle')}</Text>

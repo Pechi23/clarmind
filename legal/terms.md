@@ -1,4 +1,4 @@
-# ClarMind — Terms & Conditions
+# Stillnova — Terms & Conditions
 
 **The canonical Terms & Conditions is [`public/terms.html`](../public/terms.html)**,
 deployed with the web app to:

@@ -39,7 +39,7 @@ export const searchPlaces = async (
       `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1` +
       `&limit=6&accept-language=en&q=${encodeURIComponent(q)}${cc}`;
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'ClarMind/1.0 (mindfulness app)', Accept: 'application/json' },
+      headers: { 'User-Agent': 'Stillnova/1.0 (mindfulness app)', Accept: 'application/json' },
       signal,
     });
     if (!res.ok) return [];

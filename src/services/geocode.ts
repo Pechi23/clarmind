@@ -20,7 +20,7 @@ export const geocodePlace = async (place: string): Promise<Coords | null> => {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
-      { headers: { 'User-Agent': 'ClarMind/1.0 (mindfulness app)', Accept: 'application/json' } }
+      { headers: { 'User-Agent': 'Stillnova/1.0 (mindfulness app)', Accept: 'application/json' } }
     );
     if (!res.ok) return null;
     const data = await res.json();
