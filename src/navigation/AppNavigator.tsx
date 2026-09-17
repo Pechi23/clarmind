@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from 'react-native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import {
   createBottomTabNavigator, BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
@@ -30,6 +30,8 @@ interface Props {
   onReset: () => void;
 }
 
+const TAB_ORDER = ['Home', 'Breathe', 'Sky', 'Top', 'Profile'] as const;
+
 const TAB_ICONS: Record<string, string> = {
   Home: '🌙',
   Breathe: '🌬️',
@@ -42,10 +44,10 @@ const TAB_KEYS: Record<string, string> = {
   Home: 'tabs.home', Breathe: 'tabs.breathe', Sky: 'tabs.sky', Top: 'tabs.top', Profile: 'tabs.profile',
 };
 
+// The floating bottom pill used on phones / narrow screens.
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  // Float above the OS navigation bar / home indicator on every device.
   return (
     <View style={[styles.tabBarWrap, { bottom: insets.bottom + 12 }]}>
       <LinearGradient
@@ -88,8 +90,41 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   );
 }
 
+// A proper left navigation rail shown on wide web screens (desktop / tablet).
+function WebSidebar({ active, onNavigate }: { active: string; onNavigate: (name: string) => void }) {
+  const { t } = useI18n();
+  return (
+    <View style={styles.sidebar}>
+      <Text style={styles.sidebarLogo}>✦ Stillnova</Text>
+      <View style={styles.sidebarNav}>
+        {TAB_ORDER.map((name) => {
+          const focused = active === name;
+          return (
+            <TouchableOpacity
+              key={name}
+              onPress={() => onNavigate(name)}
+              activeOpacity={0.8}
+              style={[styles.sideItem, focused && styles.sideItemActive]}
+              accessibilityRole="tab"
+              accessibilityLabel={t(TAB_KEYS[name])}
+            >
+              <Text style={[styles.sideIcon, focused && styles.sideIconActive]}>{TAB_ICONS[name]}</Text>
+              <Text style={[styles.sideLabel, focused && styles.sideLabelActive]}>{t(TAB_KEYS[name])}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <Text style={styles.sidebarFoot}>✦</Text>
+    </View>
+  );
+}
+
 export default function AppNavigator({ profile, onReset }: Props) {
   const [showGuide, setShowGuide] = useState(false);
+  const { width } = useWindowDimensions();
+  const wideWeb = Platform.OS === 'web' && width >= 900;
+  const navigationRef = useNavigationContainerRef();
+  const [activeRoute, setActiveRoute] = useState<string>('Home');
 
   useEffect(() => {
     getGuideSeen().then((seen) => setShowGuide(!seen));
@@ -112,29 +147,39 @@ export default function AppNavigator({ profile, onReset }: Props) {
   return (
     <View style={{ flex: 1 }}>
       <NavigationContainer
+        ref={navigationRef}
         onStateChange={(state) => {
           const route = state?.routes[state.index]?.name;
-          if (route) capture('screen_view', { screen: route });
+          if (route) { setActiveRoute(route); capture('screen_view', { screen: route }); }
         }}
       >
-        <Tab.Navigator
-          screenOptions={{ headerShown: false }}
-          tabBar={(props) => <CustomTabBar {...props} />}
-        >
-          <Tab.Screen name="Home">
-            {() => <HomeScreen profile={profile} onProfileChange={onReset} />}
-          </Tab.Screen>
-          <Tab.Screen name="Breathe" component={BreatheScreen} />
-          <Tab.Screen name="Sky">
-            {() => <SkyScreen profile={profile} />}
-          </Tab.Screen>
-          <Tab.Screen name="Top">
-            {() => <LeaderboardScreen profile={profile} />}
-          </Tab.Screen>
-          <Tab.Screen name="Profile">
-            {() => <ProfileScreen profile={profile} onReset={onReset} />}
-          </Tab.Screen>
-        </Tab.Navigator>
+        <View style={[styles.shell, wideWeb && styles.shellRow]}>
+          {wideWeb && (
+            <WebSidebar active={activeRoute} onNavigate={(n) => navigationRef.navigate(n as never)} />
+          )}
+          <View style={[styles.stage, wideWeb && styles.stageWeb]}>
+            <View style={[styles.column, wideWeb && styles.columnWeb]}>
+              <Tab.Navigator
+                screenOptions={{ headerShown: false }}
+                tabBar={wideWeb ? () => null : (props) => <CustomTabBar {...props} />}
+              >
+                <Tab.Screen name="Home">
+                  {() => <HomeScreen profile={profile} onProfileChange={onReset} />}
+                </Tab.Screen>
+                <Tab.Screen name="Breathe" component={BreatheScreen} />
+                <Tab.Screen name="Sky">
+                  {() => <SkyScreen profile={profile} />}
+                </Tab.Screen>
+                <Tab.Screen name="Top">
+                  {() => <LeaderboardScreen profile={profile} />}
+                </Tab.Screen>
+                <Tab.Screen name="Profile">
+                  {() => <ProfileScreen profile={profile} onReset={onReset} />}
+                </Tab.Screen>
+              </Tab.Navigator>
+            </View>
+          </View>
+        </View>
       </NavigationContainer>
 
       {/* Draggable Clara — floats over every main screen */}
@@ -147,6 +192,53 @@ export default function AppNavigator({ profile, onReset }: Props) {
 }
 
 const styles = StyleSheet.create({
+  shell: { flex: 1 },
+  shellRow: { flexDirection: 'row' },
+  stage: { flex: 1 },
+  // On wide web, center the app in a column on the ambient background.
+  stageWeb: { alignItems: 'center', backgroundColor: COLORS.background },
+  column: { flex: 1, width: '100%' },
+  columnWeb: {
+    maxWidth: 680,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+
+  // Left sidebar (wide web)
+  sidebar: {
+    width: 232,
+    backgroundColor: '#0b0920',
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(255,255,255,0.06)',
+    paddingTop: 28,
+    paddingHorizontal: 16,
+  },
+  sidebarLogo: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 20,
+    color: COLORS.primary,
+    letterSpacing: 1,
+    paddingHorizontal: 12,
+    marginBottom: 28,
+  },
+  sidebarNav: { gap: 4, flex: 1 },
+  sideItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+  },
+  sideItemActive: { backgroundColor: 'rgba(167,139,250,0.16)' },
+  sideIcon: { fontSize: 20, opacity: 0.7 },
+  sideIconActive: { opacity: 1 },
+  sideLabel: { fontFamily: FONTS.medium, fontSize: 15, color: COLORS.textMuted },
+  sideLabelActive: { color: COLORS.text },
+  sidebarFoot: { color: 'rgba(167,139,250,0.4)', fontSize: 16, paddingHorizontal: 12, paddingBottom: 20 },
+
+  // Floating bottom pill (phones / narrow)
   tabBarWrap: {
     position: 'absolute',
     left: 16, right: 16,
@@ -159,6 +251,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 12,
+    alignSelf: 'center',
+    maxWidth: 520,
+    width: '100%',
   },
   tabBar: {
     flexDirection: 'row',

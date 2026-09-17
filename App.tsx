@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet, AppState } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, AppState, Platform, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -27,6 +27,8 @@ function Root() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [appReady, setAppReady] = useState(false);
   const { ready: i18nReady } = useI18n();
+  const { width } = useWindowDimensions();
+  const wideWeb = Platform.OS === 'web' && width >= 900;
 
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -80,7 +82,11 @@ function Root() {
       <SafeAreaProvider>
         <StatusBar style="light" />
         {!profile ? (
-          <OnboardingScreen onComplete={refreshProfile} />
+          <View style={wideWeb ? styles.onboardWebWrap : styles.flex}>
+            <View style={wideWeb ? styles.onboardWebColumn : styles.flex}>
+              <OnboardingScreen onComplete={refreshProfile} />
+            </View>
+          </View>
         ) : (
           <AppNavigator profile={profile} onReset={refreshProfile} />
         )}
@@ -98,10 +104,14 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   loading: {
     flex: 1,
     backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // On wide web, center onboarding in a column on the ambient background.
+  onboardWebWrap: { flex: 1, alignItems: 'center', backgroundColor: COLORS.background },
+  onboardWebColumn: { flex: 1, width: '100%', maxWidth: 480 },
 });
