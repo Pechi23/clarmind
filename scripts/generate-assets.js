@@ -1,5 +1,5 @@
 /**
- * Generates ClarMind's app icons and splash from inline SVG using sharp.
+ * Generates Stillnova's app icons and splash from inline SVG using sharp.
  * Run: node scripts/generate-assets.js
  *
  * On-brand mark: a glowing crescent moon over a small constellation on the
@@ -102,10 +102,10 @@ function splashSvg(size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
     ${bgGradient}
     ${mark(c, c * 0.82, size * 0.16)}
-    <text x="${c}" y="${c * 1.35}" font-family="Arial, sans-serif" font-size="${size * 0.075}"
-      font-weight="700" fill="#f1f5f9" text-anchor="middle" letter-spacing="${size * 0.006}">ClarMind</text>
+    <text x="${c}" y="${c * 1.35}" font-family="Arial, sans-serif" font-size="${size * 0.072}"
+      font-weight="700" fill="#f1f5f9" text-anchor="middle" letter-spacing="${size * 0.006}">Stillnova</text>
     <text x="${c}" y="${c * 1.44}" font-family="Arial, sans-serif" font-size="${size * 0.032}"
-      fill="#a78bfa" text-anchor="middle" letter-spacing="${size * 0.004}">clear your mind</text>
+      fill="#a78bfa" text-anchor="middle" letter-spacing="${size * 0.004}">find your calm</text>
   </svg>`;
 }
 
