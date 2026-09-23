@@ -262,4 +262,8 @@ Most of that brainstorm ClarMind already had; these were the genuinely-new ones,
 
 ---
 
-**Last updated:** 2026-09-23 (All Claude-doable P0s done: #1-#8 + #10. Only #9 remains — account deletion + Sign in with Apple + paywall legal links — needs George's Apple/Supabase setup. Native fixes need a fresh APK; proxy hardening needs wrangler deploy + APP_KEY secret + rebuild.)
+| 2026-09-23 | P1 bugs + more tests | **P1 #15** resume-crash fix: `patternRef` drives the phase timer so resuming a differently-shaped abandoned session (3-phase 4-7-8 vs 4-phase Box) can't read `phases[3]` on a 3-phase array; clamp resumed phaseIndex. **P1 #14** premium cold-start: `await` configurePurchases (3s cap) before UI mounts + `refreshPremium()` on AppState active, so a subscriber doesn't see the paywall on launch. **P1 #21** `pruneOldKeys()` on app start removes `ai_usage`/`numerology` date-keyed entries >7 days. **More tests (357 total):** localized alerts/notifications in all 6 non-English locales + placeholder interpolation + titles differ from English (the reported bug); web `showDialog` routes to window.alert/confirm; Photon place parsing (keeps cities, drops streets/POIs, country filter, lang mapping); `pruneOldKeys`; `localDateKey`; birth-time UT conversion. Verified all 7 languages' alert/notif strings by hand too. Built Stillnova-1.7.1 arm64 APK with everything. |
+
+---
+
+**Last updated:** 2026-09-23 (All Claude-doable P0s done #1-#8 + #10; P1 #14/#15/#21 done; 357 tests; all 7 languages + alerts verified. Only #9 remains — account deletion + Sign in with Apple + paywall legal links — needs George's Apple/Supabase setup. Proxy hardening needs wrangler deploy + APP_KEY secret; a fresh APK carries all native fixes.)
