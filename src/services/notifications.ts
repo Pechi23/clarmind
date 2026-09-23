@@ -4,15 +4,18 @@ import { getStreak } from './storage';
 import { getXp } from './gamification';
 import { getLevelForXp } from '../constants/achievements';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// expo-notifications is native-only; setting a handler on web logs warnings.
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 const REMINDER_MESSAGES = [
   '🌙 The stars are aligning for your daily moment of calm.',

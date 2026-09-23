@@ -101,7 +101,11 @@ export const getWeeklyInsight = async (language: Language = 'en'): Promise<Insig
     const raw = await AsyncStorage.getItem(CACHE_KEY);
     if (raw) {
       const cached = JSON.parse(raw);
-      if (cached?.week === week && typeof cached.text === 'string') return { text: cached.text };
+      // Cache is per ISO week AND per language, so switching language regenerates
+      // the insight in the new language instead of showing the old one.
+      if (cached?.week === week && cached?.lang === language && typeof cached.text === 'string') {
+        return { text: cached.text };
+      }
     }
   } catch {}
 
@@ -117,7 +121,7 @@ export const getWeeklyInsight = async (language: Language = 'en'): Promise<Insig
       generationConfig: { maxOutputTokens: 400, temperature: 0.7 },
     })).trim();
     if (text) {
-      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({ week, text })).catch(() => {});
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify({ week, lang: language, text })).catch(() => {});
       return { text };
     }
   } catch {}
