@@ -18,8 +18,8 @@ if (!fs.existsSync(indexPath)) {
   process.exit(1);
 }
 
-const NAME = 'ClarMind';
-const DESCRIPTION = 'Mindfulness, breathing meditations & daily astrology — clear your mind, every day.';
+const NAME = 'Stillnova';
+const DESCRIPTION = 'Mindfulness, breathing meditations and daily astrology. Find your calm, every day.';
 const THEME = '#0f0c29';
 
 // 1) Copy an app icon to a stable path (relative so it works under a subpath too).
