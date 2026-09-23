@@ -15,6 +15,7 @@ import {
 import { MoodEntry } from '../types';
 import { saveMoodEntry, getPhaseCues, getSleepFade, getBreathCalibration, setBreathCalibration } from '../services/storage';
 import { applyCalibration } from '../services/breathCalibration';
+import { localDateKey } from '../services/streakLogic';
 import BreathCalibrationModal from '../components/BreathCalibrationModal';
 import {
   SOUNDSCAPES, syncMix, stopMix, fadeOutMix, playChime,
@@ -244,7 +245,7 @@ export default function BreatheScreen() {
     playChime('end').catch(() => {});
     // Gentle wind-down; a long fade if "sleep fade" is on (sound eases you to sleep).
     fadeOutMix(mix, sleepFadeRef.current ? 90000 : 4000).catch(() => {});
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey();
     await saveMeditationSession({
       date: today,
       durationMinutes: durationMin,

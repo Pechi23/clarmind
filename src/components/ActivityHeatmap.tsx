@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, FONTS } from '../constants/theme';
 import { MeditationSession } from '../types';
+import { localDateKey } from '../services/streakLogic';
 
 interface Props {
   sessions: MeditationSession[];
@@ -36,7 +37,7 @@ export default function ActivityHeatmap({ sessions, days = 30 }: Props) {
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      const key = d.toISOString().split('T')[0];
+      const key = localDateKey(d);
       cells.push({ date: key, minutes: map[key] ?? 0 });
     }
 

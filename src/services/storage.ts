@@ -3,7 +3,7 @@ import {
   UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage,
   ReflectionEntry, CourseProgress,
 } from '../types';
-import { computeStreakUpdate } from './streakLogic';
+import { computeStreakUpdate, localDateKey } from './streakLogic';
 
 const KEYS = {
   USER_PROFILE: 'clarmind_user_profile',
@@ -90,7 +90,7 @@ export const getShields = async (): Promise<number> => {
  * math to the pure `computeStreakUpdate`, persists the result.
  */
 export const updateStreak = async (): Promise<StreakResult> => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey();
   const [lastOpen, prevStreak, prevShields] = await Promise.all([
     AsyncStorage.getItem(KEYS.LAST_OPEN),
     getStreak(),
@@ -174,7 +174,7 @@ export const getCourseProgress = async (): Promise<CourseProgress | null> => {
 export const startCourse = async (courseId: string): Promise<CourseProgress> => {
   const progress: CourseProgress = {
     courseId,
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: localDateKey(),
     completedDays: [],
   };
   await AsyncStorage.setItem(KEYS.COURSE_PROGRESS, JSON.stringify(progress));
@@ -318,7 +318,7 @@ export const clearChatHistory = async (): Promise<void> => {
 
 /** Returns today's Clara message count (resets daily). */
 export const getClaraCount = async (): Promise<number> => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey();
   const raw = await AsyncStorage.getItem(KEYS.CLARA_COUNT);
   if (!raw) return 0;
   const parsed: { date: string; count: number } = JSON.parse(raw);
@@ -326,7 +326,7 @@ export const getClaraCount = async (): Promise<number> => {
 };
 
 export const incrementClaraCount = async (): Promise<number> => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey();
   const count = (await getClaraCount()) + 1;
   await AsyncStorage.setItem(KEYS.CLARA_COUNT, JSON.stringify({ date: today, count }));
   return count;

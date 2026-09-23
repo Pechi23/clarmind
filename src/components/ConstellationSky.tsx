@@ -4,6 +4,7 @@ import { MeditationSession } from '../types';
 import { ZodiacSign } from '../constants/zodiac';
 import { CONSTELLATIONS } from '../constants/constellations';
 import { getRuns, countConstellations } from '../services/skyLogic';
+import { localDateKey } from '../services/streakLogic';
 
 export { getRuns, countConstellations };
 
@@ -34,8 +35,8 @@ export default function ConstellationSky({ sessions, zodiac, width = W, height =
     }));
 
     const runs = getRuns(sessions);
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const today = localDateKey();
+    const yesterday = localDateKey(new Date(Date.now() - 86400000));
     const lastRun = runs[runs.length - 1];
     const activeDates = new Set(
       lastRun && (lastRun.includes(today) || lastRun.includes(yesterday)) ? lastRun : []

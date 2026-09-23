@@ -13,6 +13,7 @@ import {
   getMeditationSessions, getMoodEntries, getLastRecapWeek, setLastRecapWeek,
 } from '../services/storage';
 import { generateDailyContent, generateWeeklyReflection } from '../services/claude';
+import { localDateKey } from '../services/streakLogic';
 import GradientCard from '../components/GradientCard';
 import CosmicEnergyCard from '../components/CosmicEnergyCard';
 import StreakBadge from '../components/StreakBadge';
@@ -94,7 +95,7 @@ export default function HomeScreen({ profile, onProfileChange }: Props) {
   }, []);
 
   const zodiacInfo = ZODIAC_SIGNS.find((z) => z.name === profile.zodiacSign)!;
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey();
   const seasonalEvent = getSeasonalEvent();
 
   const greeting = () => {

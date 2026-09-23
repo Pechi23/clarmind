@@ -5,11 +5,12 @@ import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { useI18n } from '../i18n';
 import { pickReflectionKey } from '../services/reflectionLogic';
 import { getReflectionForDate, saveReflection } from '../services/storage';
+import { localDateKey } from '../services/streakLogic';
 
 /** Evening journaling prompt — shows a seeded question and stores the answer locally. */
 export default function ReflectionCard() {
   const { t } = useI18n();
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey();
   const questionKey = pickReflectionKey(today);
 
   const [answer, setAnswer] = useState('');

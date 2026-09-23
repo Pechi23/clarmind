@@ -7,12 +7,13 @@ import {
 import { saveMeditationSession, saveMoodEntry } from '../storage';
 import { XP } from '../../constants/achievements';
 import { MeditationSession } from '../../types';
+import { localDateKey } from '../streakLogic';
 
 const session = (date: string, minutes: number, pattern: MeditationSession['pattern'] = 'box'): MeditationSession => ({
   date, durationMinutes: minutes, pattern, completedAt: `${date}T10:00:00Z`, soundscape: 'rain',
 });
 
-const today = () => new Date().toISOString().split('T')[0];
+const today = () => localDateKey();
 
 beforeEach(async () => {
   await AsyncStorage.clear();

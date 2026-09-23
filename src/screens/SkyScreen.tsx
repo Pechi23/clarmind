@@ -6,6 +6,7 @@ import { COLORS, FONTS, RADIUS, SPACING } from '../constants/theme';
 import { ZODIAC_SIGNS } from '../constants/zodiac';
 import { UserProfile, MeditationSession } from '../types';
 import { getMeditationSessions } from '../services/storage';
+import { localDateKey } from '../services/streakLogic';
 import ConstellationSky, { getRuns, countConstellations } from '../components/ConstellationSky';
 import { getMoonPhase } from '../services/moonPhase';
 import IntuitionGame from '../components/IntuitionGame';
@@ -35,8 +36,8 @@ export default function SkyScreen({ profile }: Props) {
 
   // Days toward the next constellation, from the current active run
   const runs = getRuns(sessions);
-  const today = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const today = localDateKey();
+  const yesterday = localDateKey(new Date(Date.now() - 86400000));
   const lastRun = runs[runs.length - 1];
   const activeRunLen =
     lastRun && (lastRun.includes(today) || lastRun.includes(yesterday)) ? lastRun.length : 0;

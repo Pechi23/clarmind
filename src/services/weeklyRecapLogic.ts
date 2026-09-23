@@ -1,4 +1,5 @@
 import { MeditationSession, MoodEntry } from '../types';
+import { localDateKey } from './streakLogic';
 
 export interface WeekStats {
   sessions: number;
@@ -17,7 +18,8 @@ export interface WeeklyRecap {
 
 const dayOffset = (dateStr: string, nowMs: number): number => {
   const d = new Date(dateStr + 'T00:00:00').getTime();
-  const today = new Date(new Date(nowMs).toISOString().split('T')[0] + 'T00:00:00').getTime();
+  // Local calendar day, to match session dates (also stored as local keys).
+  const today = new Date(localDateKey(new Date(nowMs)) + 'T00:00:00').getTime();
   return Math.round((today - d) / 86400000);
 };
 
@@ -43,7 +45,7 @@ export const computeWeeklyRecap = (
     });
     const moodVals = moods
       .filter((m) => {
-        const off = dayOffset(m.date.split('T')[0], nowMs);
+        const off = dayOffset(localDateKey(new Date(m.date)), nowMs);
         return off >= lo && off <= hi;
       })
       .map((m) => m.mood);

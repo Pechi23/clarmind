@@ -13,6 +13,7 @@ import {
   getCourseProgress, startCourse, markCourseDayComplete, leaveCourse,
 } from '../services/storage';
 import { getCourseDay } from '../services/courses';
+import { localDateKey } from '../services/streakLogic';
 import { CourseProgress } from '../types';
 
 interface Props {
@@ -27,7 +28,7 @@ export default function CoursesScreen({ onClose }: Props) {
   const [dayContent, setDayContent] = useState<CourseDayContent | null>(null);
   const [dayLoading, setDayLoading] = useState(false);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = localDateKey();
 
   const refresh = useCallback(async () => {
     setProgress(await getCourseProgress());

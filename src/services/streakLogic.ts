@@ -2,6 +2,19 @@ import { StreakResult } from '../types';
 
 export const MAX_SHIELDS = 2;
 
+/**
+ * The local calendar day as YYYY-MM-DD (NOT UTC). Use this everywhere a "today"
+ * boundary matters (streaks, AI quota, session dates, challenges, course/day
+ * unlocks) so the day rolls over at the user's own midnight. Using
+ * `toISOString()` instead flips the day at UTC midnight, which is 7-8 PM in the
+ * Americas and 2-3 AM in Bucharest. Stored keys from the old UTC scheme still
+ * compare fine (they are already "somewhere within a day").
+ */
+export const localDateKey = (d: Date = new Date()): string => {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
+
 /** Whole days from one YYYY-MM-DD to another (positive if `to` is later). */
 export const daysBetween = (fromIso: string, toIso: string): number => {
   const from = new Date(fromIso + 'T00:00:00');

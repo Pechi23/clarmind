@@ -8,6 +8,7 @@ import { computeDestinyMatrix } from './destinyMatrix';
 import { ascendantSign } from './ascendant';
 import { Language, languageName } from '../i18n/languages';
 import { callGemini, hasAi } from './ai';
+import { localDateKey } from './streakLogic';
 
 export interface NumerologyReading {
   personalDay: number;
@@ -27,7 +28,7 @@ const fallback = (personalDay: number, lang: Language): NumerologyReading => ({
       ? 'Astăzi este o zi bună pentru a respira conștient și a face un pas mic, dar sigur.'
       : 'Today is a good day to breathe with intention and take one small, steady step.',
   focus: lang === 'ro' ? 'Un gest de bunătate față de tine.' : 'One act of kindness toward yourself.',
-  generatedAt: new Date().toISOString().split('T')[0],
+  generatedAt: localDateKey(),
 });
 
 export const getNumerologyReading = async (
@@ -36,7 +37,7 @@ export const getNumerologyReading = async (
   language: Language = 'en'
 ): Promise<NumerologyReading> => {
   const today = new Date();
-  const dateStr = today.toISOString().split('T')[0];
+  const dateStr = localDateKey(today);
   const dob = parseDob(birth.dob);
   const nums = computeNumerology(dob, `${birth.firstName} ${birth.lastName}`);
   const matrix = computeDestinyMatrix(dob);

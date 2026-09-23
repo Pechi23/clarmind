@@ -8,6 +8,7 @@ import { Language, languageName } from '../i18n/languages';
 import { callGemini, hasAi } from './ai';
 import { getCosmicEnergy, dominantFacet, FacetKey } from './cosmicEnergy';
 import { getMoonPhase, MoonPhaseName } from './moonPhase';
+import { localDateKey } from './streakLogic';
 
 const LOCALE: Record<Language, string> = {
   en: 'en-GB', ro: 'ro-RO', it: 'it-IT', fr: 'fr-FR', es: 'es-ES', de: 'de-DE', pt: 'pt-PT',
@@ -81,7 +82,7 @@ Keep the tone warm, calm, and encouraging. Write ALL field values in ${languageN
 
   return {
     ...parsed,
-    generatedAt: new Date().toISOString().split('T')[0],
+    generatedAt: localDateKey(),
     language,
   };
 };

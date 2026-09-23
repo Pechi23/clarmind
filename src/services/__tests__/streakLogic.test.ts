@@ -1,4 +1,17 @@
-import { computeStreakUpdate, daysBetween } from '../streakLogic';
+import { computeStreakUpdate, daysBetween, localDateKey } from '../streakLogic';
+
+describe('localDateKey', () => {
+  it('formats the LOCAL calendar day as zero-padded YYYY-MM-DD', () => {
+    // Constructed from local components, so it is timezone-independent here.
+    expect(localDateKey(new Date(2026, 0, 5))).toBe('2026-01-05');
+    expect(localDateKey(new Date(2026, 11, 31))).toBe('2026-12-31');
+  });
+  it('uses local time, not UTC, for the day boundary', () => {
+    // 23:30 local on Jan 5 is still Jan 5 locally even though it may be Jan 6 UTC.
+    const lateNight = new Date(2026, 0, 5, 23, 30, 0);
+    expect(localDateKey(lateNight)).toBe('2026-01-05');
+  });
+});
 
 describe('daysBetween', () => {
   it('counts consecutive days as 1', () => {

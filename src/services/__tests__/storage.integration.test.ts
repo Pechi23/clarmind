@@ -10,6 +10,7 @@ import {
   getLastRecapWeek, setLastRecapWeek,
 } from '../storage';
 import { UserProfile, MeditationSession } from '../../types';
+import { localDateKey } from '../streakLogic';
 
 const profile: UserProfile = {
   name: 'Ana', zodiacSign: 'Pisces', goal: 'stress', onboardingComplete: true,
@@ -77,8 +78,8 @@ describe('updateStreak persistence', () => {
 
   it('persists shields earned at a milestone', async () => {
     // Seed a 6-day streak with yesterday as last open, then open "today".
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const today = localDateKey();
+    const yesterday = localDateKey(new Date(Date.now() - 86400000));
     await AsyncStorage.setItem('clarmind_streak', '6');
     await AsyncStorage.setItem('clarmind_last_open', yesterday);
     const r = await updateStreak();

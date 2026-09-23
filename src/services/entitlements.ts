@@ -7,13 +7,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCachedPremium } from './purchases';
 import { isPaidVariant } from '../constants/appVariant';
+import { localDateKey } from './streakLogic';
 
 export const FREE_DAILY_LIMIT = 5;   // free Clara messages / AI requests per day
 export const PAID_DAILY_LIMIT = 50;  // premium AI requests per day
 
 const OVERRIDE_KEY = 'clarmind_premium_override';
 const usageKey = (date: string) => `clarmind_ai_usage_${date}`;
-const today = () => new Date().toISOString().split('T')[0];
+const today = () => localDateKey();
 
 const bypassEnabled = () => process.env.EXPO_PUBLIC_PREMIUM_BYPASS === '1';
 

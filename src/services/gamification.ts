@@ -3,6 +3,7 @@ import { ACHIEVEMENTS, AchievementDef, XP, getLevelForXp } from '../constants/ac
 import { getMeditationSessions, getMoodEntries, getStreak } from './storage';
 import { BREATHING_PATTERNS } from './../constants/breathing';
 import { pickDailyChallengeDefs } from './challengeLogic';
+import { localDateKey } from './streakLogic';
 
 const KEYS = {
   XP_TOTAL: 'clarmind_xp_total',
@@ -12,7 +13,7 @@ const KEYS = {
   GUIDE_READ: 'clarmind_guide_read', // date of last "read full guide" award
 };
 
-const todayStr = () => new Date().toISOString().split('T')[0];
+const todayStr = () => localDateKey();
 
 // ---------- XP ----------
 
