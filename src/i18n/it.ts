@@ -692,4 +692,18 @@ export const it: TranslationShape = {
       description: 'Raggiungi il livello 10',
     },
   },
+  notifications: {
+    channelName: 'Promemoria giornalieri',
+    generic: {
+      '0': '🌙 Le stelle si allineano per il tuo momento di calma quotidiano.',
+      '1': '✨ Un respiro alla volta. Apri Stillnova.',
+      '2': '🧘 Una mente chiara ti aspetta. Prenditi 5 minuti per te.',
+      '3': '🌬️ Pronto a respirare? Il tuo reset quotidiano è qui.',
+      '4': '🌌 Pausa. Reset. Fioritura. La tua Stillnova di oggi è pronta.',
+    },
+    streakNext: '🔥 Il giorno {next} ti aspetta, {rank}. Tieni viva la fiamma.',
+    streakSave: '🛡️ Non lasciare che la tua serie di {streak} giorni si spenga. Bastano due minuti di calma.',
+    newStar: '🌌 Una nuova stella ti aspetta nel tuo cielo, {rank}.',
+    streakAtRisk: '🔥 La tua serie di {streak} giorni finisce a mezzanotte. Due minuti la tengono viva.',
+  },
 };

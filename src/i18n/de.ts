@@ -692,4 +692,18 @@ export const de: TranslationShape = {
       description: 'Erreiche Level 10',
     },
   },
+  notifications: {
+    channelName: 'Tägliche Erinnerungen',
+    generic: {
+      '0': '🌙 Die Sterne stehen günstig für deinen täglichen Moment der Ruhe.',
+      '1': '✨ Ein Atemzug nach dem anderen. Öffne Stillnova.',
+      '2': '🧘 Ein klarer Kopf wartet. Nimm dir 5 Minuten für dich.',
+      '3': '🌬️ Bereit zum Atmen? Dein täglicher Neustart ist da.',
+      '4': '🌌 Innehalten. Neu starten. Aufblühen. Dein tägliches Stillnova ist bereit.',
+    },
+    streakNext: '🔥 Tag {next} wartet, {rank}. Halte die Flamme am Leben.',
+    streakSave: '🛡️ Lass deine Serie von {streak} Tagen nicht erlöschen. Zwei achtsame Minuten genügen.',
+    newStar: '🌌 Ein neuer Stern wartet an deinem Himmel, {rank}.',
+    streakAtRisk: '🔥 Deine Serie von {streak} Tagen endet um Mitternacht. Zwei Minuten halten sie am Leben.',
+  },
 };

@@ -692,4 +692,18 @@ export const es: TranslationShape = {
       description: 'Alcanza el nivel 10',
     },
   },
+  notifications: {
+    channelName: 'Recordatorios diarios',
+    generic: {
+      '0': '🌙 Las estrellas se alinean para tu momento diario de calma.',
+      '1': '✨ Una respiración a la vez. Abre Stillnova.',
+      '2': '🧘 Una mente clara te espera. Tómate 5 minutos para ti.',
+      '3': '🌬️ ¿Listo para respirar? Tu reinicio diario está aquí.',
+      '4': '🌌 Pausa. Reinicia. Florece. Tu Stillnova de hoy está lista.',
+    },
+    streakNext: '🔥 El día {next} te espera, {rank}. Mantén viva la llama.',
+    streakSave: '🛡️ No dejes que tu racha de {streak} días se apague. Dos minutos conscientes bastan.',
+    newStar: '🌌 Una nueva estrella te espera en tu cielo, {rank}.',
+    streakAtRisk: '🔥 Tu racha de {streak} días termina a medianoche. Dos minutos la mantienen viva.',
+  },
 };

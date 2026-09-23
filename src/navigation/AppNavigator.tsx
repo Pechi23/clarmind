@@ -20,6 +20,7 @@ import FloatingClara from '../components/FloatingClara';
 import GuideOverlay from '../components/GuideOverlay';
 import {
   getGuideSeen, getNotifAsked, setNotifAsked, setNotificationsEnabled, getReminderTime,
+  getNotificationsEnabled,
 } from '../services/storage';
 import { requestNotificationPermissions, scheduleDailyReminder } from '../services/notifications';
 
@@ -138,6 +139,18 @@ export default function AppNavigator({ profile, onReset }: Props) {
       const granted = await requestNotificationPermissions();
       if (granted) {
         await setNotificationsEnabled(true);
+        const { hour, minute } = await getReminderTime();
+        await scheduleDailyReminder(hour, minute);
+      }
+    })();
+  }, []);
+
+  // On every app open, if reminders are on, reschedule so the daily body rotates
+  // and picks up the current language (the DAILY trigger otherwise repeats one
+  // fixed sentence forever).
+  useEffect(() => {
+    (async () => {
+      if (await getNotificationsEnabled()) {
         const { hour, minute } = await getReminderTime();
         await scheduleDailyReminder(hour, minute);
       }

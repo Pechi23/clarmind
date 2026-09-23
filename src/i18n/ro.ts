@@ -549,4 +549,18 @@ export const ro: TranslationShape = {
     'perfect-day': { name: 'Zi Perfectă', description: 'Completează toate cele 3 provocări' },
     'level-10': { name: 'Lumină Interioară', description: 'Atinge nivelul 10' },
   },
+  notifications: {
+    channelName: 'Memento zilnic',
+    generic: {
+      '0': '🌙 Stelele se aliniază pentru momentul tău zilnic de calm.',
+      '1': '✨ O respirație pe rând. Deschide Stillnova.',
+      '2': '🧘 O minte limpede te așteaptă. Ia-ți 5 minute pentru tine.',
+      '3': '🌬️ Gata să respiri? Resetarea ta zilnică e aici.',
+      '4': '🌌 Pauză. Resetare. Înflorire. Stillnova ta zilnică e gata.',
+    },
+    streakNext: '🔥 Ziua {next} te așteaptă, {rank}. Ține flacăra aprinsă.',
+    streakSave: '🛡️ Nu lăsa seria ta de {streak} zile să se stingă. Două minute de liniște sunt de ajuns.',
+    newStar: '🌌 O stea nouă te așteaptă pe cerul tău, {rank}.',
+    streakAtRisk: '🔥 Seria ta de {streak} zile se încheie la miezul nopții. Două minute o țin în viață.',
+  },
 };

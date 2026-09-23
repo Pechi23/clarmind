@@ -692,4 +692,18 @@ export const fr: TranslationShape = {
       description: 'Atteignez le niveau 10',
     },
   },
+  notifications: {
+    channelName: 'Rappels quotidiens',
+    generic: {
+      '0': '🌙 Les étoiles s\'alignent pour votre moment de calme du jour.',
+      '1': '✨ Une respiration à la fois. Ouvrez Stillnova.',
+      '2': '🧘 Un esprit clair vous attend. Prenez 5 minutes pour vous.',
+      '3': '🌬️ Prêt à respirer ? Votre pause du jour est là.',
+      '4': '🌌 Pause. Reset. Épanouissement. Votre Stillnova du jour est prête.',
+    },
+    streakNext: '🔥 Le jour {next} vous attend, {rank}. Gardez la flamme vivante.',
+    streakSave: '🛡️ Ne laissez pas votre série de {streak} jours s\'éteindre. Deux minutes de calme suffisent.',
+    newStar: '🌌 Une nouvelle étoile vous attend dans votre ciel, {rank}.',
+    streakAtRisk: '🔥 Votre série de {streak} jours se termine à minuit. Deux minutes la gardent en vie.',
+  },
 };

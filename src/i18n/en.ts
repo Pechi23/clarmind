@@ -547,6 +547,20 @@ export const en = {
     'perfect-day': { name: 'Perfect Day', description: 'Complete all 3 daily challenges' },
     'level-10': { name: 'Inner Light', description: 'Reach level 10' },
   },
+  notifications: {
+    channelName: 'Daily reminders',
+    generic: {
+      0: '🌙 The stars are aligning for your daily moment of calm.',
+      1: '✨ One breath at a time. Open Stillnova.',
+      2: '🧘 A clear mind awaits. Take 5 minutes for yourself.',
+      3: '🌬️ Ready to breathe? Your daily reset is here.',
+      4: '🌌 Pause. Reset. Bloom. Your daily Stillnova is ready.',
+    },
+    streakNext: '🔥 Day {next} is waiting, {rank}. Keep the flame alive.',
+    streakSave: "🛡️ Don't let your {streak}-day streak fade. Two mindful minutes is all it takes.",
+    newStar: '🌌 A new star is waiting in your sky, {rank}.',
+    streakAtRisk: '🔥 Your {streak}-day streak ends at midnight. Two minutes keeps it alive.',
+  },
 };
 
 export type TranslationShape = typeof en;
