@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Switch, Modal, Platform, TextInput, Linking,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Modal, Platform, TextInput, Linking,
 } from 'react-native';
+import { showDialog } from '../components/dialog';
 import { PRIVACY_URL, TERMS_URL } from '../constants/legal';
 import { isPaidVariant } from '../constants/appVariant';
 import { canChangeLanguageNow, recordLanguageChange } from '../services/languageLimit';
@@ -60,7 +61,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     if (code === language) return;
     const check = await canChangeLanguageNow();
     if (!check.allowed) {
-      Alert.alert(
+      showDialog(
         t('profile.langLimitTitle'),
         check.reason === 'daily'
           ? t('profile.langLimitDaily')
@@ -69,7 +70,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
       return;
     }
     // Confirm first: switching regenerates AI content and is capped at 3 per day.
-    Alert.alert(
+    showDialog(
       t('profile.langConfirmTitle'),
       t('profile.langConfirmMsg', { remaining: check.remaining }),
       [
@@ -186,7 +187,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   );
 
   const handleReset = () => {
-    Alert.alert(
+    showDialog(
       t('profile.resetTitle'),
       t('profile.resetMessage'),
       [
@@ -207,7 +208,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
     if (v) {
       const granted = await requestNotificationPermissions();
       if (!granted) {
-        Alert.alert(t('profile.permissionTitle'), t('profile.permissionMsg'));
+        showDialog(t('profile.permissionTitle'), t('profile.permissionMsg'));
         return;
       }
       await scheduleDailyReminder(reminderTime.hour, reminderTime.minute);
