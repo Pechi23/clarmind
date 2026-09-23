@@ -31,6 +31,14 @@ export const exportData = async (): Promise<string> => {
 
 export interface ImportResult { imported: number; }
 
+// Keys that must never be restored from a pasted backup: the premium override
+// would let anyone unlock Premium by importing a crafted JSON, and the device id
+// is the leaderboard identity (importing someone else's is identity takeover).
+const IMPORT_BLOCKLIST = new Set([
+  'clarmind_premium_override',
+  'clarmind_device_id',
+]);
+
 /**
  * Restore from a backup string: validates it's a Stillnova backup, then REPLACES
  * the current Stillnova data with it. Throws on anything that isn't our format.
@@ -47,6 +55,7 @@ export const importData = async (json: string): Promise<ImportResult> => {
   }
   const entries = Object.entries(parsed.data).filter(
     ([k, v]) => typeof k === 'string' && k.startsWith(PREFIX) && typeof v === 'string'
+      && !IMPORT_BLOCKLIST.has(k)
   ) as [string, string][];
 
   // Replace existing Stillnova data so a restore is exact (not a merge).

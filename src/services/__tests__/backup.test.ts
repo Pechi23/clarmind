@@ -51,6 +51,18 @@ describe('importData', () => {
     expect(await AsyncStorage.getItem('evil_key')).toBeNull();
   });
 
+  it('never restores premium override or device id from a pasted backup', async () => {
+    const backup = JSON.stringify({
+      app: 'clarmind', version: 1, exportedAt: 'x',
+      data: { clarmind_streak: '3', clarmind_premium_override: 'true', clarmind_device_id: 'stolen' },
+    });
+    const res = await importData(backup);
+    expect(res.imported).toBe(1); // only clarmind_streak
+    expect(await AsyncStorage.getItem('clarmind_streak')).toBe('3');
+    expect(await AsyncStorage.getItem('clarmind_premium_override')).toBeNull();
+    expect(await AsyncStorage.getItem('clarmind_device_id')).toBeNull();
+  });
+
   it('rejects invalid JSON and non-Stillnova backups', async () => {
     await expect(importData('not json')).rejects.toThrow();
     await expect(importData('{"app":"other","data":{}}')).rejects.toThrow();

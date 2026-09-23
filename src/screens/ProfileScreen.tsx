@@ -455,8 +455,9 @@ export default function ProfileScreen({ profile, onReset }: Props) {
           </TouchableOpacity>
         )}
 
-        {/* Premium testing unlock (hidden in the paid build — already all unlocked) */}
-        {!isPaidVariant() && (
+        {/* Premium testing unlock — dev builds only. Never shown in a production
+            free build, or anyone could grant themselves Premium with one tap. */}
+        {__DEV__ && !isPaidVariant() && (
           <View style={styles.settingRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.settingTitle}>{t('profile.premiumTest')}</Text>
