@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { COLORS, FONTS, RADIUS, SPACING } from '../constants/theme';
 import { searchPlaces, PlaceSuggestion } from '../services/placeSearch';
+import { useI18n } from '../i18n';
 
 interface Props {
   value: string;
@@ -17,6 +18,7 @@ interface Props {
 export default function CityAutocomplete({
   value, onChangeText, onSelectCity, countryCode, placeholder,
 }: Props) {
+  const { language } = useI18n();
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -34,14 +36,14 @@ export default function CityAutocomplete({
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       setLoading(true);
-      const results = await searchPlaces(q, countryCode, ctrl.signal);
+      const results = await searchPlaces(q, countryCode, ctrl.signal, language);
       setLoading(false);
       setSuggestions(results);
       setOpen(results.length > 0);
     }, 450);
 
     return () => clearTimeout(handle);
-  }, [value, countryCode]);
+  }, [value, countryCode, language]);
 
   const pick = (s: PlaceSuggestion) => {
     justPicked.current = true;
