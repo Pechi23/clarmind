@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.stillnova.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleLocalizations": ["en", "ro", "it", "fr", "es", "de", "pt"]
+        "CFBundleLocalizations": ["en", "ro", "it", "fr", "es", "de", "pt"],
+        "UIBackgroundModes": ["audio"]
       }
     },
     "android": {

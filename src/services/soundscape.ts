@@ -27,7 +27,7 @@ let currentSound: Audio.Sound | null = null;
 /** Plays a one-shot meditation bell that unloads itself when finished. */
 export const playChime = async (which: 'start' | 'end'): Promise<void> => {
   try {
-    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
     const { sound } = await Audio.Sound.createAsync(
       which === 'start' ? BELL_START : BELL_END,
       { volume: 0.6, shouldPlay: true }
@@ -47,7 +47,7 @@ export const playSoundscape = async (soundscape: Soundscape): Promise<void> => {
   try {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
+      staysActiveInBackground: true, // keep the soundscape + end bell alive if the phone locks
       shouldDuckAndroid: true,
     });
     const { sound } = await Audio.Sound.createAsync(
@@ -106,7 +106,7 @@ export const syncMix = async (mix: Record<string, number>): Promise<void> => {
   try {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
+      staysActiveInBackground: true, // keep the soundscape + end bell alive if the phone locks
       shouldDuckAndroid: true,
     });
   } catch {}

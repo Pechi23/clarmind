@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { COLORS, FONTS, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
 import { UserGoal } from '../types';
 import { useI18n } from '../i18n';
@@ -47,6 +48,13 @@ export default function GuidedMeditationScreen({ onClose }: Props) {
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => { isPremium().then(setPremium); }, []);
+
+  // Keep the screen awake while the meditation is being spoken, so it does not
+  // lock and cut the voice off mid-session.
+  useEffect(() => {
+    if (phase === 'playing' && !paused) activateKeepAwakeAsync('guided').catch(() => {});
+    return () => { deactivateKeepAwake('guided').catch(() => {}); };
+  }, [phase, paused]);
   useEffect(() => { getUserProfile().then((p) => { if (p?.goal) setGoal(p.goal); }); }, []);
 
   // Gentle breathing pulse while playing.

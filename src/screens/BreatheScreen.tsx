@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Platform,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Platform, AppState,
 } from 'react-native';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -84,6 +85,10 @@ export default function BreatheScreen() {
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Wall-clock deadline for the session, so a timer suspended while the app is
+  // backgrounded still ends at the right moment when the app resumes (JS
+  // setInterval pauses in the background; decrementing a counter would freeze).
+  const endsAt = useRef<number>(0);
 
   const cleanup = () => {
     if (sessionTimer.current) clearInterval(sessionTimer.current);
@@ -93,6 +98,26 @@ export default function BreatheScreen() {
   };
 
   useEffect(() => () => { cleanup(); stopMix(); }, []);
+
+  // Keep the screen awake during an active (unpaused) session, so a 10-minute
+  // meditation with the phone set down does not lock and suspend the timer.
+  useEffect(() => {
+    const active = mode === 'session' && !paused;
+    if (active) activateKeepAwakeAsync('session').catch(() => {});
+    return () => { deactivateKeepAwake('session').catch(() => {}); };
+  }, [mode, paused]);
+
+  // If the app was backgrounded mid-session and comes back, reconcile the
+  // remaining time from the wall-clock deadline and finish if it already elapsed.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s !== 'active' || mode !== 'session' || paused) return;
+      const left = Math.max(0, Math.round((endsAt.current - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left <= 0) finishSession();
+    });
+    return () => sub.remove();
+  }, [mode, paused]);
   // Load the saved breath-pace calibration and apply it to the current pattern.
   useEffect(() => {
     getBreathCalibration().then((s) => {
@@ -148,16 +173,17 @@ export default function BreatheScreen() {
   };
 
   // Start (or restart, on resume) the countdown + phase intervals.
-  const startTimers = () => {
+  // `remainingSecs` sets the wall-clock deadline; the tick derives secondsLeft
+  // from real elapsed time rather than decrementing, so a suspended timer still
+  // ends correctly. finishSession runs from the tick (not inside a state
+  // updater), which is safe under StrictMode.
+  const startTimers = (remainingSecs: number) => {
+    endsAt.current = Date.now() + remainingSecs * 1000;
     sessionTimer.current = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          finishSession();
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+      const left = Math.max(0, Math.round((endsAt.current - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left <= 0) { finishSession(); return; }
+    }, 500);
 
     phaseTimer.current = setInterval(() => {
       setPhaseSecondsLeft((p) => {
@@ -194,7 +220,7 @@ export default function BreatheScreen() {
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
     playChime('start').catch(() => {});
     syncMix(mix).catch(() => {});
-    startTimers();
+    startTimers(durationMin * 60);
   };
 
   const pauseSession = () => {
@@ -207,7 +233,7 @@ export default function BreatheScreen() {
   const resumeSession = () => {
     setPaused(false);
     syncMix(mix).catch(() => {});
-    startTimers();
+    startTimers(secondsLeft);
     if (Platform.OS !== 'web') Haptics.selectionAsync().catch(() => {});
   };
 
@@ -225,7 +251,7 @@ export default function BreatheScreen() {
     setMode('session');
     playChime('start').catch(() => {});
     syncMix(resumable.mix).catch(() => {});
-    startTimers();
+    startTimers(resumable.secondsLeft);
     setResumable(null);
   };
 
