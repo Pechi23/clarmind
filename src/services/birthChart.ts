@@ -9,8 +9,64 @@
 // Whole-Sign system (simple and robust). See NatalChartScreen for the UI.
 import { ZODIAC_SIGNS, ZodiacSign } from '../constants/zodiac';
 import { parseDob } from './numerology';
+import tzlookup from 'tz-lookup';
 
 const ORDER: ZodiacSign[] = ZODIAC_SIGNS.map((z) => z.name);
+
+// --- Local birth time -> Universal Time -------------------------------------
+// The astronomy below expects Universal Time, but people enter their LOCAL birth
+// time. Treating 14:00 local as 14:00 UT shifts the Ascendant (which moves ~one
+// sign every 2 hours) by the birth place's UTC offset, e.g. 2-3h in Romania,
+// 3h in Brazil. We resolve the birth place's IANA zone from its coordinates
+// (offline, via tz-lookup) and convert, honouring the historical DST offset at
+// that instant. Without coordinates we fall back to the device zone (flagged as
+// inexact so the UI can say the ascendant is approximate).
+
+const deviceZone = (): string => {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; }
+  catch { return 'UTC'; }
+};
+
+/** IANA zone for the birth place from its coordinates, else the device zone. */
+export const birthZone = (lat?: number, lon?: number): { zone: string; exact: boolean } => {
+  if (typeof lat === 'number' && typeof lon === 'number') {
+    try { return { zone: tzlookup(lat, lon), exact: true }; } catch {}
+  }
+  return { zone: deviceZone(), exact: false };
+};
+
+/**
+ * Convert a local wall-clock birth time (in `zone`) to equivalent UT date/time
+ * parts. Uses the zone's actual offset at that instant, so DST is handled. The
+ * conversion can roll the calendar date across midnight, so dob is returned too.
+ */
+export const toUtcParts = (
+  dob: string, hour: number, minute: number, zone: string,
+): { dob: string; hour: number; minute: number } => {
+  const { year: Y, month: M, day: D } = parseDob(dob);
+  const asIfUtc = Date.UTC(Y, M - 1, D, hour, minute);
+  let offsetMs = 0;
+  try {
+    const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone, hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    const p: Record<string, number> = {};
+    for (const part of dtf.formatToParts(new Date(asIfUtc))) {
+      if (part.type !== 'literal') p[part.type] = Number(part.value);
+    }
+    const shownAsUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+    offsetMs = shownAsUtc - asIfUtc; // how far the zone is ahead of UTC at that instant
+  } catch { offsetMs = 0; }
+  const utc = new Date(asIfUtc - offsetMs);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    dob: `${utc.getUTCFullYear()}-${pad(utc.getUTCMonth() + 1)}-${pad(utc.getUTCDate())}`,
+    hour: utc.getUTCHours(),
+    minute: utc.getUTCMinutes(),
+  };
+};
 const rev = (x: number) => ((x % 360) + 360) % 360;
 const sind = (d: number) => Math.sin((d * Math.PI) / 180);
 const cosd = (d: number) => Math.cos((d * Math.PI) / 180);
@@ -94,8 +150,14 @@ export const moonLongitude = (dob: string, hour: number, minute: number): number
   return rev(lon);
 };
 
-export const moonSign = (dob: string, hour: number, minute: number): ZodiacSign =>
-  signFromLongitude(moonLongitude(dob, hour, minute));
+// Moon moves ~0.5 deg/hour, so the birth-time zone matters near sign boundaries.
+// Pass birth coordinates for an exact zone; without them the device zone is used.
+export const moonSign = (
+  dob: string, hour: number, minute: number, lat?: number, lon?: number,
+): ZodiacSign => {
+  const ut = toUtcParts(dob, hour, minute, birthZone(lat, lon).zone);
+  return signFromLongitude(moonLongitude(ut.dob, ut.hour, ut.minute));
+};
 
 // --- Planets (Mercury..Neptune) --------------------------------------------
 interface Elements { N: number; i: number; w: number; a: number; e: number; M: number; }
@@ -217,6 +279,8 @@ export interface NatalChart {
   mc: number | null;
   aspects: Aspect[];
   hasHouses: boolean;
+  zone: string;        // IANA zone used to convert the birth time to UT
+  exactTime: boolean;  // true when zone came from birth coordinates, not the device
 }
 
 const BODIES: { name: string; symbol: string }[] = [
@@ -244,7 +308,9 @@ export const computeNatalChart = (
   lat?: number,
   lon?: number,
 ): NatalChart => {
-  const d = dayNumber(dob, hour, minute);
+  const { zone, exact } = birthZone(lat, lon);
+  const ut = toUtcParts(dob, hour, minute, zone); // local birth time -> UT
+  const d = dayNumber(ut.dob, ut.hour, ut.minute);
 
   let ascendant: number | null = null;
   let mc: number | null = null;
@@ -260,10 +326,10 @@ export const computeNatalChart = (
     hasHouses ? (Math.floor(rev(l - ascSignStart) / 30) + 1) : 0;
 
   const placements: Placement[] = BODIES.map((b) => {
-    const l = bodyLon(b.name, dob, hour, minute, d);
+    const l = bodyLon(b.name, ut.dob, ut.hour, ut.minute, d);
     const l2 = b.name === 'Moon'
-      ? moonLongitude(dob, hour, minute + 60)
-      : bodyLon(b.name, dob, hour + 1, minute, dayNumber(dob, hour + 1, minute));
+      ? moonLongitude(ut.dob, ut.hour, ut.minute + 60)
+      : bodyLon(b.name, ut.dob, ut.hour + 1, ut.minute, dayNumber(ut.dob, ut.hour + 1, ut.minute));
     const retro = b.name !== 'Sun' && b.name !== 'Moon' && rev(l2 - l) > 180;
     return {
       name: b.name, symbol: b.symbol, lon: l,
@@ -287,7 +353,7 @@ export const computeNatalChart = (
     }
   }
 
-  return { placements, ascendant, mc, aspects, hasHouses };
+  return { placements, ascendant, mc, aspects, hasHouses, zone, exactTime: exact };
 };
 
 export { asind };

@@ -1,9 +1,45 @@
 import {
   moonSign, signFromLongitude, sunLongitude, dayNumber, computeNatalChart,
+  toUtcParts, birthZone,
 } from '../birthChart';
 import { ZODIAC_SIGNS } from '../../constants/zodiac';
 
 const names = ZODIAC_SIGNS.map((z) => z.name);
+
+describe('local birth time -> UT', () => {
+  it('subtracts the birth-place offset (Bucharest, winter = UTC+2)', () => {
+    expect(toUtcParts('1990-12-25', 8, 30, 'Europe/Bucharest'))
+      .toEqual({ dob: '1990-12-25', hour: 6, minute: 30 });
+  });
+
+  it('applies summer DST (Bucharest, June = UTC+3)', () => {
+    expect(toUtcParts('1995-06-15', 12, 0, 'Europe/Bucharest'))
+      .toEqual({ dob: '1995-06-15', hour: 9, minute: 0 });
+  });
+
+  it('handles a western zone (Sao Paulo = UTC-3)', () => {
+    expect(toUtcParts('2000-06-15', 1, 0, 'America/Sao_Paulo'))
+      .toEqual({ dob: '2000-06-15', hour: 4, minute: 0 });
+  });
+
+  it('rolls the date back across midnight when needed', () => {
+    // 01:00 local on Jan 1 in UTC+2 is 23:00 on Dec 31 UT.
+    expect(toUtcParts('2000-01-01', 1, 0, 'Europe/Bucharest'))
+      .toEqual({ dob: '1999-12-31', hour: 23, minute: 0 });
+  });
+
+  it('birthZone resolves coordinates to an IANA zone, else falls back inexact', () => {
+    expect(birthZone(44.43, 26.10)).toEqual({ zone: 'Europe/Bucharest', exact: true });
+    expect(birthZone().exact).toBe(false);
+  });
+
+  it('computeNatalChart reports the zone it used', () => {
+    const withCoords = computeNatalChart('1990-12-25', 8, 30, 44.43, 26.10);
+    expect(withCoords.zone).toBe('Europe/Bucharest');
+    expect(withCoords.exactTime).toBe(true);
+    expect(computeNatalChart('1990-12-25', 8, 30).exactTime).toBe(false);
+  });
+});
 
 describe('birthChart', () => {
   it('signFromLongitude maps degrees to signs', () => {
