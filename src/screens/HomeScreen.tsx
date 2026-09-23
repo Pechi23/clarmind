@@ -105,24 +105,47 @@ export default function HomeScreen({ profile, onProfileChange }: Props) {
     return t('home.goodEvening');
   };
 
+  // Localized offline content so Home is never blank on a first launch with no
+  // network (or when generation fails and there's no cache yet).
+  const offlineContent = useCallback((): DailyContent => ({
+    quote: t('dailyFallback.quote'),
+    quoteAuthor: t('dailyFallback.quoteAuthor'),
+    zodiacMessage: t('dailyFallback.zodiacMessage'),
+    stressTip: t('dailyFallback.stressTip'),
+    mindfulnessTask: t('dailyFallback.mindfulnessTask'),
+    affirmation: t('dailyFallback.affirmation'),
+    generatedAt: today,
+    language,
+  }), [t, today, language]);
+
   const loadContent = useCallback(async (forceRefresh = false) => {
+    const cached = await getDailyContent();
+    // Regenerate when the day rolls over OR the app language changed, so the
+    // quote/affirmation/horoscope match the language the user is now reading.
+    const sameLanguage = !cached?.language || cached.language === language;
+    if (!forceRefresh && cached && cached.generatedAt === today && sameLanguage) {
+      setContent(cached);
+      setError(null);
+      return;
+    }
+    // Show cached content immediately (even if stale) so Home is never blank
+    // while we regenerate; swap to fresh only on success.
+    if (cached) setContent(cached);
     try {
       setError(null);
-      const cached = await getDailyContent();
-      // Regenerate when the day rolls over OR the app language changed, so the
-      // quote/affirmation/horoscope match the language the user is now reading.
-      const sameLanguage = !cached?.language || cached.language === language;
-      if (!forceRefresh && cached && cached.generatedAt === today && sameLanguage) {
-        setContent(cached);
-      } else {
-        const fresh = await generateDailyContent(profile.name, profile.zodiacSign, profile.goal, language);
-        await saveDailyContent(fresh);
-        setContent(fresh);
-      }
+      const fresh = await generateDailyContent(profile.name, profile.zodiacSign, profile.goal, language);
+      await saveDailyContent(fresh);
+      setContent(fresh);
     } catch (e: any) {
-      setError(e?.message ?? 'Unknown error');
+      // Keep whatever we already showed; if there was nothing, use the offline
+      // pack so the screen still has content. Only surface an error if we have
+      // genuinely nothing to show.
+      if (!cached) {
+        setContent(offlineContent());
+        setError(null);
+      }
     }
-  }, [profile, today, language]);
+  }, [profile, today, language, offlineContent]);
 
   useEffect(() => {
     const init = async () => {

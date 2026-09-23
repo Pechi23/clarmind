@@ -564,4 +564,12 @@ export const ro: TranslationShape = {
     newStar: '🌌 O stea nouă te așteaptă pe cerul tău, {rank}.',
     streakAtRisk: '🔥 Seria ta de {streak} zile se încheie la miezul nopții. Două minute o țin în viață.',
   },
+  dailyFallback: {
+    quote: 'În tine există o liniște la care te poți întoarce mereu.',
+    quoteAuthor: 'Stillnova',
+    zodiacMessage: 'Cerul e liniștit azi. Respiră rar și observă de ce ai cea mai mare nevoie acum.',
+    stressTip: 'Când tensiunea crește, expiră mai lung decât inspiri. Câteva respirații lente calmează corpul.',
+    mindfulnessTask: 'Oprește-te un minut și numește cinci lucruri pe care le auzi în jur.',
+    affirmation: 'Sunt calm și mă pot întoarce mereu la respirația mea.',
+  },
 };

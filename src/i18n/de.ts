@@ -707,4 +707,12 @@ export const de: TranslationShape = {
     newStar: '🌌 Ein neuer Stern wartet an deinem Himmel, {rank}.',
     streakAtRisk: '🔥 Deine Serie von {streak} Tagen endet um Mitternacht. Zwei Minuten halten sie am Leben.',
   },
+  dailyFallback: {
+    quote: 'In dir ist eine Ruhe, zu der du immer zurückkehren kannst.',
+    quoteAuthor: 'Stillnova',
+    zodiacMessage: 'Der Himmel ist heute still. Atme langsam und spüre, was du gerade am meisten brauchst.',
+    stressTip: 'Wenn die Anspannung steigt, atme länger aus als ein. Ein paar langsame Atemzüge beruhigen den Körper.',
+    mindfulnessTask: 'Halte eine Minute inne und benenne fünf Dinge, die du um dich herum hören kannst.',
+    affirmation: 'Ich bin ruhig und kann immer zu meinem Atem zurückkehren.',
+  },
 };

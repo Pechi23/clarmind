@@ -73,7 +73,10 @@ Keep the tone warm, calm, and encouraging. Write ALL field values in ${languageN
   // JSON output generous headroom or it truncates to invalid JSON.
   const text = await callGemini({
     contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { maxOutputTokens: 2048, temperature: 0.8 },
+    // responseMimeType makes Gemini emit pure JSON (no markdown fences), which
+    // avoids the truncated/invalid-JSON failures. The fence strip below stays as
+    // a safety net for models that ignore it.
+    generationConfig: { maxOutputTokens: 2048, temperature: 0.8, responseMimeType: 'application/json' },
   });
 
   // Strip markdown code fences if present

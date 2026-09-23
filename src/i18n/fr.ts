@@ -707,4 +707,12 @@ export const fr: TranslationShape = {
     newStar: '🌌 Une nouvelle étoile vous attend dans votre ciel, {rank}.',
     streakAtRisk: '🔥 Votre série de {streak} jours se termine à minuit. Deux minutes la gardent en vie.',
   },
+  dailyFallback: {
+    quote: 'En vous se trouve un calme vers lequel vous pouvez toujours revenir.',
+    quoteAuthor: 'Stillnova',
+    zodiacMessage: 'Le ciel est calme aujourd\'hui. Respirez lentement et remarquez ce dont vous avez le plus besoin maintenant.',
+    stressTip: 'Quand la tension monte, expirez plus longtemps que vous n\'inspirez. Quelques respirations lentes apaisent le corps.',
+    mindfulnessTask: 'Faites une pause d\'une minute et nommez cinq choses que vous entendez autour de vous.',
+    affirmation: 'Je suis calme, et je peux toujours revenir à ma respiration.',
+  },
 };

@@ -562,6 +562,14 @@ export const en = {
     newStar: '🌌 A new star is waiting in your sky, {rank}.',
     streakAtRisk: '🔥 Your {streak}-day streak ends at midnight. Two minutes keeps it alive.',
   },
+  dailyFallback: {
+    quote: 'Within you there is a stillness you can always return to.',
+    quoteAuthor: 'Stillnova',
+    zodiacMessage: 'The sky is quiet today. Take a slow breath and notice what you need most right now.',
+    stressTip: 'When tension rises, breathe out for longer than you breathe in. A few slow rounds calm the body.',
+    mindfulnessTask: 'Pause for one minute and name five things you can hear around you.',
+    affirmation: 'I am calm, and I can always return to my breath.',
+  },
 };
 
 export type TranslationShape = typeof en;

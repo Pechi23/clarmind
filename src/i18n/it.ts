@@ -707,4 +707,12 @@ export const it: TranslationShape = {
     newStar: '🌌 Una nuova stella ti aspetta nel tuo cielo, {rank}.',
     streakAtRisk: '🔥 La tua serie di {streak} giorni finisce a mezzanotte. Due minuti la tengono viva.',
   },
+  dailyFallback: {
+    quote: 'Dentro di te c\'è una quiete a cui puoi sempre tornare.',
+    quoteAuthor: 'Stillnova',
+    zodiacMessage: 'Il cielo è tranquillo oggi. Respira lentamente e nota di cosa hai più bisogno adesso.',
+    stressTip: 'Quando la tensione sale, espira più a lungo di quanto inspiri. Qualche respiro lento calma il corpo.',
+    mindfulnessTask: 'Fermati un minuto e nomina cinque cose che riesci a sentire intorno a te.',
+    affirmation: 'Sono calmo e posso sempre tornare al mio respiro.',
+  },
 };

@@ -707,4 +707,12 @@ export const es: TranslationShape = {
     newStar: '🌌 Una nueva estrella te espera en tu cielo, {rank}.',
     streakAtRisk: '🔥 Tu racha de {streak} días termina a medianoche. Dos minutos la mantienen viva.',
   },
+  dailyFallback: {
+    quote: 'Dentro de ti hay una calma a la que siempre puedes volver.',
+    quoteAuthor: 'Stillnova',
+    zodiacMessage: 'El cielo está tranquilo hoy. Respira despacio y nota qué necesitas más en este momento.',
+    stressTip: 'Cuando suba la tensión, exhala más tiempo del que inhalas. Unas respiraciones lentas calman el cuerpo.',
+    mindfulnessTask: 'Detente un minuto y nombra cinco cosas que puedas oír a tu alrededor.',
+    affirmation: 'Estoy en calma y siempre puedo volver a mi respiración.',
+  },
 };
