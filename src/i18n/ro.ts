@@ -277,6 +277,7 @@ export const ro: TranslationShape = {
     hintNew: 'Meditează azi ca să începi o nouă serie de constelație.',
   },
   leaderboard: {
+    sampleNote: 'Jucători de exemplu, afișați până se alătură mai mulți.',
     kicker: 'CLASAMENT',
     title: 'Cele mai calme minți.',
     xp: '🏆 XP',

@@ -239,6 +239,7 @@ export const de: TranslationShape = {
     hintNew: 'Meditiere heute, um ein neues Sternbild zu beginnen.',
   },
   leaderboard: {
+    sampleNote: 'Beispielspieler, bis mehr Leute dabei sind.',
     kicker: 'RANGLISTE',
     title: 'Top-Köpfe.',
     xp: '🏆 XP',

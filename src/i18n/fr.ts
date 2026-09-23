@@ -239,6 +239,7 @@ export const fr: TranslationShape = {
     hintNew: 'Méditez aujourd’hui pour lancer une nouvelle constellation.',
   },
   leaderboard: {
+    sampleNote: 'Joueurs d\'exemple, en attendant que d\'autres nous rejoignent.',
     kicker: 'CLASSEMENT',
     title: 'Les meilleurs esprits.',
     xp: '🏆 XP',

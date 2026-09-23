@@ -10,10 +10,13 @@ export interface LeaderboardUser {
   isCurrentUser?: boolean;
 }
 
-const FAKE_NAMES = [
-  'Andrei', 'Maria', 'Stefan', 'Ioana', 'Luna', 'Alex', 'Cristina',
-  'David', 'Sofia', 'Mihai', 'Elena', 'Vlad', 'Ana', 'Radu', 'Diana',
-  'Lia', 'Tudor', 'Bianca',
+// Sample names shown only when NO real leaderboard backend is configured
+// (dev/demo). An international mix rather than one nationality. In a shipped
+// build the real backend is set, so these never appear (see LeaderboardScreen).
+const SAMPLE_NAMES = [
+  'Aria', 'Mateo', 'Yuki', 'Noah', 'Luna', 'Amara', 'Liam', 'Sofia',
+  'Kai', 'Nina', 'Omar', 'Elena', 'Leo', 'Aisha', 'Hugo', 'Mia',
+  'Ravi', 'Clara',
 ];
 
 // Seeded pseudo-random for consistent daily values
@@ -27,9 +30,9 @@ const todaySeed = (): number => {
   return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
 };
 
-export const generateFakeUsers = (count = 14): LeaderboardUser[] => {
+export const generateSampleUsers = (count = 14): LeaderboardUser[] => {
   const seed = todaySeed();
-  return FAKE_NAMES.slice(0, count).map((name, i) => {
+  return SAMPLE_NAMES.slice(0, count).map((name, i) => {
     const r1 = seedRandom(seed + i * 7);
     const r2 = seedRandom(seed + i * 13);
     const r3 = seedRandom(seed + i * 19);
@@ -49,7 +52,7 @@ export const buildLeaderboard = (
   currentUser: LeaderboardUser,
   sortBy: 'streak' | 'totalMinutes' | 'xp'
 ): LeaderboardUser[] => {
-  const fakes = generateFakeUsers();
-  const all = [...fakes, currentUser];
+  const samples = generateSampleUsers();
+  const all = [...samples, currentUser];
   return all.sort((a, b) => b[sortBy] - a[sortBy]);
 };

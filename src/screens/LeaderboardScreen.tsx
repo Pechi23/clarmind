@@ -26,6 +26,7 @@ export default function LeaderboardScreen({ profile }: Props) {
   const bottomPad = useContentBottomPadding();
   const [tab, setTab] = useState<Tab>('xp');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
+  const [isSample, setIsSample] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
@@ -44,17 +45,22 @@ export default function LeaderboardScreen({ profile }: Props) {
       isCurrentUser: true,
     };
 
-    // Real leaderboard (Cloudflare Worker) when configured; else seeded users.
+    // Real leaderboard (Cloudflare Worker) when configured. Never mix in the
+    // sample users there, so a shipped build shows only real people (even while
+    // the board is still filling up, or if the fetch fails, we show just you).
     if (remoteLeaderboardEnabled()) {
       await submitScore(me);
       const remote = await fetchTop(tab);
-      if (remote.length > 0) {
-        if (!remote.some((u) => u.isCurrentUser)) remote.push(me);
-        setUsers(remote.sort((a, b) => b[tab] - a[tab]));
-        return;
-      }
+      const rows = remote.length > 0
+        ? (remote.some((u) => u.isCurrentUser) ? remote : [...remote, me])
+        : [me];
+      setUsers(rows.sort((a, b) => b[tab] - a[tab]));
+      setIsSample(false);
+      return;
     }
+    // No backend configured (dev/demo): clearly-labeled sample players.
     setUsers(buildLeaderboard(me, tab));
+    setIsSample(true);
   }, [profile, tab]);
 
   useEffect(() => { load(); }, [load]);
@@ -150,6 +156,7 @@ export default function LeaderboardScreen({ profile }: Props) {
           })}
         </View>
 
+        {isSample && <Text style={styles.footnote}>{t('leaderboard.sampleNote')}</Text>}
         <Text style={styles.footnote}>{t('leaderboard.footnote')}</Text>
       </ScrollView>
     </LinearGradient>

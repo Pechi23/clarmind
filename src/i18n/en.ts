@@ -275,6 +275,7 @@ export const en = {
     hintNew: 'Meditate today to start a new constellation run.',
   },
   leaderboard: {
+    sampleNote: 'Sample players, shown until more people join.',
     kicker: 'LEADERBOARD',
     title: 'Top minds.',
     xp: '🏆 XP',
