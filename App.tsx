@@ -12,7 +12,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { getUserProfile } from './src/services/storage';
-import { configurePurchases } from './src/services/purchases';
+import { configurePurchases, refreshPremium } from './src/services/purchases';
 import { initAnalytics, capture } from './src/services/analytics';
 import { UserProfile } from './src/types';
 import OnboardingScreen from './src/screens/OnboardingScreen';
@@ -44,7 +44,11 @@ function Root() {
 
   useEffect(() => {
     (async () => {
-      configurePurchases(); // RevenueCat (native only; no-op on web / without a key)
+      // Resolve premium before the UI mounts so a paying subscriber doesn't see
+      // the paywall on a cold start. Cap the wait so a slow/offline RevenueCat
+      // never blocks launch (screens fall back to the free tier meanwhile).
+      const timeout = new Promise<void>((r) => setTimeout(r, 3000));
+      await Promise.race([configurePurchases(), timeout]);
       await initAnalytics();
       capture('app_open');
       // If already signed in, reconcile with the cloud before reading the profile
@@ -59,6 +63,7 @@ function Root() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'background' || s === 'inactive') backupIfSignedIn();
+      if (s === 'active') refreshPremium(); // pick up a purchase/restore made elsewhere
     });
     return () => sub.remove();
   }, []);
