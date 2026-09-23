@@ -2,5 +2,13 @@ name = "clarmind-ai-proxy"
 main = "worker.js"
 compatibility_date = "2026-01-01"
 
-# The Gemini key is NOT stored here — set it as a secret:
-#   wrangler secret put GEMINI_API_KEY
+# Secrets (NOT stored here) — set with wrangler:
+#   wrangler secret put GEMINI_API_KEY   # required: the Gemini key
+#   wrangler secret put APP_KEY          # optional: the shared X-App-Key gate
+#
+# Per-device daily rate limit (optional but recommended). Create the namespace
+# and paste its id below to enable it; leave it unbound to skip rate limiting.
+#   wrangler kv namespace create RATE_KV
+# [[kv_namespaces]]
+# binding = "RATE_KV"
+# id = "PASTE_KV_NAMESPACE_ID_HERE"

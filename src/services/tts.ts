@@ -4,6 +4,7 @@
 // (not configured, no access, or a network error) so callers fall back to
 // on-device speech.
 import { getVoiceGender } from './storage';
+import { proxyHeaders } from './ai';
 
 const TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 const PROXY_URL = process.env.EXPO_PUBLIC_AI_PROXY_URL;
@@ -32,7 +33,7 @@ export const synthesizeGemini = async (text: string): Promise<TtsAudio | null> =
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await proxyHeaders(),
       body: JSON.stringify(body),
     });
     if (!res.ok) return null;
