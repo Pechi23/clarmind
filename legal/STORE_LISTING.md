@@ -40,10 +40,10 @@ Every meditation lights a star in your personal night sky. Keep a 7-day streak a
 **🔥 Stay consistent, gently**
 Build streaks, earn XP, climb through calming Mind Ranks, and unlock achievements. Miss a day? A Stardust Shield can save your streak — because consistency should feel kind, not stressful. Daily challenges and a weekly reflection keep things fresh.
 
-**✨ Simple, private, calming**
+**✨ Simple, calming, yours**
 • A clean "luxury spa meets space" design
-• Your data stays on your device — no account required
-• Zodiac signs in English and Romanian
+• Works offline first; an optional free account backs up and syncs your progress
+• Available in 7 languages: English, Romanian, Italian, French, Spanish, German, Portuguese
 • Gentle daily reminders you control
 
 Clear your mind. Every day. Download Stillnova and begin.
@@ -65,29 +65,43 @@ Clear your mind. Every day. Download Stillnova and begin.
 
 ## Data Safety (Google Play) / App Privacy (App Store) answers
 
-**Does the app collect or share user data?**
-- Data is **not** collected by us (no backend). Data stays on the device.
-- The only data transmitted is a minimal prompt to Google Gemini for content generation.
+The app is local-first, but it DOES use several services, so the form must reflect
+them accurately (a false Data Safety declaration is a policy violation):
 
-**If the form requires per-type disclosure, declare:**
+- **Google Gemini** (via a Cloudflare Worker proxy): daily content, Clara chat, guided meditations.
+- **Supabase** (optional account): email + password sign-in and cloud backup/sync of your data.
+- **PostHog** (optional analytics): anonymous product analytics, opt-out in Settings.
+- **RevenueCat**: subscription purchases (Premium).
+- **Cloudflare leaderboard**: your chosen display name + stats, tied to a random device id.
+- **Photon (komoot)**: geocoding your birth place for the natal chart.
 
-| Data type | Collected | Shared | Purpose | Linked to identity | Notes |
-|---|---|---|---|---|---|
-| Name | Sent to Gemini only | To Google (processor) | App functionality (personalized content) | No | Stored locally; sent as a first name in a content prompt |
-| Other info (zodiac, goal) | Sent to Gemini only | To Google (processor) | App functionality | No | Stored locally |
-| App activity (sessions, mood, streaks) | Stored on device | No | App functionality | No | Never leaves the device |
+**Does the app collect or share user data?** Yes (see below).
 
-- **No** data used for advertising or tracking.
-- **No** third-party analytics SDKs.
+| Data type | Collected | Shared with | Purpose | Linked to identity |
+|---|---|---|---|---|
+| Email address | Only if you create an account | Supabase (processor) | Account, backup/sync | Yes (account) |
+| Name / display name | Yes | Gemini (content), Cloudflare leaderboard | Personalization, leaderboard | Leaderboard: to a random device id, not your identity |
+| Birth details (date, time, place) | Only if you use numerology/chart | Gemini, Photon (geocoding) | App functionality | Account (if synced) |
+| Messages to Clara | Yes | Gemini (processor) | App functionality | Account (if synced) |
+| App activity (sessions, mood, streaks, XP) | Yes | Supabase (if signed in) | App functionality, backup | Account (if synced) |
+| Device identifiers (random UUID) | Yes | PostHog, Cloudflare leaderboard | Analytics, leaderboard identity | No (random, not advertising id) |
+| Purchase history | Yes | RevenueCat (processor) | Subscriptions | Yes |
+
+- **No** data used for third-party advertising. **No** advertising IDs.
+- Analytics are **opt-out** in Settings; events carry only the random device UUID.
 - Data is **not** sold.
-- Users can request deletion by using in-app "Reset onboarding" (erases all local data).
+- **Deletion:** "Reset onboarding" erases all local data. Account deletion (Supabase) is
+  handled in-app once shipped; until then, users can request account + cloud data deletion
+  by emailing support. (Apple 5.1.1(v) / Google require in-app account deletion when accounts
+  can be created — see TODO P0 #9.)
 
 ---
 
 ## Support & marketing URLs
-- **Privacy Policy URL:** `https://<your-username>.github.io/clarmind/` (host the `legal/` folder via GitHub Pages)
-- **Support URL / email:** `george.pecherle@gmail.com`
-- **Marketing URL (optional):** GitHub repo or a simple landing page
+- **Privacy Policy URL:** `https://pechi23.github.io/clarmind/privacy.html`
+- **Terms URL:** `https://pechi23.github.io/clarmind/terms.html`
+- **Support email:** `stillnova.support@gmail.com`
+- **Marketing URL (optional):** the GitHub Pages landing page
 
 ---
 

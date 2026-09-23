@@ -1,6 +1,11 @@
-# ClarMind — Developer Reference
+# Stillnova — Developer Reference
 
 > **For future Claude sessions and developers.** Read this before making changes.
+>
+> **Rebrand note:** the app's display name is **Stillnova** (was ClarMind). The
+> GitHub repo, the `clarmind_*` AsyncStorage keys, the `clarmind://` scheme, the
+> Cloudflare worker names and the slug all stay `clarmind` internally on purpose.
+> The Android/iOS bundle id is `com.stillnova.app`.
 
 ## Writing style (HARD RULE)
 
@@ -8,9 +13,10 @@
 
 ## What ClarMind is
 
-A cross-platform mindfulness mobile app (Android + iOS + Web) built with **React Native + Expo (TypeScript)**.
-Targeted at users who want daily quotes, zodiac insights, breathing meditation, and stress relief.
-Romanian language is partially supported (zodiac sign names) — primary UI is English.
+A cross-platform mindfulness + astrology mobile app (Android + iOS + Web) built with **React Native + Expo (TypeScript)**.
+Targeted at users who want daily quotes, zodiac insights, breathing meditation, numerology/birth charts, and stress relief.
+Fully localized in **7 languages**: English (source of truth), Romanian, Italian, French, Spanish, German, Portuguese, all complete and enforced by `src/i18n/__tests__/parity.test.ts`.
+Freemium: 5 free Clara messages/day, Premium ($5/mo via RevenueCat) unlocks numerology, birth chart, and 50 AI requests/day.
 
 **Repo:** https://github.com/Pechi23/clarmind
 **Local path:** `C:\Users\User\Desktop\clarmind`
@@ -22,8 +28,12 @@ Romanian language is partially supported (zodiac sign names) — primary UI is E
 | Framework | Expo SDK 54 (React Native, TypeScript) | One codebase → Android, iOS, Web |
 | Navigation | `@react-navigation/bottom-tabs` | Native tabs |
 | Animations | `react-native-reanimated` v3 | Smooth breathing circle |
-| Storage | `@react-native-async-storage/async-storage` | Local-only, no backend |
-| AI provider | Google Gemini (`gemini-2.0-flash`) via REST | Free tier 1500 req/day |
+| Storage | `@react-native-async-storage/async-storage` | Local-first; optional Supabase account + cloud sync |
+| Accounts | Supabase (email/password + Google/Apple OAuth) | Optional sign-in, backs up/syncs `clarmind_*` state |
+| AI provider | Google Gemini (`gemini-3.6-flash` text, `gemini-2.5-flash-preview-tts` voice) via a Cloudflare Worker proxy (`proxy/`) | Key stays server-side; proxy enforces app-key + per-device cap |
+| Analytics | PostHog (optional, opt-out) | Anonymous device UUID only |
+| Leaderboard | Cloudflare Worker + D1 (`leaderboard-worker/`) | Real global board; server-side validation |
+| Geocoding | Photon (komoot) | Birth-place autocomplete + geocode (Nominatim forbids autocomplete) |
 | Audio | `expo-av` (loops via Pixabay CDN) | Ambient soundscapes |
 | Haptics | `expo-haptics` | Phase transitions, tab taps |
 | Notifications | `expo-notifications` | Daily reminders |
@@ -103,17 +113,17 @@ StreakResult        { streak, shields, shieldUsed, shieldEarned }
 
 All persisted to AsyncStorage under `clarmind_*` keys (see `services/storage.ts`). Language in `clarmind_language`.
 
-## Internationalization (EN/RO)
+## Internationalization (7 languages)
 
-- All user-facing strings live in `src/i18n/{en,ro}.ts` (nested; `en` is the source-of-truth shape).
+- All user-facing strings live in `src/i18n/{en,ro,it,fr,es,de,pt}.ts` (nested; `en` is the source-of-truth shape via `TranslationShape = typeof en`). All seven are typed `TranslationShape`, so a missing key is a **compile error**.
 - In components: `const { t, language, setLanguage } = useI18n();` then `t('home.affirmationLabel')`, `t('sky.hintProgress', { days, sign })`.
 - Content constants (patterns, soundscapes, challenges, achievements, ranks, zodiac, elements) localize via `constants/localize.ts` helpers keyed by their stable id.
-- Services (no React) use the module-level `translate()` / receive a `language` arg; the provider keeps it in sync. AI prompts (daily content, Clara, weekly reflection) take `language` and reply in it.
-- **Adding a string:** add the key to `en.ts` AND `ro.ts` (same path), then `t('...')` in the UI. Never hardcode display text.
+- Services (no React) use the module-level `translate()` / receive a `language` arg; the provider keeps it in sync via `_setModuleLanguage`. AI prompts (daily content, Clara, weekly reflection, numerology) take `language` and reply in it.
+- **Adding a string:** add the key to **all 7** locale files (same path), then `t('...')` in the UI. Never hardcode display text. `src/i18n/__tests__/parity.test.ts` fails on any missing key, extra key, empty value, placeholder mismatch, or em/en dash; run `npm run i18n:check`.
 
 ## Pure logic + tests
 
-Bug-prone logic is extracted into dependency-free `*Logic.ts` / `sessionSuggestion.ts` modules and unit-tested; the data layer is covered by AsyncStorage-mocked integration tests. `npm test` = 90 tests / 10 suites. Keep this pattern: new branching logic goes in a pure module with a test in `__tests__/`.
+Bug-prone logic is extracted into dependency-free `*Logic.ts` / `sessionSuggestion.ts` modules and unit-tested; the data layer is covered by AsyncStorage-mocked integration tests. `npm test` = 357 tests / 41 suites. Keep this pattern: new branching logic goes in a pure module with a test in `__tests__/`. Note: jest transforms only `.ts` (not the `.tsx` i18n index), so tests import the pure dict files, not the React provider.
 
 ## Design system
 
@@ -183,7 +193,8 @@ The babel/reanimated plugin requires `--clear` on first start. Restart Metro aft
 `src/services/claude.ts` (kept the filename for easy Claude migration later) calls Gemini REST directly:
 
 ```
-POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent
+(in production this goes through the Cloudflare Worker proxy in `proxy/`, which holds the key)
 ```
 
 - Free tier: 15 req/min, 1500 req/day
