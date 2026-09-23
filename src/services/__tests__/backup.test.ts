@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { exportData, importData } from '../backup';
+import { pruneOldKeys } from '../storage';
+import { localDateKey } from '../streakLogic';
 
 beforeEach(async () => { await AsyncStorage.clear(); });
 
@@ -67,5 +69,25 @@ describe('importData', () => {
     await expect(importData('not json')).rejects.toThrow();
     await expect(importData('{"app":"other","data":{}}')).rejects.toThrow();
     await expect(importData('{"app":"clarmind","data":[]}')).rejects.toThrow();
+  });
+});
+
+describe('pruneOldKeys', () => {
+  const dayKey = (offset: number) => localDateKey(new Date(Date.now() - offset * 86400000));
+
+  it('removes date-keyed entries older than a week, keeps recent ones and other keys', async () => {
+    await AsyncStorage.clear();
+    await AsyncStorage.setItem(`clarmind_ai_usage_${dayKey(0)}`, '3');   // today
+    await AsyncStorage.setItem(`clarmind_ai_usage_${dayKey(10)}`, '5');  // 10 days ago
+    await AsyncStorage.setItem(`clarmind_numerology_${dayKey(9)}_es`, '{}'); // 9 days ago
+    await AsyncStorage.setItem('clarmind_streak', '12'); // not date-keyed
+
+    const removed = await pruneOldKeys(7);
+
+    expect(removed).toBe(2);
+    expect(await AsyncStorage.getItem(`clarmind_ai_usage_${dayKey(0)}`)).toBe('3');
+    expect(await AsyncStorage.getItem(`clarmind_ai_usage_${dayKey(10)}`)).toBeNull();
+    expect(await AsyncStorage.getItem(`clarmind_numerology_${dayKey(9)}_es`)).toBeNull();
+    expect(await AsyncStorage.getItem('clarmind_streak')).toBe('12');
   });
 });

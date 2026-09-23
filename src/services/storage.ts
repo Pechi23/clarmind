@@ -3,7 +3,7 @@ import {
   UserProfile, DailyContent, MeditationSession, MoodEntry, StreakResult, ChatMessage,
   ReflectionEntry, CourseProgress,
 } from '../types';
-import { computeStreakUpdate, localDateKey } from './streakLogic';
+import { computeStreakUpdate, localDateKey, daysBetween } from './streakLogic';
 
 const KEYS = {
   USER_PROFILE: 'clarmind_user_profile',
@@ -64,6 +64,28 @@ export const clearUserProfile = async (): Promise<void> => {
   // Wipe everything Stillnova stored, including gamification keys owned by other modules
   const allKeys = await AsyncStorage.getAllKeys();
   await AsyncStorage.multiRemove(allKeys.filter((k) => k.startsWith('clarmind_')));
+};
+
+// Per-day keys (AI usage counters, cached daily numerology readings) are written
+// with a date in the key and never overwritten, so they pile up forever and bloat
+// every backup/sync blob (and web localStorage's ~5 MB budget). Prune ones older
+// than a week on app start.
+const DATE_KEYED_PREFIXES = ['clarmind_ai_usage_', 'clarmind_numerology_'];
+
+export const pruneOldKeys = async (maxAgeDays = 7): Promise<number> => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const today = localDateKey();
+    const stale = keys.filter((k) => {
+      if (!DATE_KEYED_PREFIXES.some((p) => k.startsWith(p))) return false;
+      const m = k.match(/(\d{4}-\d{2}-\d{2})/);
+      return !!m && daysBetween(m[1], today) > maxAgeDays;
+    });
+    if (stale.length) await AsyncStorage.multiRemove(stale);
+    return stale.length;
+  } catch {
+    return 0;
+  }
 };
 
 export const saveDailyContent = async (content: DailyContent): Promise<void> => {

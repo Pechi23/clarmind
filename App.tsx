@@ -11,7 +11,7 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
-import { getUserProfile } from './src/services/storage';
+import { getUserProfile, pruneOldKeys } from './src/services/storage';
 import { configurePurchases, refreshPremium } from './src/services/purchases';
 import { initAnalytics, capture } from './src/services/analytics';
 import { UserProfile } from './src/types';
@@ -51,6 +51,7 @@ function Root() {
       await Promise.race([configurePurchases(), timeout]);
       await initAnalytics();
       capture('app_open');
+      pruneOldKeys(); // best-effort cleanup of stale per-day keys
       // If already signed in, reconcile with the cloud before reading the profile
       // so restored data (birth details, progress) is present when screens mount.
       try { await syncOnLogin(); } catch {}
