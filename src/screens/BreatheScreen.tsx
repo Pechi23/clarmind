@@ -85,6 +85,10 @@ export default function BreatheScreen() {
 
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Always-current pattern for the phase timer, so resuming a session with a
+  // different pattern (e.g. an abandoned 3-phase 4-7-8 while Box is selected)
+  // does not advance phases against a stale, longer pattern and crash.
+  const patternRef = useRef<BreathingPattern>(pattern);
   // Wall-clock deadline for the session, so a timer suspended while the app is
   // backgrounded still ends at the right moment when the app resumes (JS
   // setInterval pauses in the background; decrementing a counter would freeze).
@@ -190,11 +194,12 @@ export default function BreatheScreen() {
         if (p <= 1) {
           // advance phase
           setPhaseIndex((i) => {
-            const next = (i + 1) % pattern.phases.length;
+            const phases = patternRef.current.phases;
+            const next = (i + 1) % phases.length;
             // Per-phase cue: a distinct subtle vibration for inhale / hold / exhale.
             if (phaseCuesRef.current && Platform.OS !== 'web') {
-              const from = pattern.phases[i].scale;
-              const to = pattern.phases[next].scale;
+              const from = phases[i % phases.length].scale;
+              const to = phases[next].scale;
               const h = to > from
                 ? Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium) // inhale (expanding)
                 : to < from
@@ -242,10 +247,12 @@ export default function BreatheScreen() {
     if (!resumable) return;
     const p = BREATHING_PATTERNS.find((bp) => bp.id === resumable.patternId) ?? pattern;
     setPattern(p);
+    patternRef.current = p; // sync immediately so the phase timer uses the resumed pattern
     setDurationMin(resumable.durationMin);
     setMix(resumable.mix);
     setSecondsLeft(resumable.secondsLeft);
-    setPhaseIndex(resumable.phaseIndex);
+    // Clamp to the resumed pattern's phase count (it may have fewer phases).
+    setPhaseIndex(Math.min(resumable.phaseIndex, p.phases.length - 1));
     setPhaseSecondsLeft(p.phases[resumable.phaseIndex]?.duration ?? p.phases[0].duration);
     setPaused(false);
     setMode('session');
@@ -257,10 +264,15 @@ export default function BreatheScreen() {
 
   const discardAbandoned = () => { clearInProgressSession(); setResumable(null); };
 
-  // when phase index changes, refresh phase counter
+  // Keep the phase timer's pattern reference current.
+  useEffect(() => { patternRef.current = pattern; }, [pattern]);
+
+  // when phase index changes, refresh phase counter (guard against a phaseIndex
+  // left over from a differently-shaped resumed pattern)
   useEffect(() => {
     if (mode === 'session') {
-      setPhaseSecondsLeft(pattern.phases[phaseIndex].duration);
+      const phase = pattern.phases[phaseIndex] ?? pattern.phases[0];
+      setPhaseSecondsLeft(phase.duration);
     }
   }, [phaseIndex, mode, pattern]);
 
