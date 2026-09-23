@@ -10,6 +10,7 @@ import AccountModal from '../components/AccountModal';
 import { getCurrentUser, onAuthChange, authConfigured, AuthUser } from '../services/auth';
 import { analyticsEnabled, getAnalyticsOptOut, setAnalyticsOptOut } from '../services/analytics';
 import * as Clipboard from 'expo-clipboard';
+import Constants from 'expo-constants';
 import DateTimePicker from '../components/DateTimePicker';
 import { exportData, importData } from '../services/backup';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -354,7 +355,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         {/* Mood trend */}
         <MoodTrendCard entries={moods} />
 
-        <Text style={styles.appVersion}>Stillnova · v1.6.0</Text>
+        <Text style={styles.appVersion}>Stillnova · v{Constants.expoConfig?.version ?? '1.7.1'}</Text>
       </ScrollView>
 
       {/* Settings — separate screen */}

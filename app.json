@@ -23,7 +23,7 @@
         "backgroundColor": "#0f0c29"
       },
       "package": "com.stillnova.app",
-      "versionCode": 2,
+      "versionCode": 8,
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan"
     },
