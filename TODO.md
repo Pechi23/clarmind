@@ -266,4 +266,8 @@ Most of that brainstorm ClarMind already had; these were the genuinely-new ones,
 
 ---
 
-**Last updated:** 2026-09-23 (All Claude-doable P0s done #1-#8 + #10; P1 #14/#15/#21 done; 357 tests; all 7 languages + alerts verified. Only #9 remains — account deletion + Sign in with Apple + paywall legal links — needs George's Apple/Supabase setup. Proxy hardening needs wrangler deploy + APP_KEY secret; a fresh APK carries all native fixes.)
+| 2026-09-24 | P1 #11/#12/#13/#18 | **#11 leaderboard integrity:** worker sanitizes names (profanity + letter-less -> Anon), clamps scores with cross-field plausibility (xp <= minutes*100+50k kills "0min 9999999xp"), 1 write/min per device (needs `wrangler deploy` of leaderboard-worker). **#12 fake users:** shipped builds never mix in samples (only real rows + you); samples kept only for no-backend dev, diversified to an international mix and labeled via localized `leaderboard.sampleNote` (7 locales). **#13 home fallback:** keep last-good content while regenerating, `responseMimeType: application/json`, and a localized `dailyFallback` (7 locales) so Home is never blank offline. **#18 stale copy:** corrected STORE_LISTING.md Data Safety (accurate per-service disclosure, 7 langs, support email, URLs), landing page (5 free msgs, 7 langs), CLAUDE.md refresh. 357 tests. |
+
+---
+
+**Last updated:** 2026-09-24 (P0 #1-#8+#10 and P1 #11/#12/#13/#14/#15/#18/#21 done; 357 tests; all 7 languages + alerts verified. Only P0 #9 remains — account deletion + Sign in with Apple + paywall legal links — needs George's Apple/Supabase setup. Deploys George owns: hardened AI proxy (wrangler deploy + APP_KEY + RATE_KV + rebuild w/ EXPO_PUBLIC_AI_APP_KEY) and leaderboard-worker (wrangler deploy). A fresh APK carries all native/client fixes.)
