@@ -13,7 +13,7 @@ automatically (the paywall already reads it). No app change or rebuild needed.
 | Market | Monthly | Annual | Annual / month | Notes |
 |---|---|---|---|---|
 | **Romania (RON)** | **14.99 RON** | **89.99 RON** | ~7.50 RON | ~$3.3; the cheap home + diaspora test market |
-| **Brazil (BRL)** | **R$ 15.90** | **R$ 95.90** | ~R$ 8.00 | ~$3; round local equivalent of the RON price |
+| **Brazil (BRL)** | **R$ 15.00** | **R$ 89.90** | ~R$ 7.49 | ~$2.80; matches the Romania monthly figure |
 | **Default (US and most of the world)** | **$4.99** | **$29.99** | ~$2.50 | Full price. Play/App Store convert to local currency, but override the markets below. |
 | Spain / Italy / Portugal (EUR) | €3.99 | €24.99 | ~€2.08 | Mid tier (optional; tune after launch) |
 | Germany / France (EUR) | €4.99 | €29.99 | ~€2.50 | Full price |
