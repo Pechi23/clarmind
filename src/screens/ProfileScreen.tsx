@@ -108,6 +108,17 @@ export default function ProfileScreen({ profile, onReset }: Props) {
   const [restoreOpen, setRestoreOpen] = useState(false);
   const [restoreText, setRestoreText] = useState('');
   const [backupMsg, setBackupMsg] = useState('');
+  // Hidden developer unlock: tap the version footer 7x to reveal the Premium
+  // testing toggle even in a release build. Invisible to real users; session-only.
+  const [devUnlock, setDevUnlock] = useState(false);
+  const versionTaps = React.useRef(0);
+  const onVersionTap = () => {
+    versionTaps.current += 1;
+    if (versionTaps.current >= 7 && !devUnlock) {
+      setDevUnlock(true);
+      showDialog('Developer unlock', 'Premium testing toggle enabled in Settings.');
+    }
+  };
 
   const onExportBackup = async () => {
     try {
@@ -356,7 +367,9 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         {/* Mood trend */}
         <MoodTrendCard entries={moods} />
 
-        <Text style={styles.appVersion}>Stillnova · v{Constants.expoConfig?.version ?? '1.7.1'}</Text>
+        <TouchableOpacity activeOpacity={1} onPress={onVersionTap} accessibilityRole="text">
+          <Text style={styles.appVersion}>Stillnova · v{Constants.expoConfig?.version ?? '1.7.2'}</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Settings — separate screen */}
@@ -459,7 +472,7 @@ export default function ProfileScreen({ profile, onReset }: Props) {
 
         {/* Premium testing unlock — dev builds only. Never shown in a production
             free build, or anyone could grant themselves Premium with one tap. */}
-        {__DEV__ && !isPaidVariant() && (
+        {(__DEV__ || devUnlock) && !isPaidVariant() && (
           <View style={styles.settingRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.settingTitle}>{t('profile.premiumTest')}</Text>

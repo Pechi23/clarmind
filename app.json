@@ -2,7 +2,7 @@
   "expo": {
     "name": "Stillnova",
     "slug": "clarmind",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "scheme": "clarmind",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,7 +28,7 @@
         "backgroundColor": "#0f0c29"
       },
       "package": "com.stillnova.app",
-      "versionCode": 9,
+      "versionCode": 10,
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan"
     },
