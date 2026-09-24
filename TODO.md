@@ -270,4 +270,8 @@ Most of that brainstorm ClarMind already had; these were the genuinely-new ones,
 
 ---
 
-**Last updated:** 2026-09-24 (P0 #1-#8+#10 and P1 #11/#12/#13/#14/#15/#18/#21 done; 357 tests; all 7 languages + alerts verified. Only P0 #9 remains — account deletion + Sign in with Apple + paywall legal links — needs George's Apple/Supabase setup. Deploys George owns: hardened AI proxy (wrangler deploy + APP_KEY + RATE_KV + rebuild w/ EXPO_PUBLIC_AI_APP_KEY) and leaderboard-worker (wrangler deploy). A fresh APK carries all native/client fixes.)
+| 2026-09-24 | Pricing + landing | Landing page now publishes to `dist/welcome.html` on build:web (was not deployed at all; the "3 free" the user saw was this stale, undeployed file). **Paywall** rebuilt to present annual (highlighted, computed save %, best-value) vs monthly, a free-trial badge when the product has an intro trial, and the required auto-renewal disclosure + tappable Terms/Privacy links — this completes the **paywall sub-item of #9**. Decision recorded: keep a **recurring** plan (AI cost is per-use/recurring; one-time = unbounded cost), add **annual + 7-day trial** as the default, keep monthly; optional capped lifetime later. Products must be created in App Store Connect / Play Console + a RevenueCat offering (annual + monthly) before the new UI shows real plans. 357 tests. |
+
+---
+
+**Last updated:** 2026-09-24 (P0 #1-#8+#10, P1 #11/#12/#13/#14/#15/#18/#21, and the paywall legal-links sub-item of #9 done; paywall now supports annual+monthly+trial; 357 tests. #9 REMAINING: in-app account deletion + Sign in with Apple (George's Apple/Supabase setup). George also owns: create store products + RevenueCat offering; wrangler deploy the hardened AI proxy and leaderboard-worker; fresh APK for native/client fixes.)
