@@ -38,6 +38,14 @@ if (fs.existsSync(publicDir)) {
   console.log('web-postbuild: copied public/*.html (legal pages) into dist.');
 }
 
+// 1c) Publish the marketing landing page at /welcome.html (self-contained; it
+// does not displace the app served at the site root).
+const landingSrc = path.resolve(__dirname, '..', 'landing', 'index.html');
+if (fs.existsSync(landingSrc)) {
+  fs.copyFileSync(landingSrc, path.join(DIST, 'welcome.html'));
+  console.log('web-postbuild: published landing page at /welcome.html.');
+}
+
 // 2) Write the web manifest. Relative paths keep it valid at root or /<repo>/.
 const manifest = {
   name: NAME,
