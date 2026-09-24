@@ -144,7 +144,7 @@ export default function NumerologyScreen({ profile, onClose, onUpdated }: Props)
     return (
       <LinearGradient colors={GRADIENTS.background} style={styles.container}>
         {Header}
-        <KeyboardAvoidingView style={styles.flex} behavior="padding">
+        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
             <Text style={styles.title}>{t('numerology.setupTitle')}</Text>
             <Text style={styles.subtitle}>{t('numerology.setupSubtitle')}</Text>

@@ -40,3 +40,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Build artifacts (attach to GitHub Releases, do not track)
+*.apk
+*.aab
