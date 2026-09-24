@@ -5,9 +5,9 @@
 // same leaderboard identity. Newest-wins between device and cloud.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase, getCurrentUser } from './auth';
-import { exportData, importData } from './backup';
+import { exportData, restoreState, BACKUP_VERSION } from './backup';
 import { resetDeviceIdCache } from './deviceId';
-import { decideSync } from './syncLogic';
+import { decideSync, mergeBlobs, Blob } from './syncLogic';
 
 const TABLE = 'user_data';
 const LAST_SYNC = 'clarmind_last_sync';
@@ -53,25 +53,52 @@ export const pushUserData = async (): Promise<boolean> => {
   return true;
 };
 
+// The cloud row stores a Backup object ({app,version,exportedAt,data}); pull its
+// inner key map. Handles either shape defensively.
+const blobDataOf = (v: any): Blob =>
+  (v && typeof v === 'object' && v.data && typeof v.data === 'object' && !Array.isArray(v.data))
+    ? v.data as Blob
+    : (v && typeof v === 'object' ? v as Blob : {});
+
 /**
- * Reconcile on login (or app start when already signed in): restore the cloud
- * copy if it's newer than our last sync, otherwise push the local copy up.
+ * Reconcile on login (or app start when already signed in). Instead of a
+ * destructive newest-wins restore (which wiped a device that had offline
+ * activity), MERGE local and cloud so neither side loses data: append-only
+ * collections union, counters take the max, scalars take the newer side. The
+ * merged result is written locally and pushed back so the cloud holds the union.
  */
 export const syncOnLogin = async (): Promise<SyncResult> => {
   if (!supabase) return 'noop';
   const user = await getCurrentUser();
   if (!user) return 'noop';
+
   const cloud = await pullUserData();
-  const lastSync = await getLastSync();
-  const action = decideSync(cloud ? cloud.updatedAt : null, lastSync);
-  if (action === 'restore' && cloud) {
-    await importData(JSON.stringify(cloud.data));
-    resetDeviceIdCache(); // the restored blob carries the account's device id
-    await setLastSync(cloud.updatedAt);
-    return 'restored';
+  const localMap = JSON.parse(await exportData()).data as Blob;
+
+  // Nothing in the cloud yet: just push local up.
+  if (!cloud) {
+    const ok = await pushUserData();
+    return ok ? 'pushed' : 'noop';
   }
-  const ok = await pushUserData();
-  return ok ? 'pushed' : 'noop';
+
+  const lastSync = await getLastSync();
+  const preferCloud = cloud.updatedAt > lastSync; // cloud is newer than our last sync
+  const cloudMap = blobDataOf(cloud.data);
+  const merged = mergeBlobs(localMap, cloudMap, preferCloud);
+
+  // Write the merged state locally (trusted: keep the account's device identity).
+  await restoreState(merged, { trusted: true });
+  resetDeviceIdCache();
+
+  // Push the merged union back so the cloud copy also has everything.
+  const now = Date.now();
+  const { error } = await supabase.from(TABLE).upsert({
+    user_id: user.id,
+    data: { app: 'clarmind', version: BACKUP_VERSION, exportedAt: new Date(now).toISOString(), data: merged },
+    updated_at: new Date(now).toISOString(),
+  });
+  if (!error) await setLastSync(now);
+  return preferCloud ? 'restored' : 'pushed';
 };
 
 /** Fire-and-forget backup used on app background / after activity. */

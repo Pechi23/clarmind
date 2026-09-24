@@ -31,17 +31,37 @@ export const exportData = async (): Promise<string> => {
 
 export interface ImportResult { imported: number; }
 
-// Keys that must never be restored from a pasted backup: the premium override
-// would let anyone unlock Premium by importing a crafted JSON, and the device id
-// is the leaderboard identity (importing someone else's is identity takeover).
-const IMPORT_BLOCKLIST = new Set([
-  'clarmind_premium_override',
-  'clarmind_device_id',
-]);
+// The premium override must never be restored from anywhere (a crafted JSON
+// would unlock Premium for free). The device id is the leaderboard identity:
+// importing someone else's from a PASTED backup is identity takeover, but cloud
+// sync (same signed-in account) legitimately restores it to keep one identity
+// across the user's own devices.
+const ALWAYS_BLOCK = new Set(['clarmind_premium_override']);
+const PASTE_ONLY_BLOCK = new Set(['clarmind_device_id']);
 
 /**
- * Restore from a backup string: validates it's a Stillnova backup, then REPLACES
- * the current Stillnova data with it. Throws on anything that isn't our format.
+ * Write a `clarmind_*` key map to storage, replacing existing Stillnova data.
+ * `trusted` (cloud sync) keeps the device id; untrusted (pasted backup) drops it.
+ */
+export const restoreState = async (
+  data: Record<string, unknown>,
+  opts?: { trusted?: boolean }
+): Promise<number> => {
+  const block = opts?.trusted ? ALWAYS_BLOCK : new Set([...ALWAYS_BLOCK, ...PASTE_ONLY_BLOCK]);
+  const entries = Object.entries(data).filter(
+    ([k, v]) => typeof k === 'string' && k.startsWith(PREFIX) && typeof v === 'string' && !block.has(k)
+  ) as [string, string][];
+
+  const existing = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(PREFIX));
+  if (existing.length) await AsyncStorage.multiRemove(existing);
+  if (entries.length) await AsyncStorage.multiSet(entries);
+  return entries.length;
+};
+
+/**
+ * Restore from a PASTED backup string: validates it's a Stillnova backup, then
+ * replaces the current Stillnova data with it. Throws on anything that isn't our
+ * format. (Cloud sync uses restoreState directly with trusted: true.)
  */
 export const importData = async (json: string): Promise<ImportResult> => {
   let parsed: any;
@@ -53,14 +73,6 @@ export const importData = async (json: string): Promise<ImportResult> => {
   if (!parsed || parsed.app !== 'clarmind' || typeof parsed.data !== 'object' || Array.isArray(parsed.data)) {
     throw new Error('not-a-clarmind-backup');
   }
-  const entries = Object.entries(parsed.data).filter(
-    ([k, v]) => typeof k === 'string' && k.startsWith(PREFIX) && typeof v === 'string'
-      && !IMPORT_BLOCKLIST.has(k)
-  ) as [string, string][];
-
-  // Replace existing Stillnova data so a restore is exact (not a merge).
-  const existing = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(PREFIX));
-  if (existing.length) await AsyncStorage.multiRemove(existing);
-  if (entries.length) await AsyncStorage.multiSet(entries);
-  return { imported: entries.length };
+  const imported = await restoreState(parsed.data, { trusted: false });
+  return { imported };
 };

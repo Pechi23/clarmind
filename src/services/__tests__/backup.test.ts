@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { exportData, importData } from '../backup';
+import { exportData, importData, restoreState } from '../backup';
 import { pruneOldKeys } from '../storage';
 import { localDateKey } from '../streakLogic';
 
@@ -51,6 +51,16 @@ describe('importData', () => {
     await importData(backup);
     expect(await AsyncStorage.getItem('clarmind_ok')).toBe('1');
     expect(await AsyncStorage.getItem('evil_key')).toBeNull();
+  });
+
+  it('cloud restore (trusted) keeps the device id but still drops the premium override', async () => {
+    await AsyncStorage.clear();
+    await restoreState(
+      { clarmind_streak: '4', clarmind_device_id: 'my-account-id', clarmind_premium_override: 'true' },
+      { trusted: true },
+    );
+    expect(await AsyncStorage.getItem('clarmind_device_id')).toBe('my-account-id'); // identity kept
+    expect(await AsyncStorage.getItem('clarmind_premium_override')).toBeNull();     // still blocked
   });
 
   it('never restores premium override or device id from a pasted backup', async () => {
