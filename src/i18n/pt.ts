@@ -4,6 +4,10 @@ import { TranslationShape } from './en';
 // TranslationShape type and the locale parity test. No em or en dashes.
 export const pt: TranslationShape = {
   account: {
+    delete: 'Eliminar conta',
+    deleteTitle: 'Eliminar a conta?',
+    deleteMsg: 'Isto elimina permanentemente a tua conta e todos os teus dados da cloud e deste dispositivo. Não pode ser anulado.',
+    deleteConfirm: 'Eliminar',
     title: 'Conta',
     settingRow: 'Conta',
     settingSubOut: 'Inicia sessão para backup e sincronização',

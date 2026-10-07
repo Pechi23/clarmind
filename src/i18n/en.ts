@@ -193,6 +193,10 @@ export const en = {
     terms: 'Terms & Conditions',
   },
   account: {
+    delete: 'Delete account',
+    deleteTitle: 'Delete account?',
+    deleteMsg: 'This permanently deletes your account and all your data from the cloud and this device. This cannot be undone.',
+    deleteConfirm: 'Delete',
     title: 'Account',
     settingRow: 'Account',
     settingSubOut: 'Sign in to back up and sync',

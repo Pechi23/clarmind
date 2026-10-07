@@ -195,6 +195,10 @@ export const ro: TranslationShape = {
     terms: 'Termeni și condiții',
   },
   account: {
+    delete: 'Șterge contul',
+    deleteTitle: 'Ștergi contul?',
+    deleteMsg: 'Asta îți șterge definitiv contul și toate datele din cloud și de pe acest dispozitiv. Nu se poate anula.',
+    deleteConfirm: 'Șterge',
     title: 'Cont',
     settingRow: 'Cont',
     settingSubOut: 'Conectează-te pentru backup și sincronizare',

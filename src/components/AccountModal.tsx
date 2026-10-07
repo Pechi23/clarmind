@@ -7,15 +7,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useI18n } from '../i18n';
 import {
   authConfigured, getCurrentUser, onAuthChange, signInEmail, signUpEmail,
-  signOut, resetPassword, signInOAuth, AuthUser,
+  signOut, resetPassword, signInOAuth, deleteAccount, AuthUser,
 } from '../services/auth';
 import { validateCredentials } from '../services/authValidate';
 import { syncOnLogin, pushUserData } from '../services/sync';
+import { clearUserProfile } from '../services/storage';
+import { showDialog } from './dialog';
 
-interface Props { visible: boolean; onClose: () => void; }
+interface Props { visible: boolean; onClose: () => void; onDeleted?: () => void }
 type Mode = 'signin' | 'signup' | 'forgot';
 
-export default function AccountModal({ visible, onClose }: Props) {
+export default function AccountModal({ visible, onClose, onDeleted }: Props) {
   const { t, language } = useI18n();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [mode, setMode] = useState<Mode>('signin');
@@ -73,6 +75,34 @@ export default function AccountModal({ visible, onClose }: Props) {
     finally { setBusy(false); }
   };
 
+  const onDeleteAccount = () => {
+    showDialog(
+      t('account.deleteTitle'),
+      t('account.deleteMsg'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('account.deleteConfirm'),
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            reset();
+            try {
+              await deleteAccount();        // remove cloud account + data, then sign out
+              await clearUserProfile();      // wipe all local device data
+              onClose();
+              onDeleted?.();                 // app returns to onboarding
+            } catch (e: any) {
+              setErr(e?.message ?? 'Error');
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   const close = () => { reset(); setPassword(''); onClose(); };
 
   return (
@@ -101,6 +131,9 @@ export default function AccountModal({ visible, onClose }: Props) {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => signOut()} activeOpacity={0.85} style={[styles.secondaryBtn, { marginTop: SPACING.sm }]}>
                   <Text style={styles.secondaryText}>{t('account.signOut')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={onDeleteAccount} disabled={busy} hitSlop={8} style={{ marginTop: SPACING.md, alignItems: 'center' }}>
+                  <Text style={styles.deleteLink}>{t('account.delete')}</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -204,6 +237,7 @@ const styles = StyleSheet.create({
   secondaryText: { fontFamily: FONTS.semiBold, fontSize: 15, color: COLORS.text },
   links: { marginTop: SPACING.lg, gap: SPACING.sm, alignItems: 'center' },
   link: { fontFamily: FONTS.medium, fontSize: 14, color: COLORS.primaryLight },
+  deleteLink: { color: '#fda4af', fontFamily: FONTS.medium, fontSize: 13, textDecorationLine: 'underline' },
   err: { color: '#fda4af', fontFamily: FONTS.medium, fontSize: 13, marginBottom: SPACING.sm },
   msg: { color: '#6BCB77', fontFamily: FONTS.medium, fontSize: 13, marginBottom: SPACING.sm },
 });

@@ -51,3 +51,13 @@ Defer until you have the $99 account.
 - Both keys are public-safe (the anon key is designed to ship in the app).
 - Without the keys, the Account screen shows "Accounts are not set up yet" and the
   app stays fully usable offline.
+
+## Account deletion (required by Apple & Google)
+
+Apple 5.1.1(v) and Google Play require in-app account deletion when users can
+create accounts. Apply the deletion function once:
+
+1. Supabase dashboard -> SQL Editor -> paste `supabase/delete_user.sql` -> Run.
+2. In the app (signed in): Profile -> Account -> "Delete account". It calls the
+   `delete_user` RPC (removes the auth user + their `user_data` row) and wipes
+   all local device data, then returns to onboarding.

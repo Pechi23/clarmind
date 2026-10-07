@@ -623,7 +623,11 @@ export default function ProfileScreen({ profile, onReset }: Props) {
         </LinearGradient>
       </Modal>
 
-      <AccountModal visible={accountOpen} onClose={() => setAccountOpen(false)} />
+      <AccountModal
+        visible={accountOpen}
+        onClose={() => setAccountOpen(false)}
+        onDeleted={() => { setAccountOpen(false); onReset(); }}
+      />
 
       <ShareCardModal
         visible={shareOpen}

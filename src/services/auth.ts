@@ -69,6 +69,18 @@ export const signOut = async (): Promise<void> => {
   try { await supabase?.auth.signOut(); } catch {}
 };
 
+/**
+ * Permanently delete the signed-in user's account and synced data (via the
+ * `delete_user` SECURITY DEFINER function; see supabase/delete_user.sql), then
+ * sign out. The caller is responsible for wiping local device data afterward.
+ */
+export const deleteAccount = async (): Promise<void> => {
+  if (!supabase) throw new Error('Auth not configured');
+  const { error } = await supabase.rpc('delete_user');
+  if (error) throw error;
+  try { await supabase.auth.signOut(); } catch {}
+};
+
 export const resetPassword = async (email: string): Promise<void> => {
   if (!supabase) throw new Error('Auth not configured');
   const redirectTo = makeRedirectUri({ scheme: 'clarmind', path: 'reset' });
