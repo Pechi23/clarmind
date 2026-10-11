@@ -1,4 +1,4 @@
-# Stillnova — Store Listing Copy
+# Stillnova Store Listing Copy
 
 Copy-paste ready text for the App Store and Google Play submissions. See `SHIPPING.md` for the step-by-step submission flow.
 
@@ -11,21 +11,21 @@ Copy-paste ready text for the App Store and Google Play submissions. See `SHIPPI
 `Calm, breathe & zodiac insight`
 
 ## Short description (Google Play, 80 chars max)
-`Daily mindfulness, breathing timers, zodiac insights & calm — clear your mind.`
+`Daily mindfulness, breathing, zodiac insights and calm. Clear your mind.`
 
 ## Promotional text (App Store, 170 chars, updatable without review)
-`Your daily moment of calm — AI-personalized reflections, breathing meditations, and a night sky that grows with every session. Breathe. Reflect. Bloom.`
+`Your daily moment of calm. AI-personalized reflections, breathing meditations, and a night sky that grows with every session. Breathe. Reflect. Bloom.`
 
 ---
 
 ## Full description (both stores, ~4000 chars max)
 
-**Stillnova helps you clear your mind — one breath at a time.**
+**Stillnova helps you clear your mind, one breath at a time.**
 
-Stillnova blends AI-personalized daily guidance, calming breathing meditations, and a touch of the cosmic into one beautifully simple app. No noise, no clutter — just your daily moment of calm.
+Stillnova blends AI-personalized daily guidance, calming breathing meditations, and a touch of the cosmic into one beautifully simple app. No noise, no clutter, just your daily moment of calm.
 
 **🌙 Your personal daily guide**
-Every day, Stillnova creates content made just for you: an inspiring quote, a personal affirmation, a zodiac insight, a practical stress-relief tip, and a small mindful task. Tell us your goal — better sleep, less stress, sharper focus, or simple curiosity — and your guidance adapts to it.
+Every day, Stillnova creates content made just for you: an inspiring quote, a personal affirmation, a zodiac insight, a practical stress-relief tip, and a small mindful task. Tell us your goal (better sleep, less stress, sharper focus, or simple curiosity) and your guidance adapts to it.
 
 **🌬️ Breathe with intention**
 Guided breathing meditations with a beautiful animated breathing circle, gentle haptics, and ambient soundscapes. Choose your rhythm:
@@ -38,7 +38,7 @@ Meditate for 2, 5, 10, or 20 minutes. After 9 PM, Stillnova gently shifts into a
 Every meditation lights a star in your personal night sky. Keep a 7-day streak and your stars connect into your own zodiac constellation. A quiet, gentle way to see your progress build over weeks and months.
 
 **🔥 Stay consistent, gently**
-Build streaks, earn XP, climb through calming Mind Ranks, and unlock achievements. Miss a day? A Stardust Shield can save your streak — because consistency should feel kind, not stressful. Daily challenges and a weekly reflection keep things fresh.
+Build streaks, earn XP, climb through calming Mind Ranks, and unlock achievements. Miss a day? A Stardust Shield can save your streak, because consistency should feel kind, not stressful. Daily challenges and a weekly reflection keep things fresh.
 
 **✨ Simple, calming, yours**
 • A clean "luxury spa meets space" design

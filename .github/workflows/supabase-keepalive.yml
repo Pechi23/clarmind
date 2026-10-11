@@ -1,0 +1,21 @@
+name: Supabase keep-alive
+
+# Free Supabase projects pause after 7 days with no activity, which breaks
+# login/sync for real users. Ping the project every 2 days so it stays awake.
+# (Hits public endpoints only; the project ref is already public in the app.)
+on:
+  schedule:
+    - cron: '0 6 */2 * *'   # every 2 days at 06:00 UTC
+  workflow_dispatch:         # allow a manual run from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          URL="https://rwfougwvwilyvdceroxd.supabase.co"
+          echo "auth health:"
+          curl -sS -m 20 -o /dev/null -w "  HTTP %{http_code}\n" "$URL/auth/v1/health" || true
+          echo "rest api:"
+          curl -sS -m 20 -o /dev/null -w "  HTTP %{http_code}\n" "$URL/rest/v1/" || true
